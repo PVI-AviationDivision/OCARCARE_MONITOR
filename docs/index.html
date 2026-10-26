@@ -35,11 +35,28 @@ button,input,select{font:inherit;color:inherit}
 .num{font-variant-numeric:tabular-nums}
 .wrap{max-width:1180px;margin:0 auto;padding:0 16px}
 /* login */
-#gate{min-height:100vh;display:grid;place-items:center;padding:24px 16px}
-.gbox{width:100%;max-width:380px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:28px 24px;box-shadow:0 10px 40px #0b2a5b14}
-.gbox h1{font-size:20px;margin:10px 0 4px;color:var(--brand)}
-.gbox p{margin:0 0 18px;color:var(--ink2);font-size:13px}
-.logo{width:44px;height:44px;border-radius:12px;background:var(--brand);display:grid;place-items:center;color:#fff;font-weight:800}
+#gate{min-height:100vh;display:grid;place-items:center;padding:24px 16px;position:relative;overflow:hidden;color:#fff;
+  background:radial-gradient(900px 500px at 85% 20%,#2a78d655,transparent 60%),radial-gradient(700px 420px at 70% 95%,#eb683440,transparent 60%),linear-gradient(135deg,#061633 0%,#0b2a5b 55%,#123a78 100%)}
+#gate .bgimg{position:absolute;inset:0;background:url(img/login.webp) center/cover no-repeat;opacity:0;transition:opacity .8s}
+@media (max-width:700px){#gate .bgimg{background-position:68% center}#gate .bgimg::after{background:linear-gradient(180deg,#061633cc 0%,#06163399 60%,#06163340 100%)}}
+#gate .bgimg.ok{opacity:1}
+#gate .bgimg::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#061633e6 0%,#06163399 40%,#06163320 75%)}
+#gate .grid-lines{position:absolute;inset:0;background-image:linear-gradient(#ffffff0a 1px,transparent 1px),linear-gradient(90deg,#ffffff0a 1px,transparent 1px);background-size:44px 44px;mask-image:radial-gradient(ellipse at 60% 50%,#000 30%,transparent 75%)}
+#gate .road{position:absolute;left:-10%;right:-10%;bottom:12%;height:2px;background:linear-gradient(90deg,transparent,#eb6834,#ffb58f,transparent);filter:drop-shadow(0 0 6px #eb6834);opacity:.55;animation:road 6s linear infinite}
+#gate .road.r2{bottom:18%;background:linear-gradient(90deg,transparent,#3987e5,#9ec5f4,transparent);filter:drop-shadow(0 0 6px #3987e5);animation-duration:9s;animation-direction:reverse}
+@keyframes road{from{transform:translateX(-25%)}to{transform:translateX(25%)}}
+.gbox{position:relative;z-index:2;width:100%;max-width:400px;background:#ffffff14;border:1px solid #ffffff2e;border-radius:20px;padding:30px 26px;box-shadow:0 30px 80px #0006;backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%)}
+.gbox h1{font-size:24px;margin:14px 0 4px;color:#fff;letter-spacing:-.3px}
+.gbox p{margin:0 0 20px;color:#d6e2f5;font-size:13px}
+.gbox .brandline{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.gbox .brandline span{font-size:11px;font-weight:700;letter-spacing:.4px;padding:4px 9px;border-radius:999px;background:#ffffff1a;border:1px solid #ffffff26;color:#eaf1ff}
+.gbox .field{background:#ffffffeb;color:#0f1b2d;border-color:transparent}
+.gbox .chk{color:#d6e2f5}
+.gbox .btn.pri{background:linear-gradient(90deg,#eb6834,#f08a3e);border:0;box-shadow:0 8px 24px #eb683455}
+.gbox .err{color:#ffb4b4}
+@media (min-width:900px){#gate{place-items:center start;padding-left:9vw}}
+@media (prefers-reduced-motion:reduce){#gate .road{animation:none}}
+.logo{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#eb6834,#f5a04a);display:grid;place-items:center;color:#fff;font-weight:800;box-shadow:0 8px 20px #eb683455}
 :root[data-theme="dark"] .logo{background:#163f80}
 .field{width:100%;padding:12px 14px;border:1px solid var(--line2);border-radius:10px;background:var(--surface2);outline:none;font-size:15px}
 .field:focus{border-color:var(--brand2);box-shadow:0 0 0 3px #2a78d633}
@@ -50,10 +67,12 @@ button,input,select{font:inherit;color:inherit}
 .chk{display:flex;align-items:center;gap:8px;margin-top:12px;color:var(--ink2);font-size:13px}
 .err{color:var(--bad);font-size:13px;margin-top:10px;min-height:18px}
 /* app */
-header.top{background:var(--brand);color:#fff}
-:root[data-theme="dark"] header.top{background:#0d1e3d}
-header.top .wrap{display:flex;align-items:center;gap:12px;padding-top:14px;padding-bottom:14px;flex-wrap:wrap}
-header.top .t{font-weight:800;font-size:17px;letter-spacing:.2px}
+header.top{color:#fff;position:relative;overflow:hidden;
+  background:radial-gradient(600px 200px at 90% 0%,#2a78d655,transparent 70%),radial-gradient(500px 180px at 70% 120%,#eb683433,transparent 70%),linear-gradient(120deg,#061633,#0b2a5b 60%,#123a78)}
+.has-banner header.top{background:linear-gradient(90deg,#061633f2 0%,#0b2a5bd9 45%,#0b2a5b66 100%),url(img/banner.webp) center/cover,#0b2a5b}
+header.top .wrap{display:flex;align-items:center;gap:12px;padding-top:20px;padding-bottom:20px;flex-wrap:wrap;position:relative}
+header.top .t{font-weight:800;font-size:20px;letter-spacing:-.2px;display:flex;align-items:center;gap:10px}
+header.top .t .logo{width:34px;height:34px;border-radius:10px;font-size:12px}
 header.top .s{font-size:12px;opacity:.8}
 header.top .sp{flex:1}
 .pill{display:inline-flex;align-items:center;gap:6px;background:#ffffff1f;border:1px solid #ffffff33;border-radius:999px;padding:5px 12px;font-size:12px;white-space:nowrap}
@@ -71,7 +90,28 @@ main{padding:18px 0 40px}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;min-width:0}
 .card h2{font-size:15px;margin:0 0 2px}
 .card .sub{color:var(--ink3);font-size:12px;margin-bottom:12px}
+.kpi{position:relative;overflow:hidden}
+.kpi .kt{display:flex;justify-content:space-between;gap:6px;align-items:flex-start}
 .kpi .l{font-size:12px;color:var(--ink2);font-weight:600}
+.kpi .dl{font-size:11px;font-weight:700;padding:2px 7px;border-radius:999px;white-space:nowrap}
+.kpi .dl.up{background:var(--good-soft);color:var(--good)}.kpi .dl.dn{background:var(--bad-soft);color:var(--bad)}
+.kpi .sp{display:block;width:100%;height:30px;margin-top:8px}
+.kpi .sp path.a{fill:var(--bar);opacity:.12}.kpi .sp path.l{fill:none;stroke:var(--bar);stroke-width:1.8;vector-effect:non-scaling-stroke}
+.kpi.hl .sp path.a{fill:var(--accent)}.kpi.hl .sp path.l{stroke:var(--accent)}
+.hi{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start;background:linear-gradient(135deg,var(--surface) 0%,var(--surface) 60%,var(--accent-soft) 100%);margin-bottom:12px}
+.hi .ic{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,#eb6834,#f5a04a);color:#fff;font-size:20px;box-shadow:0 6px 16px #eb683440}
+.hi h2{font-size:15px;margin:2px 0 8px}
+.hi ul{margin:0;padding:0;list-style:none;display:grid;gap:7px}
+.hi li{display:flex;gap:9px;align-items:flex-start;font-size:13.5px;line-height:1.5}
+.hi li i{flex:none;width:8px;height:8px;border-radius:50%;margin-top:7px;background:var(--bar)}
+.hi li i.g{background:var(--good)}.hi li i.w{background:var(--warn)}.hi li i.b{background:var(--bad)}
+.shero{display:flex;align-items:center;gap:16px;margin:2px 0 14px}
+.shero h1{font-size:20px;margin:0;letter-spacing:-.2px}
+.shero p{margin:2px 0 0;color:var(--ink3);font-size:13px}
+.shero img{width:72px;height:72px;object-fit:contain;margin-left:auto;flex:none}
+.card{animation:rise .5s ease both}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.card{animation:none}}
 .kpi .v{font-size:24px;font-weight:800;margin-top:4px;letter-spacing:-.3px}
 .kpi .d{font-size:12px;color:var(--ink3);margin-top:2px}
 .kpi.hl{border-color:#eb683455;background:linear-gradient(180deg,var(--accent-soft),var(--surface))}
@@ -131,10 +171,12 @@ footer{color:var(--ink3);font-size:12px;padding:10px 0 30px}
 </head>
 <body>
 <div id="gate">
+  <div class="bgimg" id="gbg"></div><div class="grid-lines"></div><div class="road"></div><div class="road r2"></div>
   <form class="gbox" id="gform" autocomplete="on">
     <div class="logo">OC</div>
     <h1>OCARCARE Monitor</h1>
-    <p>Báo cáo vận hành OCARCARE · VPBank × OPES × BH PVI<br>Nhập mật khẩu được cung cấp để xem số liệu.</p>
+    <p>Báo cáo vận hành hằng ngày chương trình bảo hiểm vật chất xe ô tô OCARCARE.<br>Nhập mật khẩu được cung cấp để xem số liệu.</p>
+    <div class="brandline"><span>VPBank</span><span>OPES</span><span>BH PVI</span></div>
     <input type="text" name="username" value="ocarcare" autocomplete="username" hidden>
     <input class="field" id="pw" type="password" placeholder="Mật khẩu" autocomplete="current-password" autofocus>
     <label class="chk"><input type="checkbox" id="rem"> Ghi nhớ trên thiết bị này</label>
@@ -145,7 +187,7 @@ footer{color:var(--ink3);font-size:12px;padding:10px 0 30px}
 
 <div id="app" hidden>
 <header class="top"><div class="wrap">
-  <div><div class="t">OCARCARE Monitor</div><div class="s">VPBank × OPES × BH PVI · luỹ kế từ <span id="hStart"></span></div></div>
+  <div><div class="t"><span class="logo">OC</span>OCARCARE Monitor</div><div class="s">VPBank × OPES × BH PVI · luỹ kế từ <span id="hStart"></span></div></div>
   <div class="sp"></div>
   <span class="pill" id="hDate"></span>
   <button class="hbtn" id="logout" title="Đăng xuất">Đăng xuất</button>
@@ -160,6 +202,8 @@ footer{color:var(--ink3);font-size:12px;padding:10px 0 30px}
 <main><div class="wrap">
 
 <section class="sec on" id="ov">
+  <div class="shero"><div><h1>Tổng quan</h1><p>Luỹ kế toàn chương trình, diễn biến theo ngày, tuần, tháng</p></div><img src="img/ic-1.webp" alt="" onerror="this.remove()"></div>
+  <div class="card hi" id="hilite"></div>
   <div class="grid k4" id="kpis"></div>
   <div class="row2">
     <div class="card">
@@ -180,6 +224,7 @@ footer{color:var(--ink3);font-size:12px;padding:10px 0 30px}
 </section>
 
 <section class="sec" id="un">
+  <div class="shero"><div><h1>Đơn vị BH PVI</h1><p>Kết quả, độ phủ điểm bán và nhịp ra đơn của 16 đơn vị</p></div><img src="img/ic-2.webp" alt="" onerror="this.remove()"></div>
   <div class="card">
     <div class="hd"><div><h2>Kết quả theo đơn vị BH PVI</h2><div class="sub">Bấm vào tên đơn vị để xem danh sách điểm bán</div></div>
       <button class="btn" data-csv="units">⬇ Tải Excel (CSV)</button></div>
@@ -189,6 +234,7 @@ footer{color:var(--ink3);font-size:12px;padding:10px 0 30px}
 </section>
 
 <section class="sec" id="pt">
+  <div class="shero"><div><h1>Điểm bán</h1><p>Toàn bộ CN, PGD, TTTC, House Hold và Hub xe trong mapping</p></div><img src="img/ic-3.webp" alt="" onerror="this.remove()"></div>
   <div class="card">
     <div class="hd"><div><h2>Danh sách điểm bán</h2><div class="sub" id="ptSub"></div></div>
       <button class="btn" data-csv="points">⬇ Tải Excel (CSV)</button></div>
@@ -202,10 +248,12 @@ footer{color:var(--ink3);font-size:12px;padding:10px 0 30px}
 </section>
 
 <section class="sec" id="nd">
+  <div class="shero"><div><h1>Tỷ trọng nhà đồng</h1><p>Thị phần BH PVI so với các nhà đồng khác trên kênh OCARCARE</p></div><img src="img/ic-4.webp" alt="" onerror="this.remove()"></div>
   <div id="ndBody"></div>
 </section>
 
 <section class="sec" id="rc">
+  <div class="shero"><div><h1>Đối soát OPES × BH PVI</h1><p>Các hợp đồng chênh lệch giữa hai bên cần kiểm tra</p></div><img src="img/ic-5.webp" alt="" onerror="this.remove()"></div>
   <div id="rcBody"></div>
 </section>
 
@@ -214,10 +262,12 @@ footer{color:var(--ink3);font-size:12px;padding:10px 0 30px}
 </div>
 <div class="tip" id="tip"></div>
 
-<script src="data.enc.js?v=20261026114739"></script>
+<script src="data.enc.js?v=20261026120045"></script>
 <script>
 "use strict";
 const $=s=>document.querySelector(s);
+(function(){const i=new Image(); i.onload=()=>$('#gbg').classList.add('ok'); i.src='img/login.webp';
+  const b=new Image(); b.onload=()=>document.documentElement.classList.add('has-banner'); b.src='img/banner.webp';})();
 const KEY='ocar_mon_pw';
 const b64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 async function decrypt(pw){
@@ -257,6 +307,7 @@ const ddmm=s=>{const d=pd(s);return String(d.getDate()).padStart(2,'0')+'/'+Stri
 const ddmmyy=s=>ddmm(s)+'/'+pd(s).getFullYear();
 const mlabel=m=>'T'+(+m.slice(5))+'/'+m.slice(0,4);
 const fold=s=>String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').toLowerCase();
+const nm=z=>z.k==='HUB'?(/BAC|BẮC/i.test(z.n)?'Hub xe Miền Bắc':/NAM/i.test(z.n)?'Hub xe Miền Nam':z.n):z.n;
 const KIND={CN:'CN',PGD:'PGD',TTTC:'TTTC',HHB:'House Hold',HUB:'Hub xe',HO:'Hội sở'};
 
 /* tooltip */
@@ -291,16 +342,54 @@ function render(data){
   const dayNo=+rd.slice(8,10);
   const pm=days.filter(d=>d[0].slice(0,7)===prevM && +d[0].slice(8,10)<=dayNo), pmP=pm.reduce((s,d)=>s+d[2],0);
   const last7=days.slice(-8,-1), avg7=last7.reduce((s,d)=>s+d[1],0)/Math.max(1,last7.length);
-  const k=(l,v,d,cls='')=>`<div class="card kpi ${cls}"><div class="l">${l}</div><div class="v num">${v}</div><div class="d">${d}</div></div>`;
+  const full=days.slice(0,-1);                                   // bỏ ngày số liệu (chưa đủ ngày)
+  const w1=full.slice(-7), w0=full.slice(-14,-7);
+  const sum=(a,i)=>a.reduce((s,d)=>s+d[i],0);
+  const dlt=(cur,prev,label='so 7 ngày trước')=>prev?`<span class="dl ${cur>=prev?'up':'dn'}" title="${label}">${cur>=prev?'▲':'▼'} ${pctf(Math.abs(cur/prev-1),0)}</span>`:'';
+  const spark=arr=>{ if(!arr.length) return ''; const mx=Math.max(1,...arr), n=arr.length;
+    const pts=arr.map((v,i)=>[(i/(n-1||1))*100, 28-(v/mx)*25-1.5]);
+    const l='M'+pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' L');
+    return `<svg class="sp" viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true"><path class="a" d="${l} L100,30 L0,30 Z"/><path class="l" d="${l}"/></svg>`; };
+  // điểm bán có đơn luỹ kế theo ngày (14 ngày)
+  const firsts=P.filter(z=>z.first).map(z=>z.first).sort();
+  const actOn=d=>firsts.filter(f=>f<=d).length;
+  const last14=full.slice(-14).map(d=>d[0]);
+  const newPts7=P.filter(z=>z.first&&ago(z.first)<=7);
+  const K=o=>`<div class="card kpi ${o.cls||''}"><div class="kt"><div class="l">${o.l}</div>${o.dl||''}</div><div class="v num"${o.to!=null?` data-to="${o.to}" data-f="${o.f||'n'}"`:''}>${o.v}</div><div class="d">${o.d}</div>${o.sp?spark(o.sp):''}</div>`;
   $('#kpis').innerHTML=
-    k('HĐBH luỹ kế',vi(M.total_n),`Từ ${ddmm(M.start)} · TB 7 ngày qua ${avg7.toLocaleString('vi-VN',{maximumFractionDigits:1})} HĐ/ngày`)+
-    k('Phí bảo hiểm (100%, chưa VAT)',money(M.total_p),`Phí BQ ${money(M.total_n?M.total_p/M.total_n:0)}/HĐBH`)+
-    k(`Phần BH PVI (${Math.round(share*100)}%)`,money(M.total_p*share),`Tỷ lệ đồng bảo hiểm ${Math.round(share*100)}%`,'hl')+
-    k('Điểm bán có đơn',`${act}/${P.length}`,`Độ phủ ${pctf(act/P.length)}`)+
-    k(`Ngày ${ddmm(y[0])}`,`${vi(y[1])} HĐBH`,`${money(y[2])} · phần BH PVI ${money(y[2]*share)}`)+
-    k(`Tháng ${+curM.slice(5)} (đến ${ddmm(rd)})`,money(mtdP),`${vi(mtdN)} HĐBH`+(pmP?` · <span class="${mtdP>=pmP?'up':'dn'}">${mtdP>=pmP?'▲':'▼'} ${pctf(Math.abs(mtdP/pmP-1),0)}</span> so cùng kỳ T${+prevM.slice(5)}`:''))+
-    k('Điểm bán có đơn tháng này',vi(P.filter(z=>z.m[curM]).length),`Trên ${P.length} điểm trong mapping`)+
-    k(`Điểm "ngủ" > ${M.stale_days} ngày`,vi(P.filter(z=>z.pn&&ago(z.last)>M.stale_days).length),`Đã có đơn nhưng lâu chưa có đơn mới`);
+    K({l:'HĐBH luỹ kế',v:vi(M.total_n),to:M.total_n,d:`TB 7 ngày qua ${avg7.toLocaleString('vi-VN',{maximumFractionDigits:1})} HĐ/ngày`,dl:dlt(sum(w1,1),sum(w0,1)),sp:full.slice(-14).map(d=>d[1])})+
+    K({l:'Phí BH (100%, chưa VAT)',v:money(M.total_p),to:M.total_p,f:'m',d:`Phí BQ ${money(M.total_n?M.total_p/M.total_n:0)}/HĐBH`,dl:dlt(sum(w1,2),sum(w0,2)),sp:full.slice(-14).map(d=>d[2])})+
+    K({l:`Phần BH PVI (${Math.round(share*100)}%)`,v:money(M.total_p*share),to:M.total_p*share,f:'m',d:`7 ngày qua: ${money(sum(w1,2)*share)}`,cls:'hl',sp:full.slice(-14).map(d=>d[2]*share)})+
+    K({l:'Điểm bán có đơn',v:`${act}/${P.length}`,d:`Độ phủ ${pctf(act/P.length)} · +${newPts7.length} điểm mới trong 7 ngày`,sp:last14.map(actOn)})+
+    K({l:`Ngày ${ddmm(y[0])}`,v:`${vi(y[1])} HĐBH`,d:`${money(y[2])} · phần BH PVI ${money(y[2]*share)}`,dl:dlt(y[1],avg7,'so TB 7 ngày')})+
+    K({l:`Tháng ${+curM.slice(5)} (đến ${ddmm(rd)})`,v:money(mtdP),to:mtdP,f:'m',d:`${vi(mtdN)} HĐBH`+(pmP?` · so cùng kỳ T${+prevM.slice(5)}`:''),dl:pmP?dlt(mtdP,pmP,'so cùng kỳ tháng trước'):''})+
+    K({l:'Điểm bán có đơn tháng này',v:vi(P.filter(z=>z.m[curM]).length),to:P.filter(z=>z.m[curM]).length,d:`Trên ${P.length} điểm trong mapping`})+
+    K({l:`Điểm "ngủ" > ${M.stale_days} ngày`,v:vi(P.filter(z=>z.pn&&ago(z.last)>M.stale_days).length),d:`Đã có đơn nhưng lâu chưa có đơn mới`});
+  // số chạy
+  (function(){ const els=[...document.querySelectorAll('#kpis [data-to]')]; if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const t0=performance.now(), dur=900;
+    const step=t=>{ const k_=Math.min(1,(t-t0)/dur), e=1-Math.pow(1-k_,3);
+      els.forEach(el=>{const to=+el.dataset.to, v=to*e; el.textContent=el.dataset.f==='m'?money(v):vi(Math.round(v));}); if(k_<1) requestAnimationFrame(step); };
+    requestAnimationFrame(step); })();
+
+  /* ---------- điểm nhấn ---------- */
+  (function(){
+    const L=[], tot7n=sum(w1,1), tot7p=sum(w1,2), prev7p=sum(w0,2);
+    const cmpAvg=y[1]>=avg7*1.1?'cao hơn':y[1]<=avg7*0.9?'thấp hơn':'xấp xỉ';
+    const WD=['Chủ nhật','Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'];
+    L.push(['',`${WD[pd(y[0]).getDay()]} <b>${ddmm(y[0])}</b>: <b>${vi(y[1])} HĐBH</b>, ${money(y[2])} — ${cmpAvg} mức trung bình 7 ngày (${avg7.toLocaleString('vi-VN',{maximumFractionDigits:1})} HĐ/ngày).`]);
+    if(prev7p) L.push([tot7p>=prev7p?'g':'w',`7 ngày qua (${ddmm(w1[0][0])}–${ddmm(w1[w1.length-1][0])}): <b>${vi(tot7n)} HĐBH</b>, ${money(tot7p)}, <b>${tot7p>=prev7p?'tăng':'giảm'} ${pctf(Math.abs(tot7p/prev7p-1),0)}</b> so với 7 ngày trước đó.`]);
+    const topP=P.filter(z=>z.w&&z.w[1]>0).sort((a,b)=>b.w[1]-a.w[1]).slice(0,3);
+    if(topP.length) L.push(['g',`Điểm bán dẫn đầu 7 ngày: ${topP.map((z,i)=>`<b>${esc(nm(z))}</b> (${money(z.w[1])})`).join(', ')}.`]);
+    const uw={}; P.forEach(z=>{ if(z.w&&z.w[1]) uw[z.v]=(uw[z.v]||0)+z.w[1]; });
+    const tu=Object.entries(uw).sort((a,b)=>b[1]-a[1])[0];
+    if(tu) L.push(['g',`Đơn vị BH PVI sôi động nhất 7 ngày: <b>${esc(tu[0])}</b> với ${money(tu[1])}.`]);
+    if(newPts7.length) L.push(['g',`<b>${newPts7.length} điểm bán</b> có đơn đầu tiên trong 7 ngày: ${newPts7.slice(0,4).map(z=>esc(nm(z))).join(', ')}${newPts7.length>4?` và ${newPts7.length-4} điểm khác`:''}.`]);
+    const UL0={}; P.forEach(z=>{const o=(UL0[z.v]=UL0[z.v]||{n:0,last:null}); o.n+=z.pn; if(z.last&&(!o.last||z.last>o.last)) o.last=z.last;});
+    const zero=Object.entries(UL0).filter(([k,o])=>!o.n).map(([k])=>k), slow=Object.entries(UL0).filter(([k,o])=>o.n&&ago(o.last)>M.stale_days/2).map(([k,o])=>`${k} (${ago(o.last)} ngày)`);
+    if(zero.length||slow.length) L.push(['b',[zero.length?`Chưa có đơn: <b>${zero.map(esc).join(', ')}</b>`:'',slow.length?`lâu chưa có đơn mới: <b>${slow.map(esc).join(', ')}</b>`:''].filter(Boolean).join('; ')+'.']);
+    $('#hilite').innerHTML=`<div class="ic">✦</div><div><h2>Điểm nhấn</h2><ul>${L.map(l=>`<li><i class="${l[0]}"></i><span>${l[1]}</span></li>`).join('')}</ul></div>`;
+  })();
 
   /* ---------- daily chart ---------- */
   let mode='n';
@@ -380,7 +469,7 @@ function render(data){
     const a=PF.filter(z=>z.pn).length, sp=PF.reduce((s,z)=>s+z.p,0);
     $('#ptSub').textContent=`${PF.length} điểm · ${a} điểm có đơn · ${money(sp)}`;
     $('#tPoint').innerHTML=`<thead><tr>${cols.map(c=>`<th class="s ${c[2]||''}" data-k="${c[0]}">${c[1]}${sortK===c[0]?(sortD<0?' ↓':' ↑'):''}</th>`).join('')}</tr></thead><tbody>`+
-      (PF.length?PF.slice(0,600).map(z=>`<tr><td><b style="font-weight:600">${esc(z.n)}</b><div class="note" style="margin:0">${esc(z.c)}${z.pr?' · '+esc(z.pr):''}</div></td><td><span class="tag">${esc(KIND[z.k]||z.k)}</span></td><td>${esc(z.vg)}</td><td>${esc(z.v)}</td><td class="r num">${z.pn?vi(z.pn):'—'}</td><td class="r num">${z.p?money(z.p):'—'}</td><td class="r num">${z.m[curM]?money(z.m[curM][1]):'—'}</td><td>${lastTag(z.last)}</td></tr>`).join(''):`<tr><td colspan="8" class="empty">Không có điểm bán phù hợp</td></tr>`)+'</tbody>';
+      (PF.length?PF.slice(0,600).map(z=>`<tr><td><b style="font-weight:600">${esc(nm(z))}</b><div class="note" style="margin:0">${esc(z.c)}${z.pr?' · '+esc(z.pr):''}</div></td><td><span class="tag">${esc(KIND[z.k]||z.k)}</span></td><td>${esc(z.vg)}</td><td>${esc(z.v)}</td><td class="r num">${z.pn?vi(z.pn):'—'}</td><td class="r num">${z.p?money(z.p):'—'}</td><td class="r num">${z.m[curM]?money(z.m[curM][1]):'—'}</td><td>${lastTag(z.last)}</td></tr>`).join(''):`<tr><td colspan="8" class="empty">Không có điểm bán phù hợp</td></tr>`)+'</tbody>';
   }
   $('#tPoint').addEventListener('click',e=>{const th=e.target.closest('th[data-k]'); if(!th) return; const k=th.dataset.k; if(sortK===k) sortD=-sortD; else {sortK=k; sortD=['n','k','vg','v'].includes(k)?1:-1;} drawPoints();});
   ['#fQ','#fU','#fK','#fV','#fS'].forEach(s=>$(s).addEventListener('input',drawPoints));

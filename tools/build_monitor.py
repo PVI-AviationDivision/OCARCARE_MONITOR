@@ -259,8 +259,12 @@ def main():
         if not rec:
             u = unmapped[x["bank"] or "(trống)"]; u[0] += 1 if new else 0; u[1] += x["fee"]
             continue
-        z = pts.setdefault(rec["c"], dict(n=0, p=0.0, m={}, last=None, first=None))
+        z = pts.setdefault(rec["c"], dict(n=0, p=0.0, m={}, last=None, first=None, w=[0, 0.0], y=[0, 0.0]))
         z["n"] += 1 if new else 0
+        if x["issued"] > rdate - dt.timedelta(days=7):          # 7 ngày gần nhất (gồm ngày số liệu)
+            z["w"][0] += 1 if new else 0; z["w"][1] += x["fee"]
+        if x["issued"] == rdate - dt.timedelta(days=1):         # ngày hôm trước (đủ ngày)
+            z["y"][0] += 1 if new else 0; z["y"][1] += x["fee"]
         z["p"] += x["fee"]
         mk = x["issued"].strftime("%Y-%m")
         mm = z["m"].setdefault(mk, [0, 0.0]); mm[0] += 1 if new else 0; mm[1] += x["fee"]
@@ -282,7 +286,8 @@ def main():
         points.append(dict(c=code, n=rec["n"], k=rec["k"], r=rec["r"], vg=rec["vg"], v=rec["v"], pr=rec["p"],
                            pn=z["n"] if z else 0, p=round(z["p"]) if z else 0,
                            m={k: [v[0], round(v[1])] for k, v in z["m"].items()} if z else {},
-                           last=z["last"] if z else None, first=z["first"] if z else None))
+                           last=z["last"] if z else None, first=z["first"] if z else None,
+                           w=[z["w"][0], round(z["w"][1])] if z else [0, 0], y=[z["y"][0], round(z["y"][1])] if z else [0, 0]))
     points.sort(key=lambda z: (-z["p"], z["n"]))
 
     total_n = len(seen)
