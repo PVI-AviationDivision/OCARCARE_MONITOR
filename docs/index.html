@@ -111,6 +111,7 @@ tbody tr:hover td{background:var(--surface2)}
 .chart{position:relative;width:100%}
 .chart svg{display:block;width:100%;height:auto;overflow:visible}
 .chart text{fill:var(--ink3);font-size:11px;font-family:inherit}
+.chart text.vl{fill:var(--ink2);font-size:10px;font-weight:600;font-variant-numeric:tabular-nums}
 .tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--surface);font-size:12px;padding:7px 9px;border-radius:8px;white-space:nowrap;transform:translate(-50%,-110%);opacity:0;transition:opacity .1s;z-index:5;box-shadow:0 4px 16px #0003}
 .tip b{font-weight:700}
 .stack{display:flex;height:22px;border-radius:5px;overflow:hidden;gap:2px;background:var(--surface)}
@@ -213,7 +214,7 @@ footer{color:var(--ink3);font-size:12px;padding:10px 0 30px}
 </div>
 <div class="tip" id="tip"></div>
 
-<script src="data.enc.js?v=20261026111830"></script>
+<script src="data.enc.js?v=20261026114739"></script>
 <script>
 "use strict";
 const $=s=>document.querySelector(s);
@@ -303,25 +304,30 @@ function render(data){
 
   /* ---------- daily chart ---------- */
   let mode='n';
-  $('#dSub').textContent=`${ddmm(M.start)} – ${ddmm(rd)} · ngày ${ddmm(rd)} tính đến giờ báo cáo`;
+  const dSub=()=>$('#dSub').textContent=`${ddmm(M.start)} – ${ddmm(rd)} · ngày ${ddmm(rd)} tính đến giờ báo cáo`+(mode==='p'?' · số trên cột: triệu đồng':''); dSub();
   function drawDaily(){
-    const el=$('#cDaily'), W=Math.max(320,el.clientWidth||700), H=230, pl=46, pr=8, pt=12, pb=26;
+    const el=$('#cDaily'), W=Math.max(320,el.clientWidth||700), H=250, pl=46, pr=8, pt=12, pb=26;
     const vals=days.map(d=>mode==='n'?d[1]:d[2]), mx=Math.max(1,...vals);
     const step=(()=>{const raw=mx/4, p=Math.pow(10,Math.floor(Math.log10(raw))); return [1,2,2.5,5,10].map(m=>m*p).find(s=>s>=raw)})();
-    const top=Math.ceil(mx/step)*step, n=days.length, bw=(W-pl-pr)/n, gap=Math.min(2,bw*.25);
+    const top=Math.ceil(mx*1.15/step)*step, n=days.length, bw=(W-pl-pr)/n, gap=Math.min(2,bw*.25);
     const yv=v=>pt+(H-pt-pb)*(1-v/top);
+    const labs=vals.map(v=>mode==='n'?vi(v):(v/1e6).toLocaleString('vi-VN',{maximumFractionDigits:v<1e7?1:0}));
+    const rot=labs.some(l=>l.length*6.2+2>bw), fs=Math.max(7,Math.min(10,bw*0.95));
     let g='';
     for(let v=0;v<=top+1e-9;v+=step){ g+=`<line x1="${pl}" x2="${W-pr}" y1="${yv(v)}" y2="${yv(v)}" stroke="var(--grid)"/><text x="${pl-6}" y="${yv(v)+4}" text-anchor="end">${mode==='n'?vi(v):money(v).replace(' đ','')}</text>`; }
     const lblEvery=Math.ceil(n/(W/58));
     days.forEach((d,i)=>{ const x=pl+i*bw, v=vals[i], h=Math.max(0,yv(0)-yv(v));
       const today=i===n-1;
       g+=`<rect x="${x+gap/2}" y="${yv(v)}" width="${Math.max(1,bw-gap)}" height="${h}" rx="${Math.min(3,bw/3)}" fill="${today?'var(--bar2)':'var(--bar)'}"/>`;
+      if(v>0){ const lab=labs[i]; const cx=x+bw/2, ty=yv(v)-4;
+        g+= !rot ? `<text class="vl" x="${cx}" y="${ty}" text-anchor="middle">${lab}</text>`
+                 : `<text class="vl" x="${cx}" y="${ty}" text-anchor="start" dominant-baseline="middle" style="font-size:${fs}px" transform="rotate(-90 ${cx} ${ty})">${lab}</text>`; }
       g+=`<rect class="hit" data-i="${i}" x="${x}" y="${pt}" width="${bw}" height="${H-pt-pb}" fill="transparent"/>`;
       if(i%lblEvery===0) g+=`<text x="${x+bw/2}" y="${H-8}" text-anchor="middle">${ddmm(d[0])}</text>`; });
     el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Biểu đồ ${mode==='n'?'HĐBH':'phí'} theo ngày">${g}</svg>`;
     el.querySelectorAll('.hit').forEach(r=>{r.addEventListener('mousemove',e=>{const d=days[+r.dataset.i]; showTip(e,`<b>${ddmmyy(d[0])}</b><br>${vi(d[1])} HĐBH · ${money(d[2])}<br>Phần BH PVI: ${money(d[2]*share)}`+(+r.dataset.i===n-1?'<br><i>đến giờ báo cáo</i>':''));}); r.addEventListener('mouseleave',hideTip);});
   }
-  $('#dMode').addEventListener('click',e=>{const b=e.target.closest('button'); if(!b) return; mode=b.dataset.m; $('#dMode').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); drawDaily();});
+  $('#dMode').addEventListener('click',e=>{const b=e.target.closest('button'); if(!b) return; mode=b.dataset.m; dSub(); $('#dMode').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); drawDaily();});
   drawDaily(); let rz; addEventListener('resize',()=>{clearTimeout(rz); rz=setTimeout(drawDaily,150)});
 
   /* ---------- month & week tables ---------- */
