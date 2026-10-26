@@ -172,6 +172,57 @@ tbody tr:hover td{background:var(--surface2)}
 .empty{color:var(--ink3);padding:20px 0;text-align:center}
 .cnt{display:inline-block;min-width:22px;padding:0 6px;border-radius:999px;background:var(--surface2);border:1px solid var(--line);font-size:11px;text-align:center;margin-left:4px}
 footer{color:var(--ink3);font-size:12px;padding:10px 0 30px}
+/* ---- v3: thân thiện + chuyển động ---- */
+.tab{display:inline-flex;align-items:center;gap:7px;transition:color .2s,border-color .2s}
+.tab svg{width:17px;height:17px;flex:none;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;opacity:.85}
+.tab .short{display:none}
+.sec.on{animation:secIn .35s ease both}
+@keyframes secIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.kpi,.hi{transition:transform .2s ease,box-shadow .2s ease}
+@media (hover:hover){.kpi:hover{transform:translateY(-3px);box-shadow:0 12px 28px #0b2a5b1f}}
+.pill .dot{width:7px;height:7px;border-radius:50%;background:#4fd18b;box-shadow:0 0 0 0 #4fd18b99;animation:pulse 2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 #4fd18b99}70%{box-shadow:0 0 0 8px #4fd18b00}100%{box-shadow:0 0 0 0 #4fd18b00}}
+.hbtn.ic{width:32px;padding:6px 0;display:inline-grid;place-items:center}
+.hbtn svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+/* biểu đồ mọc lên */
+.anim .bar{transform-box:fill-box;transform-origin:50% 100%;animation:grow .7s cubic-bezier(.2,.8,.2,1) both}
+.anim .vl{animation:fade .4s ease both}
+@keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.kpi .sp{clip-path:inset(0 100% 0 0);animation:reveal 1.3s .2s cubic-bezier(.3,.7,.2,1) forwards}
+@keyframes reveal{to{clip-path:inset(0 0 0 0)}}
+.cov i b{transition:width 1s cubic-bezier(.2,.8,.2,1)}
+.stack i{transform-origin:left;animation:growX .8s cubic-bezier(.2,.8,.2,1) both}
+@keyframes growX{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.hi li{animation:liIn .45s ease both}
+@keyframes liIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:none}}
+tbody tr{transition:background .15s}
+/* nút lên đầu trang */
+#toTop{position:fixed;right:16px;bottom:20px;width:42px;height:42px;border-radius:50%;border:0;background:var(--brand);color:#fff;box-shadow:0 8px 20px #0003;cursor:pointer;opacity:0;transform:translateY(12px);pointer-events:none;transition:.25s;z-index:30;font-size:18px}
+#toTop.on{opacity:1;transform:none;pointer-events:auto}
+:root[data-theme="dark"] #toTop{background:#2a78d6}
+/* đăng nhập: ảnh nền chuyển động chậm + chuyển cảnh */
+#gate .bgimg.ok{animation:kb 30s ease-in-out infinite alternate}
+@keyframes kb{from{transform:scale(1)}to{transform:scale(1.08) translateX(-1.5%)}}
+#gate.out .gbox{transform:scale(.96);opacity:0;transition:.35s ease}
+#gate.out{opacity:0;transition:opacity .45s ease .15s}
+.btn.pri .spin{width:16px;height:16px;border:2px solid #fff6;border-top-color:#fff;border-radius:50%;animation:sp .8s linear infinite;display:inline-block;vertical-align:-3px;margin-right:6px}
+@keyframes sp{to{transform:rotate(360deg)}}
+#app.in{animation:fade .5s ease both}
+/* điện thoại: thanh tab dưới đáy như app */
+@media (max-width:700px){
+  nav.tabs{position:fixed;top:auto;bottom:0;left:0;right:0;border-bottom:0;border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -6px 20px #0b2a5b14;background:var(--surface);background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+  nav.tabs .wrap{padding:0;gap:0}
+  .tab{flex:1;flex-direction:column;gap:3px;padding:8px 2px 7px;font-size:10.5px;border-bottom:0;border-top:2px solid transparent;position:relative}
+  .tab.on{border-top-color:var(--accent)}
+  .tab svg{width:21px;height:21px}
+  .tab .long{display:none}.tab .short{display:inline}
+  .tab .cnt{position:absolute;top:3px;left:calc(50% + 6px);margin:0;min-width:17px;padding:0 4px;font-size:9.5px;background:var(--bad);color:#fff;border:0}
+  main{padding-bottom:calc(76px + env(safe-area-inset-bottom))}
+  #toTop{bottom:calc(76px + env(safe-area-inset-bottom))}
+  footer{padding-bottom:10px}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.kpi .sp{clip-path:none}}
 #tPoint{min-width:820px}#tUnit{min-width:860px}
 #tWeek td:first-child,#tMonth td:first-child{white-space:nowrap}
 @media (max-width:600px){.srow{grid-template-columns:minmax(0,1fr) 56px;gap:4px 10px}.srow .stack{grid-column:1/-1;grid-row:2}}
@@ -199,15 +250,16 @@ footer{color:var(--ink3);font-size:12px;padding:10px 0 30px}
 <header class="top"><div class="wrap">
   <div><div class="t"><img class="logo" src="favicon.svg" alt="">OCARCARE Monitor</div><div class="s">VPBank × OPES × BH PVI · luỹ kế từ <span id="hStart"></span></div></div>
   <div class="sp"></div>
-  <span class="pill" id="hDate"></span>
+  <span class="pill"><span class="dot"></span><span id="hDate"></span></span>
+  <button class="hbtn ic" id="theme" title="Đổi giao diện sáng / tối"><svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
   <button class="hbtn" id="logout" title="Đăng xuất">Đăng xuất</button>
 </div></header>
 <nav class="tabs"><div class="wrap" role="tablist">
-  <button class="tab on" data-t="ov">Tổng quan</button>
-  <button class="tab" data-t="un">Đơn vị BH PVI</button>
-  <button class="tab" data-t="pt">Điểm bán</button>
-  <button class="tab" data-t="nd">Tỷ trọng nhà đồng</button>
-  <button class="tab" data-t="rc">Đối soát <span class="cnt" id="rcCnt">0</span></button>
+  <button class="tab on" data-t="ov"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg><span class="long">Tổng quan</span><span class="short">Tổng quan</span></button>
+  <button class="tab" data-t="un"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 4.5-3.4 7.7-8 9-4.6-1.3-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg><span class="long">Đơn vị BH PVI</span><span class="short">Đơn vị</span></button>
+  <button class="tab" data-t="pt"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0119 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg><span class="long">Điểm bán</span><span class="short">Điểm bán</span></button>
+  <button class="tab" data-t="nd"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 109 9h-9z"/><path d="M15 3.5A9 9 0 0120.5 9H15z"/></svg><span class="long">Tỷ trọng nhà đồng</span><span class="short">Nhà đồng</span></button>
+  <button class="tab" data-t="rc"><svg viewBox="0 0 24 24"><path d="M7 4h7l4 4v12H7z"/><path d="M14 4v4h4"/><path d="M10 14l2 2 3-4"/></svg><span class="long">Đối soát</span><span class="short">Đối soát</span><span class="cnt" id="rcCnt">0</span></button>
 </div></nav>
 <main><div class="wrap">
 
@@ -271,8 +323,9 @@ footer{color:var(--ink3);font-size:12px;padding:10px 0 30px}
 </div></main>
 </div>
 <div class="tip" id="tip"></div>
+<button id="toTop" title="Lên đầu trang" aria-label="Lên đầu trang">↑</button>
 
-<script src="data.enc.js?v=20261026132056"></script>
+<script src="data.enc.js?v=20261026133246"></script>
 <script>
 "use strict";
 const $=s=>document.querySelector(s);
@@ -295,8 +348,10 @@ async function decrypt(pw){
 function lsGet(){try{return localStorage.getItem(KEY)}catch(e){return null}}
 function lsSet(v){try{v?localStorage.setItem(KEY,v):localStorage.removeItem(KEY)}catch(e){}}
 async function unlock(pw,remember){
-  const btn=$('#gbtn'), err=$('#gerr'); btn.disabled=true; btn.textContent='Đang mở…'; err.textContent='';
-  try{ const D=await decrypt(pw); if(remember) lsSet(pw); $('#gate').hidden=true; $('#app').hidden=false; render(D); }
+  const btn=$('#gbtn'), err=$('#gerr'); btn.disabled=true; btn.innerHTML='<span class="spin"></span>Đang giải mã số liệu…'; err.textContent='';
+  try{ const D=await decrypt(pw); if(remember) lsSet(pw);
+    const g=$('#gate'); g.classList.add('out'); await new Promise(r=>setTimeout(r,matchMedia('(prefers-reduced-motion: reduce)').matches?0:550));
+    g.hidden=true; $('#app').hidden=false; $('#app').classList.add('in'); render(D); }
   catch(e){ err.textContent = e.message==='badpw'?'Mật khẩu không đúng.':e.message==='nodata'?'Chưa tải được dữ liệu, thử tải lại trang.':'Trình duyệt không hỗ trợ giải mã. Hãy dùng Chrome, Edge hoặc Safari bản mới.'; lsSet(null); }
   finally{ btn.disabled=false; btn.textContent='Xem báo cáo'; }
 }
@@ -325,6 +380,16 @@ const tip=$('#tip');
 function showTip(e,html){tip.innerHTML=html;tip.style.opacity=1;tip.style.left=e.pageX+'px';tip.style.top=e.pageY+'px';
   const r=tip.getBoundingClientRect(); if(r.left<4) tip.style.left=(e.pageX+(4-r.left))+'px'; if(r.right>innerWidth-4) tip.style.left=(e.pageX-(r.right-innerWidth+4))+'px';}
 function hideTip(){tip.style.opacity=0}
+let touchT=0; addEventListener('touchstart',()=>touchT=Date.now(),{passive:true,capture:true});
+function softHide(){ if(Date.now()-touchT>800) hideTip(); }
+document.addEventListener('click',hideTip);
+addEventListener('scroll',()=>$('#toTop').classList.toggle('on',scrollY>600),{passive:true});
+$('#toTop').onclick=()=>scrollTo({top:0,behavior:'smooth'});
+(function(){const K='ocar_theme'; let t=null; try{t=localStorage.getItem(K)}catch(e){}
+  if(t) document.documentElement.dataset.theme=t;
+  $('#theme').onclick=()=>{const cur=document.documentElement.dataset.theme||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+    const nx=cur==='dark'?'light':'dark'; document.documentElement.dataset.theme=nx; try{localStorage.setItem(K,nx)}catch(e){}
+    if(window.__redraw) window.__redraw();};})();
 
 /* CSV */
 function csv(name,head,rows){
@@ -398,12 +463,13 @@ function render(data){
     const UL0={}; P.forEach(z=>{const o=(UL0[z.v]=UL0[z.v]||{n:0,last:null}); o.n+=z.pn; if(z.last&&(!o.last||z.last>o.last)) o.last=z.last;});
     const zero=Object.entries(UL0).filter(([k,o])=>!o.n).map(([k])=>k), slow=Object.entries(UL0).filter(([k,o])=>o.n&&ago(o.last)>M.stale_days/2).map(([k,o])=>`${k} (${ago(o.last)} ngày)`);
     if(zero.length||slow.length) L.push(['b',[zero.length?`Chưa có đơn: <b>${zero.map(esc).join(', ')}</b>`:'',slow.length?`lâu chưa có đơn mới: <b>${slow.map(esc).join(', ')}</b>`:''].filter(Boolean).join('; ')+'.']);
-    $('#hilite').innerHTML=`<div class="ic">✦</div><div><h2>Điểm nhấn</h2><ul>${L.map(l=>`<li><i class="${l[0]}"></i><span>${l[1]}</span></li>`).join('')}</ul></div>`;
+    $('#hilite').innerHTML=`<div class="ic">✦</div><div><h2>Điểm nhấn</h2><ul>${L.map((l,i)=>`<li style="animation-delay:${150+i*90}ms"><i class="${l[0]}"></i><span>${l[1]}</span></li>`).join('')}</ul></div>`;
   })();
 
   /* ---------- daily chart ---------- */
   let mode='n';
   const dSub=()=>$('#dSub').textContent=`${ddmm(M.start)} – ${ddmm(rd)} · ngày ${ddmm(rd)} tính đến giờ báo cáo`+(mode==='p'?' · số trên cột: triệu đồng':''); dSub();
+  let animNext=true;
   function drawDaily(){
     const el=$('#cDaily'), W=Math.max(320,el.clientWidth||700), H=250, pl=46, pr=8, pt=12, pb=26;
     const vals=days.map(d=>mode==='n'?d[1]:d[2]), mx=Math.max(1,...vals);
@@ -417,17 +483,19 @@ function render(data){
     const lblEvery=Math.ceil(n/(W/58));
     days.forEach((d,i)=>{ const x=pl+i*bw, v=vals[i], h=Math.max(0,yv(0)-yv(v));
       const today=i===n-1;
-      g+=`<rect x="${x+gap/2}" y="${yv(v)}" width="${Math.max(1,bw-gap)}" height="${h}" rx="${Math.min(3,bw/3)}" fill="${today?'var(--bar2)':'var(--bar)'}"/>`;
+      g+=`<rect class="bar" style="animation-delay:${(i*14)}ms" x="${x+gap/2}" y="${yv(v)}" width="${Math.max(1,bw-gap)}" height="${h}" rx="${Math.min(3,bw/3)}" fill="${today?'var(--bar2)':'var(--bar)'}"/>`;
       if(v>0){ const lab=labs[i]; const cx=x+bw/2, ty=yv(v)-4;
-        g+= !rot ? `<text class="vl" x="${cx}" y="${ty}" text-anchor="middle">${lab}</text>`
-                 : `<text class="vl" x="${cx}" y="${ty}" text-anchor="start" dominant-baseline="middle" style="font-size:${fs}px" transform="rotate(-90 ${cx} ${ty})">${lab}</text>`; }
+        const dl=`style="animation-delay:${300+i*14}ms"`;
+        g+= !rot ? `<text class="vl" ${dl} x="${cx}" y="${ty}" text-anchor="middle">${lab}</text>`
+                 : `<text class="vl" x="${cx}" y="${ty}" text-anchor="start" dominant-baseline="middle" style="font-size:${fs}px;animation-delay:${300+i*14}ms" transform="rotate(-90 ${cx} ${ty})">${lab}</text>`; }
       g+=`<rect class="hit" data-i="${i}" x="${x}" y="${pt}" width="${bw}" height="${H-pt-pb}" fill="transparent"/>`;
       if(i%lblEvery===0) g+=`<text x="${x+bw/2}" y="${H-8}" text-anchor="middle">${ddmm(d[0])}</text>`; });
+    el.classList.toggle('anim',animNext); animNext=false;
     el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Biểu đồ ${mode==='n'?'HĐBH':'phí'} theo ngày">${g}</svg>`;
-    el.querySelectorAll('.hit').forEach(r=>{r.addEventListener('mousemove',e=>{const d=days[+r.dataset.i]; showTip(e,`<b>${ddmmyy(d[0])}</b><br>${vi(d[1])} HĐBH · ${money(d[2])}<br>Phần BH PVI: ${money(d[2]*share)}`+(+r.dataset.i===n-1?'<br><i>đến giờ báo cáo</i>':''));}); r.addEventListener('mouseleave',hideTip);});
+    el.querySelectorAll('.hit').forEach(r=>{r.addEventListener('mousemove',e=>{const d=days[+r.dataset.i]; showTip(e,`<b>${ddmmyy(d[0])}</b><br>${vi(d[1])} HĐBH · ${money(d[2])}<br>Phần BH PVI: ${money(d[2]*share)}`+(+r.dataset.i===n-1?'<br><i>đến giờ báo cáo</i>':''));}); r.addEventListener('mouseleave',softHide); r.addEventListener('click',e=>{e.stopPropagation(); r.dispatchEvent(new MouseEvent('mousemove',{clientX:e.clientX,clientY:e.clientY})); showTip(e,tip.innerHTML);});});
   }
-  $('#dMode').addEventListener('click',e=>{const b=e.target.closest('button'); if(!b) return; mode=b.dataset.m; dSub(); $('#dMode').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); drawDaily();});
-  drawDaily(); let rz; addEventListener('resize',()=>{clearTimeout(rz); rz=setTimeout(drawDaily,150)});
+  $('#dMode').addEventListener('click',e=>{const b=e.target.closest('button'); if(!b) return; mode=b.dataset.m; dSub(); animNext=true; $('#dMode').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); drawDaily();});
+  drawDaily(); window.__redraw=()=>{animNext=false; drawDaily();}; let rz; addEventListener('resize',()=>{clearTimeout(rz); rz=setTimeout(drawDaily,150)});
 
   /* ---------- month & week tables ---------- */
   const months={}; days.forEach(d=>{const m=d[0].slice(0,7); (months[m]=months[m]||{n:0,p:0,days:0}); months[m].n+=d[1]; months[m].p+=d[2]; months[m].days++;});
@@ -457,7 +525,7 @@ function render(data){
   const sumU=UL.reduce((s,o)=>({t:s.t+o.t,a:s.a+o.a,n:s.n+o.n,p:s.p+o.p,mp:s.mp+o.mp,stale:s.stale+o.stale}),{t:0,a:0,n:0,p:0,mp:0,stale:0});
   $('#tUnit').innerHTML=`<thead><tr><th>#</th><th>Đơn vị BH PVI</th><th class="r">HĐBH</th><th class="r">Phí 100%</th><th class="r">Phần BH PVI</th><th class="r">Phí T${+curM.slice(5)}</th><th>Độ phủ điểm bán</th><th class="r">Điểm "ngủ"</th><th>Đơn gần nhất</th></tr></thead><tbody>`+
     UL.map((o,i)=>`<tr><td class="num">${i+1}</td><td><a href="#" data-unit="${esc(o.v)}" style="color:inherit;font-weight:600">${esc(o.v)}</a></td><td class="r num">${vi(o.n)}</td><td class="r num">${money(o.p)}</td><td class="r num">${money(o.p*share)}</td><td class="r num">${money(o.mp)}</td>
-      <td><div class="cov"><i><b style="width:${o.t?o.a/o.t*100:0}%"></b></i><span class="num">${o.a}/${o.t}</span></div></td><td class="r num">${o.stale?`<span class="st b">${o.stale}</span>`:'0'}</td><td>${lastTag(o.last)}</td></tr>`).join('')+
+      <td><div class="cov"><i><b style="width:0" data-w="${o.t?o.a/o.t*100:0}"></b></i><span class="num">${o.a}/${o.t}</span></div></td><td class="r num">${o.stale?`<span class="st b">${o.stale}</span>`:'0'}</td><td>${lastTag(o.last)}</td></tr>`).join('')+
     `<tr class="tot"><td></td><td>Tổng</td><td class="r num">${vi(sumU.n)}</td><td class="r num">${money(sumU.p)}</td><td class="r num">${money(sumU.p*share)}</td><td class="r num">${money(sumU.mp)}</td><td><span class="num">${sumU.a}/${sumU.t}</span></td><td class="r num">${sumU.stale}</td><td></td></tr></tbody>`;
   $('#tUnit').addEventListener('click',e=>{const a=e.target.closest('a[data-unit]'); if(!a) return; e.preventDefault(); $('#fU').value=a.dataset.unit; $('#fS').value=''; go('pt'); drawPoints();});
   CSV.units=()=>csv('ocarcare_don_vi_bh_pvi_'+rd,['Đơn vị BH PVI','HĐBH','Phí 100% chưa VAT','Phần BH PVI','Phí tháng '+curM,'Điểm có đơn','Tổng điểm','Điểm ngủ','Đơn gần nhất'],UL.map(o=>[o.v,o.n,o.p,Math.round(o.p*share),o.mp,o.a,o.t,o.stale,o.last||'']));
@@ -516,7 +584,7 @@ function render(data){
         </tbody></table></div></div>`;
     const nm=$('#ndMore'); if(nm) nm.onclick=()=>{document.querySelectorAll('#ndBody tr.xtra').forEach(r=>r.hidden=false); nm.closest('tr').remove();};
     const lowN=N.by_point.filter(o=>o.t>=5e7&&o.pvi/o.t<0.1).length; const hh=document.querySelector('#ndLowH'); if(hh) hh.textContent=lowN;
-    document.querySelectorAll('#ndBody .stack i').forEach(el=>{el.addEventListener('mousemove',e=>showTip(e,`<b>${esc(el.closest('.stack').dataset.tip)}</b><br>${esc(el.dataset.i)}: ${money(+el.dataset.v)} · ${pctf(+el.dataset.v/+el.dataset.t)}`)); el.addEventListener('mouseleave',hideTip);});
+    document.querySelectorAll('#ndBody .stack i').forEach(el=>{el.addEventListener('mousemove',e=>showTip(e,`<b>${esc(el.closest('.stack').dataset.tip)}</b><br>${esc(el.dataset.i)}: ${money(+el.dataset.v)} · ${pctf(+el.dataset.v/+el.dataset.t)}`)); el.addEventListener('mouseleave',softHide); el.addEventListener('click',e=>{e.stopPropagation(); showTip(e,`<b>${esc(el.closest('.stack').dataset.tip)}</b><br>${esc(el.dataset.i)}: ${money(+el.dataset.v)} · ${pctf(+el.dataset.v/+el.dataset.t)}`);});});
     const ndCsv=(name,arr)=>csv(name,['Nhóm','Tổng phí chưa VAT',...ins.map(i=>i+' (phí)'),...ins.map(i=>i+' (%)')],arr.map(o=>[o.k,o.t,...ins.map(i=>o.s[i]||0),...ins.map(i=>((o.s[i]||0)/o.t*100).toFixed(1))]));
     CSV.ndUnit=()=>ndCsv('ty_trong_nha_dong_theo_don_vi',N.by_unit); CSV.ndVung=()=>ndCsv('ty_trong_nha_dong_theo_vung',N.by_vung);
     CSV.ndPoint=()=>csv('ty_trong_nha_dong_theo_diem_ban',['Mã','Điểm bán','Đơn vị BH PVI','Phí toàn kênh','Phí BH PVI','Tỷ trọng BH PVI (%)'],N.by_point.sort((a,b)=>b.t-a.t).map(o=>[o.c,o.n,o.v,o.t,o.pvi,(o.pvi/o.t*100).toFixed(1)]));
@@ -545,7 +613,8 @@ function render(data){
     (M.unmapped.length?`<br>⚠ Mã chưa có trong mapping: ${M.unmapped.map(u=>esc(u.c)+' ('+u.n+' HĐ)').join(', ')}`:'');
 }
 /* tabs */
-function go(t){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.t===t)); document.querySelectorAll('.sec').forEach(s=>s.classList.toggle('on',s.id===t)); scrollTo({top:0}); try{history.replaceState(null,'','#'+t)}catch(e){} if(t==='ov') dispatchEvent(new Event('resize'));}
+function go(t){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.t===t)); document.querySelectorAll('.sec').forEach(s=>s.classList.toggle('on',s.id===t)); scrollTo({top:0});
+  requestAnimationFrame(()=>requestAnimationFrame(()=>document.querySelectorAll('#'+t+' .cov b[data-w]').forEach(b=>b.style.width=b.dataset.w+'%'))); try{history.replaceState(null,'','#'+t)}catch(e){} if(t==='ov') dispatchEvent(new Event('resize'));}
 document.querySelector('nav.tabs').addEventListener('click',e=>{const b=e.target.closest('.tab'); if(b) go(b.dataset.t);});
 if(/^#(ov|un|pt|nd|rc)$/.test(location.hash)) setTimeout(()=>go(location.hash.slice(1)),0);
 </script>
