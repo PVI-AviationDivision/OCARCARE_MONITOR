@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>OCARCARE Monitor</title>
+<meta name="description" content="Báo cáo vận hành OCARCARE · VPBank × OPES × BH PVI">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f6fa;--surface:#ffffff;--surface2:#f8f9fc;--line:#e3e7ef;--line2:#d3d9e4;
+  --ink:#0f1b2d;--ink2:#4a5568;--ink3:#7a8597;
+  --brand:#0b2a5b;--brand2:#163f80;--accent:#eb6834;--accent-soft:#fdeee7;
+  --good:#0f8a4b;--good-soft:#e3f5ea;--warn:#b26b00;--warn-soft:#fff3d6;--bad:#c62f2f;--bad-soft:#fde6e6;
+  --s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--s4:#eda100;--s5:#e87ba4;--s6:#008300;
+  --bar:#2a78d6;--bar2:#9ec5f4;--grid:#edf0f5;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f141c;--surface:#171d27;--surface2:#1c2330;--line:#283141;--line2:#334055;
+  --ink:#eef1f6;--ink2:#b9c2d0;--ink3:#8692a6;--brand:#cfe0ff;--brand2:#9fc1ff;--accent:#ff8a57;--accent-soft:#3a2418;
+  --good:#4fd18b;--good-soft:#173326;--warn:#f0b54a;--warn-soft:#3a2d12;--bad:#ff7d7d;--bad-soft:#3a1a1a;
+  --s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500;--s5:#d55181;--s6:#008300;--bar:#3987e5;--bar2:#1c5cab;--grid:#232b38;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f141c;--surface:#171d27;--surface2:#1c2330;--line:#283141;--line2:#334055;
+  --ink:#eef1f6;--ink2:#b9c2d0;--ink3:#8692a6;--brand:#cfe0ff;--brand2:#9fc1ff;--accent:#ff8a57;--accent-soft:#3a2418;
+  --good:#4fd18b;--good-soft:#173326;--warn:#f0b54a;--warn-soft:#3a2d12;--bad:#ff7d7d;--bad-soft:#3a1a1a;
+  --s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500;--s5:#d55181;--s6:#008300;--bar:#3987e5;--bar2:#1c5cab;--grid:#232b38;color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:14px;line-height:1.45;-webkit-text-size-adjust:100%}
+button,input,select{font:inherit;color:inherit}
+.num{font-variant-numeric:tabular-nums}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+/* login */
+#gate{min-height:100vh;display:grid;place-items:center;padding:24px 16px}
+.gbox{width:100%;max-width:380px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:28px 24px;box-shadow:0 10px 40px #0b2a5b14}
+.gbox h1{font-size:20px;margin:10px 0 4px;color:var(--brand)}
+.gbox p{margin:0 0 18px;color:var(--ink2);font-size:13px}
+.logo{width:44px;height:44px;border-radius:12px;background:var(--brand);display:grid;place-items:center;color:#fff;font-weight:800}
+:root[data-theme="dark"] .logo{background:#163f80}
+.field{width:100%;padding:12px 14px;border:1px solid var(--line2);border-radius:10px;background:var(--surface2);outline:none;font-size:15px}
+.field:focus{border-color:var(--brand2);box-shadow:0 0 0 3px #2a78d633}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 16px;border-radius:10px;border:1px solid var(--line2);background:var(--surface);cursor:pointer;font-weight:600;font-size:13px}
+.btn:hover{background:var(--surface2)}
+.btn.pri{background:var(--brand);border-color:var(--brand);color:#fff;width:100%;padding:12px;font-size:15px;margin-top:12px}
+:root[data-theme="dark"] .btn.pri{background:#2a78d6;border-color:#2a78d6}
+.chk{display:flex;align-items:center;gap:8px;margin-top:12px;color:var(--ink2);font-size:13px}
+.err{color:var(--bad);font-size:13px;margin-top:10px;min-height:18px}
+/* app */
+header.top{background:var(--brand);color:#fff}
+:root[data-theme="dark"] header.top{background:#0d1e3d}
+header.top .wrap{display:flex;align-items:center;gap:12px;padding-top:14px;padding-bottom:14px;flex-wrap:wrap}
+header.top .t{font-weight:800;font-size:17px;letter-spacing:.2px}
+header.top .s{font-size:12px;opacity:.8}
+header.top .sp{flex:1}
+.pill{display:inline-flex;align-items:center;gap:6px;background:#ffffff1f;border:1px solid #ffffff33;border-radius:999px;padding:5px 12px;font-size:12px;white-space:nowrap}
+.hbtn{background:#ffffff14;border:1px solid #ffffff33;color:#fff;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:12px}
+nav.tabs{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+nav.tabs .wrap{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+nav.tabs .wrap::-webkit-scrollbar{display:none}
+.tab{border:0;background:none;padding:13px 12px;font-weight:600;color:var(--ink2);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap}
+.tab.on{color:var(--brand);border-bottom-color:var(--accent)}
+:root[data-theme="dark"] .tab.on{color:#fff}
+main{padding:18px 0 40px}
+.sec{display:none}.sec.on{display:block}
+.grid{display:grid;gap:12px}
+.k4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;min-width:0}
+.card h2{font-size:15px;margin:0 0 2px}
+.card .sub{color:var(--ink3);font-size:12px;margin-bottom:12px}
+.kpi .l{font-size:12px;color:var(--ink2);font-weight:600}
+.kpi .v{font-size:24px;font-weight:800;margin-top:4px;letter-spacing:-.3px}
+.kpi .d{font-size:12px;color:var(--ink3);margin-top:2px}
+.kpi.hl{border-color:#eb683455;background:linear-gradient(180deg,var(--accent-soft),var(--surface))}
+.up{color:var(--good)}.dn{color:var(--bad)}
+.row2{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:12px;margin-top:12px}
+.mt{margin-top:12px}
+.seg{display:inline-flex;border:1px solid var(--line2);border-radius:9px;overflow:hidden}
+.seg button{border:0;background:var(--surface);padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;color:var(--ink2)}
+.seg button.on{background:var(--brand);color:#fff}
+:root[data-theme="dark"] .seg button.on{background:#2a78d6}
+.hd{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap}
+/* tables */
+.tw{overflow-x:auto;margin:0 -16px;padding:0 16px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-size:11.5px;color:var(--ink3);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--surface);position:sticky;top:0}
+th.s{cursor:pointer;user-select:none}th.s:hover{color:var(--ink)}
+td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+td.r,th.r{text-align:right}
+tr.tot td{font-weight:700;background:var(--surface2)}
+tbody tr:hover td{background:var(--surface2)}
+.tag{display:inline-block;font-size:10.5px;font-weight:700;padding:1px 6px;border-radius:5px;background:var(--surface2);border:1px solid var(--line);color:var(--ink2)}
+.st{display:inline-block;font-size:11px;font-weight:600;padding:2px 7px;border-radius:6px;white-space:nowrap}
+.st.g{background:var(--good-soft);color:var(--good)}.st.w{background:var(--warn-soft);color:var(--warn)}.st.b{background:var(--bad-soft);color:var(--bad)}.st.n{background:var(--surface2);color:var(--ink3)}
+.cov{display:flex;align-items:center;gap:8px;min-width:120px}
+.cov i{flex:1;height:6px;border-radius:3px;background:var(--grid);position:relative;overflow:hidden}
+.cov i b{position:absolute;inset:0 auto 0 0;background:var(--bar);border-radius:3px}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.filters select,.filters input{padding:8px 10px;border:1px solid var(--line2);border-radius:9px;background:var(--surface2);font-size:13px;min-width:0}
+.filters input{flex:1 1 180px}
+.note{font-size:12px;color:var(--ink3);margin-top:10px}
+.callout{border-radius:10px;padding:10px 12px;font-size:13px;background:var(--surface2);border:1px solid var(--line);color:var(--ink2)}
+.callout.w{background:var(--warn-soft);border-color:transparent;color:var(--ink)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--ink2);margin:6px 0 10px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+/* charts */
+.chart{position:relative;width:100%}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.chart text{fill:var(--ink3);font-size:11px;font-family:inherit}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--surface);font-size:12px;padding:7px 9px;border-radius:8px;white-space:nowrap;transform:translate(-50%,-110%);opacity:0;transition:opacity .1s;z-index:5;box-shadow:0 4px 16px #0003}
+.tip b{font-weight:700}
+.stack{display:flex;height:22px;border-radius:5px;overflow:hidden;gap:2px;background:var(--surface)}
+.stack i{display:block;height:100%}
+.srow{display:grid;grid-template-columns:minmax(110px,190px) 1fr 64px;gap:10px;align-items:center;padding:5px 0;font-size:12.5px}
+.srow .n{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.srow .p{text-align:right;font-weight:700}
+.empty{color:var(--ink3);padding:20px 0;text-align:center}
+.cnt{display:inline-block;min-width:22px;padding:0 6px;border-radius:999px;background:var(--surface2);border:1px solid var(--line);font-size:11px;text-align:center;margin-left:4px}
+footer{color:var(--ink3);font-size:12px;padding:10px 0 30px}
+#tPoint{min-width:820px}#tUnit{min-width:860px}
+#tWeek td:first-child,#tMonth td:first-child{white-space:nowrap}
+@media (max-width:600px){.srow{grid-template-columns:minmax(0,1fr) 56px;gap:4px 10px}.srow .stack{grid-column:1/-1;grid-row:2}}
+@media (max-width:900px){.k4{grid-template-columns:repeat(2,minmax(0,1fr))}.row2{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:480px){.kpi .v{font-size:20px}.card{padding:14px}.tw{margin:0 -14px;padding:0 14px}}
+</style>
+</head>
+<body>
+<div id="gate">
+  <form class="gbox" id="gform" autocomplete="on">
+    <div class="logo">OC</div>
+    <h1>OCARCARE Monitor</h1>
+    <p>Báo cáo vận hành OCARCARE · VPBank × OPES × BH PVI<br>Nhập mật khẩu được cung cấp để xem số liệu.</p>
+    <input type="text" name="username" value="ocarcare" autocomplete="username" hidden>
+    <input class="field" id="pw" type="password" placeholder="Mật khẩu" autocomplete="current-password" autofocus>
+    <label class="chk"><input type="checkbox" id="rem"> Ghi nhớ trên thiết bị này</label>
+    <button class="btn pri" type="submit" id="gbtn">Xem báo cáo</button>
+    <div class="err" id="gerr"></div>
+  </form>
+</div>
+
+<div id="app" hidden>
+<header class="top"><div class="wrap">
+  <div><div class="t">OCARCARE Monitor</div><div class="s">VPBank × OPES × BH PVI · luỹ kế từ <span id="hStart"></span></div></div>
+  <div class="sp"></div>
+  <span class="pill" id="hDate"></span>
+  <button class="hbtn" id="logout" title="Đăng xuất">Đăng xuất</button>
+</div></header>
+<nav class="tabs"><div class="wrap" role="tablist">
+  <button class="tab on" data-t="ov">Tổng quan</button>
+  <button class="tab" data-t="un">Đơn vị BH PVI</button>
+  <button class="tab" data-t="pt">Điểm bán</button>
+  <button class="tab" data-t="nd">Tỷ trọng nhà đồng</button>
+  <button class="tab" data-t="rc">Đối soát <span class="cnt" id="rcCnt">0</span></button>
+</div></nav>
+<main><div class="wrap">
+
+<section class="sec on" id="ov">
+  <div class="grid k4" id="kpis"></div>
+  <div class="row2">
+    <div class="card">
+      <div class="hd"><div><h2>Diễn biến theo ngày</h2><div class="sub" id="dSub"></div></div>
+        <div class="seg" id="dMode"><button data-m="n" class="on">HĐBH</button><button data-m="p">Phí</button></div></div>
+      <div class="chart" id="cDaily"></div>
+    </div>
+    <div class="card">
+      <h2>Theo tháng</h2><div class="sub">Phí 100% chưa VAT · phần BH PVI theo tỷ lệ đồng bảo hiểm</div>
+      <div class="tw"><table id="tMonth"></table></div>
+    </div>
+  </div>
+  <div class="row2">
+    <div class="card"><h2>Theo tuần</h2><div class="sub">Tuần từ thứ Hai · tuần cuối tính đến ngày số liệu</div><div class="tw"><table id="tWeek"></table></div></div>
+    <div class="card"><h2>Theo loại điểm bán</h2><div class="sub">Độ phủ = điểm có đơn / điểm trong mapping</div><div class="tw"><table id="tKind"></table></div>
+      <h2 class="mt">Theo Miền</h2><div class="tw"><table id="tRegion"></table></div></div>
+  </div>
+</section>
+
+<section class="sec" id="un">
+  <div class="card">
+    <div class="hd"><div><h2>Kết quả theo đơn vị BH PVI</h2><div class="sub">Bấm vào tên đơn vị để xem danh sách điểm bán</div></div>
+      <button class="btn" data-csv="units">⬇ Tải Excel (CSV)</button></div>
+    <div class="tw"><table id="tUnit"></table></div>
+    <div class="note">Điểm "ngủ" = điểm bán đã có đơn nhưng quá <span class="stDays"></span> ngày chưa có đơn mới tính đến ngày số liệu.</div>
+  </div>
+</section>
+
+<section class="sec" id="pt">
+  <div class="card">
+    <div class="hd"><div><h2>Danh sách điểm bán</h2><div class="sub" id="ptSub"></div></div>
+      <button class="btn" data-csv="points">⬇ Tải Excel (CSV)</button></div>
+    <div class="filters">
+      <input id="fQ" placeholder="Tìm tên / mã điểm bán">
+      <select id="fU"></select><select id="fK"></select><select id="fV"></select>
+      <select id="fS"><option value="">Tất cả trạng thái</option><option value="act">Có đơn</option><option value="m">Có đơn tháng này</option><option value="stale">Quá N ngày chưa có đơn</option><option value="zero">Chưa có đơn</option></select>
+    </div>
+    <div class="tw"><table id="tPoint"></table></div>
+  </div>
+</section>
+
+<section class="sec" id="nd">
+  <div id="ndBody"></div>
+</section>
+
+<section class="sec" id="rc">
+  <div id="rcBody"></div>
+</section>
+
+<footer id="foot"></footer>
+</div></main>
+</div>
+<div class="tip" id="tip"></div>
+
+<script src="data.enc.js?v=20261026111830"></script>
+<script>
+"use strict";
+const $=s=>document.querySelector(s);
+const KEY='ocar_mon_pw';
+const b64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function decrypt(pw){
+  const E=window.OCAR_ENC; if(!E) throw new Error('nodata');
+  const base=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveBits']);
+  const bits=new Uint8Array(await crypto.subtle.deriveBits({name:'PBKDF2',hash:'SHA-256',salt:b64(E.salt),iterations:E.iter},base,512));
+  const iv=b64(E.iv), ct=b64(E.ct), mac=b64(E.mac);
+  const mk=await crypto.subtle.importKey('raw',bits.slice(32),{name:'HMAC',hash:'SHA-256'},false,['verify']);
+  const msg=new Uint8Array(iv.length+ct.length); msg.set(iv); msg.set(ct,iv.length);
+  if(!await crypto.subtle.verify('HMAC',mk,mac,msg)) throw new Error('badpw');
+  const ek=await crypto.subtle.importKey('raw',bits.slice(0,32),'AES-CTR',false,['decrypt']);
+  const pt=await crypto.subtle.decrypt({name:'AES-CTR',counter:iv,length:64},ek,ct);
+  return JSON.parse(new TextDecoder().decode(pt));
+}
+function lsGet(){try{return localStorage.getItem(KEY)}catch(e){return null}}
+function lsSet(v){try{v?localStorage.setItem(KEY,v):localStorage.removeItem(KEY)}catch(e){}}
+async function unlock(pw,remember){
+  const btn=$('#gbtn'), err=$('#gerr'); btn.disabled=true; btn.textContent='Đang mở…'; err.textContent='';
+  try{ const D=await decrypt(pw); if(remember) lsSet(pw); $('#gate').hidden=true; $('#app').hidden=false; render(D); }
+  catch(e){ err.textContent = e.message==='badpw'?'Mật khẩu không đúng.':e.message==='nodata'?'Chưa tải được dữ liệu, thử tải lại trang.':'Trình duyệt không hỗ trợ giải mã. Hãy dùng Chrome, Edge hoặc Safari bản mới.'; lsSet(null); }
+  finally{ btn.disabled=false; btn.textContent='Xem báo cáo'; }
+}
+$('#gform').addEventListener('submit',e=>{e.preventDefault(); unlock($('#pw').value,$('#rem').checked);});
+$('#logout').onclick=()=>{lsSet(null); location.reload();};
+(function(){const s=lsGet(); if(s){ $('#rem').checked=true; unlock(s,true);} })();
+
+/* ---------- format ---------- */
+const vi=n=>Number(n||0).toLocaleString('vi-VN');
+const money=v=>{v=+v||0; const a=Math.abs(v);
+  if(a>=1e9) return (v/1e9).toLocaleString('vi-VN',{maximumFractionDigits:2})+' tỷ';
+  if(a>=1e6) return (v/1e6).toLocaleString('vi-VN',{maximumFractionDigits:1})+' tr';
+  return vi(Math.round(v))+' đ';};
+const pctf=(v,d=1)=>isFinite(v)?(v*100).toLocaleString('vi-VN',{maximumFractionDigits:d,minimumFractionDigits:d})+'%':'—';
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pd=s=>new Date(s+'T00:00:00');
+const ddmm=s=>{const d=pd(s);return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')};
+const ddmmyy=s=>ddmm(s)+'/'+pd(s).getFullYear();
+const mlabel=m=>'T'+(+m.slice(5))+'/'+m.slice(0,4);
+const fold=s=>String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').toLowerCase();
+const KIND={CN:'CN',PGD:'PGD',TTTC:'TTTC',HHB:'House Hold',HUB:'Hub xe',HO:'Hội sở'};
+
+/* tooltip */
+const tip=$('#tip');
+function showTip(e,html){tip.innerHTML=html;tip.style.opacity=1;tip.style.left=e.pageX+'px';tip.style.top=e.pageY+'px';
+  const r=tip.getBoundingClientRect(); if(r.left<4) tip.style.left=(e.pageX+(4-r.left))+'px'; if(r.right>innerWidth-4) tip.style.left=(e.pageX-(r.right-innerWidth+4))+'px';}
+function hideTip(){tip.style.opacity=0}
+
+/* CSV */
+function csv(name,head,rows){
+  const q=v=>{v=v==null?'':String(v); return /[",;\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;};
+  const txt='﻿'+[head,...rows].map(r=>r.map(q).join(',')).join('\r\n');
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([txt],{type:'text/csv;charset=utf-8'})); a.download=name+'.csv'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+}
+
+let D, CSV={};
+function render(data){
+  D=data; const M=D.meta, share=M.share, rd=M.report_date;
+  $('#hStart').textContent=ddmmyy(M.start);
+  $('#hDate').textContent='Số liệu đến '+(M.report_time?M.report_time+' ':'')+ddmmyy(rd);
+  document.querySelectorAll('.stDays').forEach(e=>e.textContent=M.stale_days);
+  const P=D.points, days=D.days;
+  const ago=s=>s?Math.round((pd(rd)-pd(s))/864e5):null;
+  const curM=rd.slice(0,7);
+
+  /* ---------- KPIs ---------- */
+  const yIdx=days.length-2, y=days[yIdx]||days[days.length-1];
+  const act=P.filter(z=>z.pn>0).length;
+  const mtd=days.filter(d=>d[0].slice(0,7)===curM), mtdN=mtd.reduce((s,d)=>s+d[1],0), mtdP=mtd.reduce((s,d)=>s+d[2],0);
+  // cùng kỳ tháng trước (cùng số ngày)
+  const prevM=(()=>{const d=pd(curM+'-01'); d.setMonth(d.getMonth()-1); return d.toISOString().slice(0,7)})();
+  const dayNo=+rd.slice(8,10);
+  const pm=days.filter(d=>d[0].slice(0,7)===prevM && +d[0].slice(8,10)<=dayNo), pmP=pm.reduce((s,d)=>s+d[2],0);
+  const last7=days.slice(-8,-1), avg7=last7.reduce((s,d)=>s+d[1],0)/Math.max(1,last7.length);
+  const k=(l,v,d,cls='')=>`<div class="card kpi ${cls}"><div class="l">${l}</div><div class="v num">${v}</div><div class="d">${d}</div></div>`;
+  $('#kpis').innerHTML=
+    k('HĐBH luỹ kế',vi(M.total_n),`Từ ${ddmm(M.start)} · TB 7 ngày qua ${avg7.toLocaleString('vi-VN',{maximumFractionDigits:1})} HĐ/ngày`)+
+    k('Phí bảo hiểm (100%, chưa VAT)',money(M.total_p),`Phí BQ ${money(M.total_n?M.total_p/M.total_n:0)}/HĐBH`)+
+    k(`Phần BH PVI (${Math.round(share*100)}%)`,money(M.total_p*share),`Tỷ lệ đồng bảo hiểm ${Math.round(share*100)}%`,'hl')+
+    k('Điểm bán có đơn',`${act}/${P.length}`,`Độ phủ ${pctf(act/P.length)}`)+
+    k(`Ngày ${ddmm(y[0])}`,`${vi(y[1])} HĐBH`,`${money(y[2])} · phần BH PVI ${money(y[2]*share)}`)+
+    k(`Tháng ${+curM.slice(5)} (đến ${ddmm(rd)})`,money(mtdP),`${vi(mtdN)} HĐBH`+(pmP?` · <span class="${mtdP>=pmP?'up':'dn'}">${mtdP>=pmP?'▲':'▼'} ${pctf(Math.abs(mtdP/pmP-1),0)}</span> so cùng kỳ T${+prevM.slice(5)}`:''))+
+    k('Điểm bán có đơn tháng này',vi(P.filter(z=>z.m[curM]).length),`Trên ${P.length} điểm trong mapping`)+
+    k(`Điểm "ngủ" > ${M.stale_days} ngày`,vi(P.filter(z=>z.pn&&ago(z.last)>M.stale_days).length),`Đã có đơn nhưng lâu chưa có đơn mới`);
+
+  /* ---------- daily chart ---------- */
+  let mode='n';
+  $('#dSub').textContent=`${ddmm(M.start)} – ${ddmm(rd)} · ngày ${ddmm(rd)} tính đến giờ báo cáo`;
+  function drawDaily(){
+    const el=$('#cDaily'), W=Math.max(320,el.clientWidth||700), H=230, pl=46, pr=8, pt=12, pb=26;
+    const vals=days.map(d=>mode==='n'?d[1]:d[2]), mx=Math.max(1,...vals);
+    const step=(()=>{const raw=mx/4, p=Math.pow(10,Math.floor(Math.log10(raw))); return [1,2,2.5,5,10].map(m=>m*p).find(s=>s>=raw)})();
+    const top=Math.ceil(mx/step)*step, n=days.length, bw=(W-pl-pr)/n, gap=Math.min(2,bw*.25);
+    const yv=v=>pt+(H-pt-pb)*(1-v/top);
+    let g='';
+    for(let v=0;v<=top+1e-9;v+=step){ g+=`<line x1="${pl}" x2="${W-pr}" y1="${yv(v)}" y2="${yv(v)}" stroke="var(--grid)"/><text x="${pl-6}" y="${yv(v)+4}" text-anchor="end">${mode==='n'?vi(v):money(v).replace(' đ','')}</text>`; }
+    const lblEvery=Math.ceil(n/(W/58));
+    days.forEach((d,i)=>{ const x=pl+i*bw, v=vals[i], h=Math.max(0,yv(0)-yv(v));
+      const today=i===n-1;
+      g+=`<rect x="${x+gap/2}" y="${yv(v)}" width="${Math.max(1,bw-gap)}" height="${h}" rx="${Math.min(3,bw/3)}" fill="${today?'var(--bar2)':'var(--bar)'}"/>`;
+      g+=`<rect class="hit" data-i="${i}" x="${x}" y="${pt}" width="${bw}" height="${H-pt-pb}" fill="transparent"/>`;
+      if(i%lblEvery===0) g+=`<text x="${x+bw/2}" y="${H-8}" text-anchor="middle">${ddmm(d[0])}</text>`; });
+    el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Biểu đồ ${mode==='n'?'HĐBH':'phí'} theo ngày">${g}</svg>`;
+    el.querySelectorAll('.hit').forEach(r=>{r.addEventListener('mousemove',e=>{const d=days[+r.dataset.i]; showTip(e,`<b>${ddmmyy(d[0])}</b><br>${vi(d[1])} HĐBH · ${money(d[2])}<br>Phần BH PVI: ${money(d[2]*share)}`+(+r.dataset.i===n-1?'<br><i>đến giờ báo cáo</i>':''));}); r.addEventListener('mouseleave',hideTip);});
+  }
+  $('#dMode').addEventListener('click',e=>{const b=e.target.closest('button'); if(!b) return; mode=b.dataset.m; $('#dMode').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); drawDaily();});
+  drawDaily(); let rz; addEventListener('resize',()=>{clearTimeout(rz); rz=setTimeout(drawDaily,150)});
+
+  /* ---------- month & week tables ---------- */
+  const months={}; days.forEach(d=>{const m=d[0].slice(0,7); (months[m]=months[m]||{n:0,p:0,days:0}); months[m].n+=d[1]; months[m].p+=d[2]; months[m].days++;});
+  const mk=Object.keys(months).sort();
+  $('#tMonth').innerHTML=`<thead><tr><th>Tháng</th><th class="r">HĐBH</th><th class="r">Phí 100%</th><th class="r">Phần BH PVI</th><th class="r">TB/ngày</th></tr></thead><tbody>`+
+    mk.map(m=>{const o=months[m]; return `<tr><td>${mlabel(m)}<div class="note" style="margin:0">${o.days} ngày</div></td><td class="r num">${vi(o.n)}</td><td class="r num">${money(o.p)}</td><td class="r num">${money(o.p*share)}</td><td class="r num">${money(o.p/o.days)}</td></tr>`}).join('')+
+    `<tr class="tot"><td>Luỹ kế</td><td class="r num">${vi(M.total_n)}</td><td class="r num">${money(M.total_p)}</td><td class="r num">${money(M.total_p*share)}</td><td class="r num">${money(M.total_p/days.length)}</td></tr></tbody>`;
+  const weeks=[]; days.forEach(d=>{const dt=pd(d[0]), wd=(dt.getDay()+6)%7; const st=new Date(dt); st.setDate(dt.getDate()-wd); const key=st.toISOString().slice(0,10);
+    let w=weeks[weeks.length-1]; if(!w||w.k!==key){w={k:key,a:d[0],b:d[0],n:0,p:0}; weeks.push(w);} w.b=d[0]; w.n+=d[1]; w.p+=d[2];});
+  $('#tWeek').innerHTML=`<thead><tr><th>Tuần</th><th class="r">HĐBH</th><th class="r">Phí 100%</th><th class="r">Phần BH PVI</th><th class="r">So tuần trước</th></tr></thead><tbody>`+
+    weeks.slice().reverse().map((w,i,arr)=>{const pv=arr[i+1]; const part=i===0&&pd(w.b).getDay()!==0; const ch=!part&&pv&&pv.p?w.p/pv.p-1:null; return `<tr><td>${ddmm(w.a)} – ${ddmm(w.b)}${part?'<div class="note" style="margin:0">đang chạy</div>':''}</td><td class="r num">${vi(w.n)}</td><td class="r num">${money(w.p)}</td><td class="r num">${money(w.p*share)}</td><td class="r num">${ch==null?'—':`<span class="${ch>=0?'up':'dn'}">${ch>=0?'▲':'▼'} ${pctf(Math.abs(ch),0)}</span>`}</td></tr>`}).join('')+`</tbody>`;
+  CSV.weeks=()=>csv('ocarcare_theo_tuan',['Từ','Đến','HĐBH','Phí 100% chưa VAT','Phần BH PVI'],weeks.map(w=>[w.a,w.b,w.n,w.p,Math.round(w.p*share)]));
+
+  /* kind & region */
+  function groupBy(key,label){
+    const g={}; P.forEach(z=>{const k=z[key]||'Khác'; const o=(g[k]=g[k]||{t:0,a:0,n:0,p:0}); o.t++; if(z.pn) o.a++; o.n+=z.pn; o.p+=z.p;});
+    return Object.entries(g).sort((a,b)=>b[1].p-a[1].p).map(([k,o])=>`<tr><td>${esc(label?label(k):k)}</td><td class="r num">${o.a}/${o.t}</td><td class="r num">${vi(o.n)}</td><td class="r num">${money(o.p)}</td><td class="r num">${pctf(o.p/M.total_p)}</td></tr>`).join('');
+  }
+  const gh='<thead><tr><th></th><th class="r">Điểm có đơn</th><th class="r">HĐBH</th><th class="r">Phí 100%</th><th class="r">Tỷ trọng</th></tr></thead>';
+  $('#tKind').innerHTML=gh+'<tbody>'+groupBy('k',k=>KIND[k]||k)+'</tbody>';
+  $('#tRegion').innerHTML=gh+'<tbody>'+groupBy('r')+'</tbody>';
+
+  /* ---------- units ---------- */
+  const U={}; P.forEach(z=>{const o=(U[z.v]=U[z.v]||{v:z.v,t:0,a:0,am:0,n:0,p:0,mn:0,mp:0,stale:0,last:null}); o.t++; if(z.pn){o.a++; if(ago(z.last)>M.stale_days) o.stale++;} if(z.m[curM]){o.am++; o.mn+=z.m[curM][0]; o.mp+=z.m[curM][1];} o.n+=z.pn; o.p+=z.p; if(z.last&&(!o.last||z.last>o.last)) o.last=z.last;});
+  const UL=Object.values(U).sort((a,b)=>b.p-a.p);
+  const lastTag=s=>{const d=ago(s); if(d==null) return '<span class="st n">Chưa có đơn</span>'; const c=d<=3?'g':d<=M.stale_days?'w':'b'; return `<span class="st ${c}">${ddmm(s)} · ${d===0?'hôm nay':d+' ngày'}</span>`;};
+  const sumU=UL.reduce((s,o)=>({t:s.t+o.t,a:s.a+o.a,n:s.n+o.n,p:s.p+o.p,mp:s.mp+o.mp,stale:s.stale+o.stale}),{t:0,a:0,n:0,p:0,mp:0,stale:0});
+  $('#tUnit').innerHTML=`<thead><tr><th>#</th><th>Đơn vị BH PVI</th><th class="r">HĐBH</th><th class="r">Phí 100%</th><th class="r">Phần BH PVI</th><th class="r">Phí T${+curM.slice(5)}</th><th>Độ phủ điểm bán</th><th class="r">Điểm "ngủ"</th><th>Đơn gần nhất</th></tr></thead><tbody>`+
+    UL.map((o,i)=>`<tr><td class="num">${i+1}</td><td><a href="#" data-unit="${esc(o.v)}" style="color:inherit;font-weight:600">${esc(o.v)}</a></td><td class="r num">${vi(o.n)}</td><td class="r num">${money(o.p)}</td><td class="r num">${money(o.p*share)}</td><td class="r num">${money(o.mp)}</td>
+      <td><div class="cov"><i><b style="width:${o.t?o.a/o.t*100:0}%"></b></i><span class="num">${o.a}/${o.t}</span></div></td><td class="r num">${o.stale?`<span class="st b">${o.stale}</span>`:'0'}</td><td>${lastTag(o.last)}</td></tr>`).join('')+
+    `<tr class="tot"><td></td><td>Tổng</td><td class="r num">${vi(sumU.n)}</td><td class="r num">${money(sumU.p)}</td><td class="r num">${money(sumU.p*share)}</td><td class="r num">${money(sumU.mp)}</td><td><span class="num">${sumU.a}/${sumU.t}</span></td><td class="r num">${sumU.stale}</td><td></td></tr></tbody>`;
+  $('#tUnit').addEventListener('click',e=>{const a=e.target.closest('a[data-unit]'); if(!a) return; e.preventDefault(); $('#fU').value=a.dataset.unit; $('#fS').value=''; go('pt'); drawPoints();});
+  CSV.units=()=>csv('ocarcare_don_vi_bh_pvi_'+rd,['Đơn vị BH PVI','HĐBH','Phí 100% chưa VAT','Phần BH PVI','Phí tháng '+curM,'Điểm có đơn','Tổng điểm','Điểm ngủ','Đơn gần nhất'],UL.map(o=>[o.v,o.n,o.p,Math.round(o.p*share),o.mp,o.a,o.t,o.stale,o.last||'']));
+
+  /* ---------- points ---------- */
+  const opt=(arr,all)=>`<option value="">${all}</option>`+arr.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join('');
+  $('#fU').innerHTML=opt(UL.map(o=>o.v),'Tất cả đơn vị BH PVI');
+  $('#fK').innerHTML=`<option value="">Tất cả loại</option>`+Object.keys(KIND).filter(k=>P.some(z=>z.k===k)).map(k=>`<option value="${k}">${KIND[k]}</option>`).join('');
+  $('#fV').innerHTML=opt([...new Set(P.map(z=>z.vg).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'vi',{numeric:true})),'Tất cả vùng');
+  $('#fS').options[3].textContent=`Quá ${M.stale_days} ngày chưa có đơn`;
+  let sortK='p', sortD=-1, PF=[];
+  const cols=[['n','Điểm bán'],['k','Loại'],['vg','Vùng'],['v','Đơn vị BH PVI'],['pn','HĐBH','r'],['p','Phí 100%','r'],['mp',`Phí T${+curM.slice(5)}`,'r'],['last','Đơn gần nhất']];
+  function drawPoints(){
+    const q=fold($('#fQ').value.trim()), u=$('#fU').value, kk=$('#fK').value, vv=$('#fV').value, s=$('#fS').value;
+    PF=P.filter(z=>(!q||fold(z.n+' '+z.c+' '+z.pr).includes(q))&&(!u||z.v===u)&&(!kk||z.k===kk)&&(!vv||z.vg===vv)&&
+      (!s||(s==='act'&&z.pn)||(s==='m'&&z.m[curM])||(s==='zero'&&!z.pn)||(s==='stale'&&z.pn&&ago(z.last)>M.stale_days)));
+    const val=z=>sortK==='mp'?(z.m[curM]?z.m[curM][1]:0):sortK==='last'?(z.last||''):z[sortK];
+    PF.sort((a,b)=>{const x=val(a),y=val(b); return (typeof x==='string'?String(x).localeCompare(String(y),'vi'):(x-y))*sortD;});
+    const a=PF.filter(z=>z.pn).length, sp=PF.reduce((s,z)=>s+z.p,0);
+    $('#ptSub').textContent=`${PF.length} điểm · ${a} điểm có đơn · ${money(sp)}`;
+    $('#tPoint').innerHTML=`<thead><tr>${cols.map(c=>`<th class="s ${c[2]||''}" data-k="${c[0]}">${c[1]}${sortK===c[0]?(sortD<0?' ↓':' ↑'):''}</th>`).join('')}</tr></thead><tbody>`+
+      (PF.length?PF.slice(0,600).map(z=>`<tr><td><b style="font-weight:600">${esc(z.n)}</b><div class="note" style="margin:0">${esc(z.c)}${z.pr?' · '+esc(z.pr):''}</div></td><td><span class="tag">${esc(KIND[z.k]||z.k)}</span></td><td>${esc(z.vg)}</td><td>${esc(z.v)}</td><td class="r num">${z.pn?vi(z.pn):'—'}</td><td class="r num">${z.p?money(z.p):'—'}</td><td class="r num">${z.m[curM]?money(z.m[curM][1]):'—'}</td><td>${lastTag(z.last)}</td></tr>`).join(''):`<tr><td colspan="8" class="empty">Không có điểm bán phù hợp</td></tr>`)+'</tbody>';
+  }
+  $('#tPoint').addEventListener('click',e=>{const th=e.target.closest('th[data-k]'); if(!th) return; const k=th.dataset.k; if(sortK===k) sortD=-sortD; else {sortK=k; sortD=['n','k','vg','v'].includes(k)?1:-1;} drawPoints();});
+  ['#fQ','#fU','#fK','#fV','#fS'].forEach(s=>$(s).addEventListener('input',drawPoints));
+  drawPoints();
+  CSV.points=()=>csv('ocarcare_diem_ban_'+rd,['Mã','Điểm bán','Loại','Miền','Tỉnh','Vùng','Đơn vị BH PVI','HĐBH','Phí 100% chưa VAT','Phần BH PVI','HĐBH tháng '+curM,'Phí tháng '+curM,'Đơn đầu tiên','Đơn gần nhất','Số ngày chưa có đơn mới'],
+    PF.map(z=>[z.c,z.n,KIND[z.k]||z.k,z.r,z.pr,z.vg,z.v,z.pn,z.p,Math.round(z.p*share),z.m[curM]?z.m[curM][0]:0,z.m[curM]?z.m[curM][1]:0,z.first||'',z.last||'',ago(z.last)??'']));
+
+  /* ---------- nhà đồng ---------- */
+  const N=D.nhadong;
+  if(!N){ $('#ndBody').innerHTML='<div class="card"><div class="empty">Chưa có file "Báo cáo Nhà đồng" của OPES.</div></div>'; }
+  else{
+    const ins=N.insurers, colr=i=>`var(--s${ins.indexOf(i)+1})`;
+    const leg=`<div class="legend">${ins.map(i=>`<span><i style="background:${colr(i)}"></i>${esc(i)}</span>`).join('')}</div>`;
+    const mm=N.months, tot=m=>N.monthly.filter(x=>x.m===m).reduce((s,x)=>s+x.p,0), get=(i,m)=>N.monthly.find(x=>x.i===i&&x.m===m)||{n:0,p:0};
+    const allT=mm.reduce((s,m)=>s+tot(m),0), allI=i=>mm.reduce((s,m)=>s+get(i,m).p,0), allN=i=>mm.reduce((s,m)=>s+get(i,m).n,0);
+    const stackRow=(label,obj,t,extra='')=>`<div class="srow"><div class="n" title="${esc(label)}">${esc(label)}</div><div class="stack" data-tip="${esc(label)}">${ins.map(i=>{const v=obj[i]||0; return v>0?`<i style="width:${v/t*100}%;background:${colr(i)}" data-i="${esc(i)}" data-v="${v}" data-t="${t}"></i>`:''}).join('')}</div><div class="p num">${pctf((obj['BH PVI']||0)/t)}</div></div>`;
+    const monthRows=mm.map(m=>{const o={}; ins.forEach(i=>o[i]=get(i,m).p); return stackRow(mlabel(m),o,tot(m));}).join('')+(()=>{const o={}; ins.forEach(i=>o[i]=allI(i)); return stackRow('Cả kỳ',o,allT);})();
+    $('#ndBody').innerHTML=`
+      <div class="callout w">Nguồn: <b>${esc(N.file)}</b> (OPES gửi hằng tháng) · số liệu từ ${ddmm(N.min)} đến ${ddmmyy(N.asof)} · đã loại ${N.dup} dòng trùng${N.vat_adjusted?' · phí đã quy về <b>chưa VAT</b> (cột phí trong file OPES đang gồm VAT)':''}. Số liệu nhà đồng chỉ cập nhật khi có file mới.</div>
+      <div class="row2">
+        <div class="card"><h2>Tỷ trọng phí theo nhà đồng</h2><div class="sub">Toàn kênh OCARCARE · cột phải = tỷ trọng BH PVI</div>${leg}${monthRows}</div>
+        <div class="card"><h2>Chi tiết theo tháng</h2><div class="sub">Phí chưa VAT · HĐ</div><div class="tw"><table>
+          <thead><tr><th>Nhà đồng</th>${mm.map(m=>`<th class="r">${mlabel(m)}</th>`).join('')}<th class="r">Cả kỳ</th><th class="r">HĐ</th></tr></thead><tbody>
+          ${ins.map(i=>`<tr><td><span class="legend" style="margin:0"><span><i style="background:${colr(i)}"></i>${esc(i)}</span></span></td>${mm.map(m=>`<td class="r num">${money(get(i,m).p)}<div class="note" style="margin:0">${pctf(get(i,m).p/tot(m))}</div></td>`).join('')}<td class="r num"><b>${pctf(allI(i)/allT)}</b></td><td class="r num">${vi(allN(i))}</td></tr>`).join('')}
+          <tr class="tot"><td>Tổng</td>${mm.map(m=>`<td class="r num">${money(tot(m))}</td>`).join('')}<td class="r num">${money(allT)}</td><td class="r num">${vi(ins.reduce((s,i)=>s+allN(i),0))}</td></tr></tbody></table></div></div>
+      </div>
+      <div class="row2">
+        <div class="card"><div class="hd"><div><h2>Theo đơn vị BH PVI</h2><div class="sub">Tỷ trọng các nhà đồng tại các điểm bán do đơn vị phụ trách</div></div><button class="btn" data-csv="ndUnit">⬇ CSV</button></div>${leg}${N.by_unit.map(o=>stackRow(o.k,o.s,o.t)).join('')}</div>
+        <div class="card"><div class="hd"><div><h2>Theo vùng VPBank</h2><div class="sub">Vùng KHCN theo mapping</div></div><button class="btn" data-csv="ndVung">⬇ CSV</button></div>${leg}${N.by_vung.map(o=>stackRow(o.k,o.s,o.t)).join('')}</div>
+      </div>
+      <div class="card mt"><div class="hd"><div><h2>Điểm bán có doanh thu nhà đồng khác nhưng BH PVI chiếm tỷ trọng thấp <span class="cnt" id="ndLowH"></span></h2><div class="sub">Phí nhà đồng ≥ 50 tr và tỷ trọng BH PVI &lt; 10% · cơ hội tăng tỷ trọng</div></div><button class="btn" data-csv="ndPoint">⬇ CSV</button></div>
+        <div class="tw"><table><thead><tr><th>Điểm bán</th><th>Đơn vị BH PVI</th><th class="r">Phí toàn kênh</th><th class="r">Phí BH PVI</th><th class="r">Tỷ trọng BH PVI</th></tr></thead><tbody>
+        ${N.by_point.filter(o=>o.t>=5e7&&o.pvi/o.t<0.1).sort((a,b)=>b.t-a.t).map((o,i)=>(i===20?'<tr class="morer"><td colspan="5"><button class="btn" id="ndMore">Xem thêm</button></td></tr>':'')+`<tr${i>=20?' class="xtra" hidden':''}><td>${esc(o.n)}<div class="note" style="margin:0">${esc(o.c)}</div></td><td>${esc(o.v)}</td><td class="r num">${money(o.t)}</td><td class="r num">${o.pvi?money(o.pvi):'—'}</td><td class="r num">${o.pvi?pctf(o.pvi/o.t):'<span class="st b">0%</span>'}</td></tr>`).join('')||'<tr><td colspan="5" class="empty">Không có</td></tr>'}
+        </tbody></table></div></div>`;
+    const nm=$('#ndMore'); if(nm) nm.onclick=()=>{document.querySelectorAll('#ndBody tr.xtra').forEach(r=>r.hidden=false); nm.closest('tr').remove();};
+    const lowN=N.by_point.filter(o=>o.t>=5e7&&o.pvi/o.t<0.1).length; const hh=document.querySelector('#ndLowH'); if(hh) hh.textContent=lowN;
+    document.querySelectorAll('#ndBody .stack i').forEach(el=>{el.addEventListener('mousemove',e=>showTip(e,`<b>${esc(el.closest('.stack').dataset.tip)}</b><br>${esc(el.dataset.i)}: ${money(+el.dataset.v)} · ${pctf(+el.dataset.v/+el.dataset.t)}`)); el.addEventListener('mouseleave',hideTip);});
+    const ndCsv=(name,arr)=>csv(name,['Nhóm','Tổng phí chưa VAT',...ins.map(i=>i+' (phí)'),...ins.map(i=>i+' (%)')],arr.map(o=>[o.k,o.t,...ins.map(i=>o.s[i]||0),...ins.map(i=>((o.s[i]||0)/o.t*100).toFixed(1))]));
+    CSV.ndUnit=()=>ndCsv('ty_trong_nha_dong_theo_don_vi',N.by_unit); CSV.ndVung=()=>ndCsv('ty_trong_nha_dong_theo_vung',N.by_vung);
+    CSV.ndPoint=()=>csv('ty_trong_nha_dong_theo_diem_ban',['Mã','Điểm bán','Đơn vị BH PVI','Phí toàn kênh','Phí BH PVI','Tỷ trọng BH PVI (%)'],N.by_point.sort((a,b)=>b.t-a.t).map(o=>[o.c,o.n,o.v,o.t,o.pvi,(o.pvi/o.t*100).toFixed(1)]));
+  }
+
+  /* ---------- đối soát ---------- */
+  const R=D.recon;
+  if(!R){ $('#rcBody').innerHTML='<div class="card"><div class="empty">Chưa có file OPES để đối soát.</div></div>'; $('#rcCnt').textContent='–'; }
+  else{
+    const issues=R.only_opes.length+R.only_pvi.length+R.code_diff.length+R.fee_diff.length; $('#rcCnt').textContent=issues;
+    const tbl=(id,title,sub,head,rows,fn)=>`<div class="card mt"><div class="hd"><div><h2>${title} <span class="cnt">${rows.length}</span></h2><div class="sub">${sub}</div></div>${rows.length?`<button class="btn" data-csv="${id}">⬇ CSV</button>`:''}</div>
+      ${rows.length?`<div class="tw"><table><thead><tr>${head.map(h=>`<th class="${h[1]||''}">${h[0]}</th>`).join('')}</tr></thead><tbody>${rows.map(fn).join('')}</tbody></table></div>`:'<div class="empty">Không có chênh lệch ✔</div>'}</div>`;
+    const base=[['Số hợp đồng'],['Ngày cấp'],['Điểm bán'],['Đơn vị BH PVI']];
+    $('#rcBody').innerHTML=`<div class="callout">Đối chiếu báo cáo BH PVI (${esc(M.source)}) với dữ liệu OPES (${R.files.length} file, số liệu OPES đến <b>${R.asof?ddmmyy(R.asof):'—'}</b>). Khớp <b>${vi(R.matched)}</b> HĐ. Chỉ xét HĐ cấp trước ngày số liệu; HĐ BH PVI cấp sau ngày ${R.asof?ddmm(R.asof):''} chưa đối chiếu được cho đến khi có file OPES mới.</div>`+
+      tbl('rcO','Có bên OPES, chưa có trong báo cáo BH PVI','Cần BH PVI kiểm tra việc cấp đơn / ghi nhận',[...base,['Phí (chưa VAT, theo OPES)','r']],R.only_opes,z=>`<tr><td class="num">${esc(z.pol)}</td><td>${z.d?ddmm(z.d):''}</td><td>${esc(z.n)}</td><td>${esc(z.v)}</td><td class="r num">${money(z.fee)}</td></tr>`)+
+      tbl('rcP','Có trong báo cáo BH PVI, không có bên OPES','Cần OPES kiểm tra',[...base,['Phí (chưa VAT)','r']],R.only_pvi,z=>`<tr><td class="num">${esc(z.pol)}</td><td>${ddmm(z.d)}</td><td>${esc(z.n)}</td><td>${esc(z.v)}</td><td class="r num">${money(z.fee)}</td></tr>`)+
+      tbl('rcC','Lệch mã điểm bán','Cùng HĐ nhưng hai bên ghi nhận điểm bán khác nhau',[['Số hợp đồng'],['Ngày cấp'],['Theo BH PVI'],['Theo OPES']],R.code_diff,z=>`<tr><td class="num">${esc(z.pol)}</td><td>${ddmm(z.d)}</td><td>${esc(z.n)}</td><td>${esc(z.no)}</td></tr>`)+
+      tbl('rcF','Lệch phí','Phí BH PVI (gồm SĐBS) so với phí OPES quy về chưa VAT, lệch trên 1%',[['Số hợp đồng'],['Ngày cấp'],['Điểm bán'],['Phí BH PVI','r'],['Phí OPES','r'],['Chênh lệch','r']],R.fee_diff,z=>`<tr><td class="num">${esc(z.pol)}</td><td>${ddmm(z.d)}</td><td>${esc(z.n)}</td><td class="r num">${vi(z.fp)}</td><td class="r num">${vi(z.fo)}</td><td class="r num">${vi(z.fp-z.fo)}</td></tr>`);
+    CSV.rcO=()=>csv('doi_soat_chi_co_ben_OPES',['Số hợp đồng','Ngày','Mã điểm bán','Điểm bán','Đơn vị BH PVI','Phí chưa VAT (OPES)'],R.only_opes.map(z=>[z.pol,z.d,z.c,z.n,z.v,z.fee]));
+    CSV.rcP=()=>csv('doi_soat_chi_co_ben_BH_PVI',['Số hợp đồng','Ngày','Mã điểm bán','Điểm bán','Đơn vị BH PVI','Phí chưa VAT'],R.only_pvi.map(z=>[z.pol,z.d,z.c,z.n,z.v,z.fee]));
+    CSV.rcC=()=>csv('doi_soat_lech_ma_diem_ban',['Số hợp đồng','Ngày','Mã BH PVI','Điểm bán BH PVI','Mã OPES','Điểm bán OPES'],R.code_diff.map(z=>[z.pol,z.d,z.c,z.n,z.co,z.no]));
+    CSV.rcF=()=>csv('doi_soat_lech_phi',['Số hợp đồng','Ngày','Mã điểm bán','Điểm bán','Phí BH PVI','Phí OPES chưa VAT','Chênh lệch'],R.fee_diff.map(z=>[z.pol,z.d,z.c,z.n,z.fp,z.fo,z.fp-z.fo]));
+  }
+  document.addEventListener('click',e=>{const b=e.target.closest('[data-csv]'); if(b&&CSV[b.dataset.csv]) CSV[b.dataset.csv]();});
+  $('#foot').innerHTML=`Nguồn: báo cáo BH PVI ${esc(M.source)} · mapping ${esc(M.mapping)} · tạo lúc ${esc(M.generated_at)}.<br>Phí = TỔNG PHÍ BH chưa VAT (100%); phần BH PVI = ${Math.round(share*100)}% theo tỷ lệ đồng bảo hiểm. Số liệu phục vụ theo dõi, không thay thế đối soát chính thức.`+
+    (M.unmapped.length?`<br>⚠ Mã chưa có trong mapping: ${M.unmapped.map(u=>esc(u.c)+' ('+u.n+' HĐ)').join(', ')}`:'');
+}
+/* tabs */
+function go(t){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.t===t)); document.querySelectorAll('.sec').forEach(s=>s.classList.toggle('on',s.id===t)); scrollTo({top:0}); try{history.replaceState(null,'','#'+t)}catch(e){} if(t==='ov') dispatchEvent(new Event('resize'));}
+document.querySelector('nav.tabs').addEventListener('click',e=>{const b=e.target.closest('.tab'); if(b) go(b.dataset.t);});
+if(/^#(ov|un|pt|nd|rc)$/.test(location.hash)) setTimeout(()=>go(location.hash.slice(1)),0);
+</script>
+</body>
+</html>

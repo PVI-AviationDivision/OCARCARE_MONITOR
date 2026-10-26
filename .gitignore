@@ -1,0 +1,8 @@
+# KHONG BAO GIO day du lieu goc / mat khau len GitHub
+matkhau.txt
+data_kiemtra*.json
+*.xlsx
+*.xls
+*.xlsm
+~$*
+__pycache__/
