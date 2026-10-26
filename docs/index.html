@@ -6,6 +6,16 @@
 <meta name="robots" content="noindex,nofollow">
 <title>OCARCARE Monitor</title>
 <meta name="description" content="Báo cáo vận hành OCARCARE · VPBank × OPES × BH PVI">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0b2a5b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="OCARCARE">
+<meta name="application-name" content="OCARCARE">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -56,7 +66,7 @@ button,input,select{font:inherit;color:inherit}
 .gbox .err{color:#ffb4b4}
 @media (min-width:900px){#gate{place-items:center start;padding-left:9vw}}
 @media (prefers-reduced-motion:reduce){#gate .road{animation:none}}
-.logo{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#eb6834,#f5a04a);display:grid;place-items:center;color:#fff;font-weight:800;box-shadow:0 8px 20px #eb683455}
+.logo{width:52px;height:52px;border-radius:14px;display:block;box-shadow:0 8px 24px #0006,0 0 0 1px #ffffff22}
 :root[data-theme="dark"] .logo{background:#163f80}
 .field{width:100%;padding:12px 14px;border:1px solid var(--line2);border-radius:10px;background:var(--surface2);outline:none;font-size:15px}
 .field:focus{border-color:var(--brand2);box-shadow:0 0 0 3px #2a78d633}
@@ -70,9 +80,9 @@ button,input,select{font:inherit;color:inherit}
 header.top{color:#fff;position:relative;overflow:hidden;
   background:radial-gradient(600px 200px at 90% 0%,#2a78d655,transparent 70%),radial-gradient(500px 180px at 70% 120%,#eb683433,transparent 70%),linear-gradient(120deg,#061633,#0b2a5b 60%,#123a78)}
 .has-banner header.top{background:linear-gradient(90deg,#061633f2 0%,#0b2a5bd9 45%,#0b2a5b66 100%),url(img/banner.webp) center/cover,#0b2a5b}
-header.top .wrap{display:flex;align-items:center;gap:12px;padding-top:20px;padding-bottom:20px;flex-wrap:wrap;position:relative}
+header.top .wrap{display:flex;align-items:center;gap:12px;padding-top:max(20px,env(safe-area-inset-top));padding-bottom:20px;flex-wrap:wrap;position:relative}
 header.top .t{font-weight:800;font-size:20px;letter-spacing:-.2px;display:flex;align-items:center;gap:10px}
-header.top .t .logo{width:34px;height:34px;border-radius:10px;font-size:12px}
+header.top .t .logo{width:36px;height:36px;border-radius:10px;box-shadow:0 0 0 1px #ffffff2e}
 header.top .s{font-size:12px;opacity:.8}
 header.top .sp{flex:1}
 .pill{display:inline-flex;align-items:center;gap:6px;background:#ffffff1f;border:1px solid #ffffff33;border-radius:999px;padding:5px 12px;font-size:12px;white-space:nowrap}
@@ -173,7 +183,7 @@ footer{color:var(--ink3);font-size:12px;padding:10px 0 30px}
 <div id="gate">
   <div class="bgimg" id="gbg"></div><div class="grid-lines"></div><div class="road"></div><div class="road r2"></div>
   <form class="gbox" id="gform" autocomplete="on">
-    <div class="logo">OC</div>
+    <img class="logo" src="favicon.svg" alt="OCARCARE">
     <h1>OCARCARE Monitor</h1>
     <p>Báo cáo vận hành hằng ngày chương trình bảo hiểm vật chất xe ô tô OCARCARE.<br>Nhập mật khẩu được cung cấp để xem số liệu.</p>
     <div class="brandline"><span>VPBank</span><span>OPES</span><span>BH PVI</span></div>
@@ -187,7 +197,7 @@ footer{color:var(--ink3);font-size:12px;padding:10px 0 30px}
 
 <div id="app" hidden>
 <header class="top"><div class="wrap">
-  <div><div class="t"><span class="logo">OC</span>OCARCARE Monitor</div><div class="s">VPBank × OPES × BH PVI · luỹ kế từ <span id="hStart"></span></div></div>
+  <div><div class="t"><img class="logo" src="favicon.svg" alt="">OCARCARE Monitor</div><div class="s">VPBank × OPES × BH PVI · luỹ kế từ <span id="hStart"></span></div></div>
   <div class="sp"></div>
   <span class="pill" id="hDate"></span>
   <button class="hbtn" id="logout" title="Đăng xuất">Đăng xuất</button>
@@ -262,7 +272,7 @@ footer{color:var(--ink3);font-size:12px;padding:10px 0 30px}
 </div>
 <div class="tip" id="tip"></div>
 
-<script src="data.enc.js?v=20261026120045"></script>
+<script src="data.enc.js?v=20261026132056"></script>
 <script>
 "use strict";
 const $=s=>document.querySelector(s);
