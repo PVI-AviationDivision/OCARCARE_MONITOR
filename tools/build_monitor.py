@@ -28,6 +28,8 @@ DATA = os.environ.get("OCAR_DATA") or os.path.join(os.path.dirname(ROOT), "DuLie
 CONFIG = {
     "start": "2026-09-21",
     "channel_keyword": "OPES",
+    # Mã KM chương trình VPBank O.CarCare — từ 27/10 báo cáo gộp thêm sản phẩm OPES khác (KM222) cùng kênh
+    "promo_codes": ["KM218"],
     "pvi_share": 0.40,          # tỷ lệ đồng bảo hiểm của BH PVI
     "stale_days": 7,            # điểm bán quá N ngày chưa có đơn mới
 }
@@ -140,7 +142,7 @@ def load_report(path):
     c = dict(pol=find_col(H, "số đơn bảo hiểm"), sdbs=find_col(H, "số đơn sửa đổi bổ sung"),
              issued=find_col(H, "ngày cấp"), channel=find_col(H, "danh mục kênh bán hàng"),
              fee=find_col(H, "tổng phí bh"), bank=find_col(H, "mã chi nhánh bank"),
-             partner=find_col(H, "số đơn bh từ đối tác"))
+             partner=find_col(H, "số đơn bh từ đối tác"), km=find_col(H, "mã km"))
     if None in (c["pol"], c["issued"], c["fee"], c["bank"]):
         sys.exit(f"Báo cáo BH PVI thiếu cột bắt buộc: {c}")
     g = lambda r, k: (r[c[k]] if c[k] is not None and c[k] < len(r) else None)
@@ -152,7 +154,8 @@ def load_report(path):
         out.append(dict(pol=str(pol).strip(), sdbs=str(g(r, "sdbs") or "").strip(),
                         issued=to_date(g(r, "issued")), channel=str(g(r, "channel") or ""),
                         fee=to_num(g(r, "fee")), bank=str(g(r, "bank") or "").strip().upper(),
-                        partner=str(g(r, "partner") or "").strip().upper()))
+                        partner=str(g(r, "partner") or "").strip().upper(),
+                        km=str(g(r, "km") or "").strip().upper()))
     ob = {x["pol"]: x["bank"] for x in out if x["bank"] and not x["sdbs"]}
     op = {x["pol"]: x["partner"] for x in out if x["partner"] and not x["sdbs"]}
     for x in out:
@@ -234,6 +237,13 @@ def main():
     start = dt.date.fromisoformat(CONFIG["start"])
     kw = CONFIG["channel_keyword"].lower()
     recs = [x for x in allrecs if x["issued"] and x["issued"] >= start and (not x["channel"] or kw in x["channel"].lower())]
+    codes = {k.upper() for k in CONFIG.get("promo_codes") or []}
+    if codes:
+        okpol = {x["pol"] for x in recs if x["km"] in codes}
+        n0 = len(recs)
+        recs = [x for x in recs if x["km"] in codes or (not x["km"] and x["pol"] in okpol)]
+        if n0 - len(recs):
+            print(f"  ℹ Đã loại {n0 - len(recs)} dòng không thuộc Mã KM {', '.join(sorted(codes))} (sản phẩm OPES khác / không có kênh)")
 
     # ngày số liệu: lấy từ tên file nếu hợp lệ, không thì lấy ngày cấp mới nhất trong file
     maxd = max((x["issued"] for x in recs), default=dt.date.today())
