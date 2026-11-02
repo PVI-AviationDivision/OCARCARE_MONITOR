@@ -9,7 +9,7 @@ OCARCARE MONITOR — báo cáo hằng ngày OCARCARE (VPBank × OPES × BH PVI),
     DuLieu/input_nhadong/  file "Báo cáo Nhà đồng" OPES gửi hằng tháng (lấy file mới nhất) — tỷ trọng nhà đồng
 
 Kết quả: docs/data.enc.js — số liệu ĐÃ TỔNG HỢP và MÃ HOÁ bằng mật khẩu trong file matkhau.txt
-(matkhau.txt không đẩy lên GitHub). Không xuất tên khách hàng, SĐT, biển số, tên cán bộ bán.
+(matkhau.txt không đẩy lên GitHub). Không xuất tên khách hàng, SĐT, biển số. Tên cán bộ bán chỉ có trong tab Chào sân (đã công khai trên trang thi đua).
 """
 import argparse, datetime as dt, glob, json, os, re, statistics, sys
 from collections import defaultdict
@@ -398,6 +398,32 @@ def main():
     fut = [x for x in recs if x["issued"] > rdate]
     if fut:
         warns.append(f"{len(fut)} dòng có ngày cấp sau ngày báo cáo {rdate:%d/%m}")
+
+    # ---- Báo cáo chương trình "Chào sân OCarCare" (lấy từ trang thi đua đã build, đã tổng hợp)
+    cfile = os.environ.get("OCAR_CONTEST_DATA") or next(iter(sorted(glob.glob(os.path.join(
+        os.path.splitdrive(ROOT)[0] + os.sep, "2. Sales Contest*", "OCarCare_Dashboard", "docs", "data.js")))), None)
+    if cfile and os.path.exists(cfile):
+        try:
+            cs = open(cfile, encoding="utf-8").read()
+            CD = json.loads(cs[cs.index("{"):cs.rindex("}") + 1])
+            cfg = CD["config"]
+            keepb = ("id", "kind", "name", "region", "pvi", "premium", "policies", "last", "rank", "qualified", "first_date")
+            data["contest"] = dict(
+                meta={k: CD["meta"].get(k) for k in ("report_date", "report_time", "source", "source_date", "closed",
+                                                      "total_policies", "total_premium", "active_units", "generated_at")},
+                config={k: cfg.get(k) for k in ("program", "early", "individual", "branch", "hub", "final")},
+                branches=[{k: b.get(k) for k in keepb} for b in CD["branches"]],
+                hubs=[{k: h.get(k) for k in keepb} for h in CD["hubs"]],
+                indiv=(dict({k: v for k, v in CD["indiv"].items() if k != "people"},
+                            people=[{k: z.get(k) for k in ("id", "nm", "u", "k", "v", "premium", "policies", "bonus", "early", "qualified", "rank")}
+                                    for z in CD["indiv"]["people"]]) if CD.get("indiv") else None),
+                records=CD.get("records"),
+            )
+            print(f"• Chào sân OCarCare: lấy từ {cfile} (số liệu {CD['meta'].get('report_date')})")
+        except Exception as ex:
+            print(f"  ⚠ Không đọc được dữ liệu Chào sân OCarCare ({ex}) — bỏ qua tab này")
+    else:
+        print("  ℹ Không tìm thấy dữ liệu Chào sân OCarCare (D:\\2. Sales Contest*\\OCarCare_Dashboard\\docs\\data.js) — bỏ qua tab này")
 
     # ---- mã hoá & ghi
     pw_file = os.path.join(ROOT, "matkhau.txt")

@@ -259,6 +259,7 @@ tbody tr{transition:background .15s}
   <button class="tab" data-t="un"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 4.5-3.4 7.7-8 9-4.6-1.3-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg><span class="long">Đơn vị BH PVI</span><span class="short">Đơn vị</span></button>
   <button class="tab" data-t="pt"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0119 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg><span class="long">Điểm bán</span><span class="short">Điểm bán</span></button>
   <button class="tab" data-t="nd"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 109 9h-9z"/><path d="M15 3.5A9 9 0 0120.5 9H15z"/></svg><span class="long">Tỷ trọng nhà đồng</span><span class="short">Nhà đồng</span></button>
+  <button class="tab" data-t="cs" id="tabCs" hidden><svg viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h12l-2 4 2 4H5"/></svg><span class="long">Chào sân OCarCare</span><span class="short">Chào sân</span></button>
   <button class="tab" data-t="rc"><svg viewBox="0 0 24 24"><path d="M7 4h7l4 4v12H7z"/><path d="M14 4v4h4"/><path d="M10 14l2 2 3-4"/></svg><span class="long">Đối soát</span><span class="short">Đối soát</span><span class="cnt" id="rcCnt">0</span></button>
 </div></nav>
 <main><div class="wrap">
@@ -314,6 +315,34 @@ tbody tr{transition:background .15s}
   <div id="ndBody"></div>
 </section>
 
+<section class="sec" id="cs">
+  <div class="shero"><div><h1>Chào sân OCarCare</h1><p>Kết quả chương trình thi đua 21/09 – 31/10/2026 · số liệu tạm tính đến khi đối soát chính thức</p></div><img src="img/ic-5.webp" alt="" onerror="this.remove()"></div>
+  <div class="callout" id="csInfo"></div>
+  <div class="grid k4 mt" id="csKpi"></div>
+  <div class="card mt">
+    <div class="hd"><div><h2>Giải thưởng – tạm tính</h2><div class="sub">Xếp theo doanh thu phí chưa VAT; bằng doanh thu → ai đạt sớm hơn xếp trên. Chỉ xét người/đơn vị đạt ngưỡng.</div></div>
+      <button class="btn" data-csv="csPrize">⬇ Tải Excel (CSV)</button></div>
+    <div class="tw"><table id="csPrize"></table></div>
+  </div>
+  <div class="card mt">
+    <div class="hd"><div><h2>Hạng mục 1 – Cá nhân (theo Mã DAO)</h2><div class="sub" id="csISub"></div></div>
+      <button class="btn" data-csv="csInd">⬇ Tải Excel (CSV)</button></div>
+    <div class="filters"><input id="csIQ" placeholder="Tìm họ tên / Mã DAO / điểm bán"><select id="csIV"></select>
+      <select id="csIS"><option value="">Tất cả</option><option value="q">Đạt ngưỡng</option><option value="b">Có thưởng 600 HĐ đầu</option></select></div>
+    <div class="tw"><table id="csInd"></table></div>
+  </div>
+  <div class="card mt">
+    <div class="hd"><div><h2>Hạng mục 2 – Chi nhánh / PGD / TTTC / House Hold</h2><div class="sub" id="csBSub"></div></div>
+      <button class="btn" data-csv="csBr">⬇ Tải Excel (CSV)</button></div>
+    <div class="filters"><input id="csBQ" placeholder="Tìm điểm bán / mã CN"><select id="csBV"></select></div>
+    <div class="tw"><table id="csBr"></table></div>
+  </div>
+  <div class="row2">
+    <div class="card"><h2>Hạng mục 3 – Hub xe</h2><div class="sub" id="csHSub"></div><div class="tw"><table id="csHub"></table></div></div>
+    <div class="card"><h2>Thưởng 600 HĐBH đầu theo đơn vị BH PVI</h2><div class="sub">Theo đơn vị phụ trách điểm bán của cán bộ · tạm tính</div><div class="tw"><table id="csEarly"></table></div></div>
+  </div>
+</section>
+
 <section class="sec" id="rc">
   <div class="shero"><div><h1>Đối soát OPES × BH PVI</h1><p>Các hợp đồng chênh lệch giữa hai bên cần kiểm tra</p></div><img src="img/ic-5.webp" alt="" onerror="this.remove()"></div>
   <div id="rcBody"></div>
@@ -325,7 +354,7 @@ tbody tr{transition:background .15s}
 <div class="tip" id="tip"></div>
 <button id="toTop" title="Lên đầu trang" aria-label="Lên đầu trang">↑</button>
 
-<script src="data.enc.js?v=20261102104423"></script>
+<script src="data.enc.js?v=20261102105949"></script>
 <script>
 "use strict";
 const $=s=>document.querySelector(s);
@@ -609,14 +638,94 @@ function render(data){
     CSV.rcF=()=>csv('doi_soat_lech_phi',['Số hợp đồng','Ngày','Mã điểm bán','Điểm bán','Phí BH PVI','Phí OPES chưa VAT','Chênh lệch'],R.fee_diff.map(z=>[z.pol,z.d,z.c,z.n,z.fp,z.fo,z.fp-z.fo]));
   }
   document.addEventListener('click',e=>{const b=e.target.closest('[data-csv]'); if(b&&CSV[b.dataset.csv]) CSV[b.dataset.csv]();});
+  if(D.contest) renderContest(D.contest);
   $('#foot').innerHTML=`Nguồn: báo cáo BH PVI ${esc(M.source)} · mapping ${esc(M.mapping)} · tạo lúc ${esc(M.generated_at)}.<br>Phí = TỔNG PHÍ BH chưa VAT (100%); phần BH PVI = ${Math.round(share*100)}% theo tỷ lệ đồng bảo hiểm. Số liệu phục vụ theo dõi, không thay thế đối soát chính thức.`+
     (M.unmapped.length?`<br>⚠ Mã chưa có trong mapping: ${M.unmapped.map(u=>esc(u.c)+' ('+u.n+' HĐ)').join(', ')}`:'');
+}
+
+/* ---------- Chào sân OCarCare ---------- */
+function renderContest(C){
+  const hubName=n=>/BAC/i.test(n)?'Hub xe Miền Bắc':/NAM/i.test(n)?'Hub xe Miền Nam':n;
+  const K=C.config, M=C.meta, I=C.indiv, F=K.final||{};
+  $('#tabCs').hidden=false;
+  const tr=v=>money(v);
+  $('#csInfo').innerHTML=(M.closed?`🏁 Chương trình đã kết thúc. Số liệu <b>chốt ngày ${ddmmyy(M.report_date)}</b> (HĐBH cấp 21/09 – 31/10/2026) theo báo cáo BH PVI ${esc(M.source||'')}.`
+      :`Số liệu đến ${M.report_time?M.report_time+' ':''}${ddmmyy(M.report_date)} theo báo cáo BH PVI ${esc(M.source||'')}.`)+
+    (F.lock_date?` Khoá số huỷ/giảm phí: <b>${ddmmyy(F.lock_date)}</b>.`:'')+(F.return_date?` Công bố chính thức: <b>${ddmmyy(F.return_date)}</b>.`:'')+
+    (I?`<br>Cá nhân theo Mã DAO file OPES đến ${ddmmyy(I.asof)}${I.no_dao&&I.no_dao.policies?` · <b>${I.no_dao.policies}</b> HĐBH (${tr(I.no_dao.premium)}) chưa gán được Mã DAO`:''}.`:'');
+  const kp=[['Tổng HĐBH',vi(M.total_policies),'Toàn chương trình'],['Doanh thu (chưa VAT)',tr(M.total_premium),'100% phí OPES + BH PVI'],
+    ['Điểm bán có đơn',vi(C.branches.filter(b=>b.policies>0).length+C.hubs.filter(h=>h.policies>0).length),'CN/PGD/TTTC/HHB + Hub xe'],
+    ['Cán bộ có đơn',I?vi(I.people_count):'—',I?`Thưởng 600 HĐ đầu: ${tr(I.bonus_total)}`:'']];
+  $('#csKpi').innerHTML=kp.map((k,i)=>`<div class="card kpi${i==1?' hl':''}"><div class="kt"><div class="l">${k[0]}</div></div><div class="v num">${k[1]}</div><div class="d">${k[2]}</div></div>`).join('');
+
+  /* giải thưởng */
+  const P=[]; const pz=(cat,rank,who,unit,v,thr,ok,amt,note)=>P.push({cat,rank,who,unit,v,thr,ok,amt,note});
+  const ppl=I?I.people:[];
+  K.individual.prizes.forEach((a,i)=>{const z=ppl[i]; const ok=!!(z&&z.qualified); pz('Cá nhân','Hạng '+(i+1),z?(z.nm||'DAO '+z.id)+' (DAO '+z.id+')':'—',z?z.u+' · '+z.v:'',z?z.premium:0,K.individual.threshold,ok,ok?a:0,ok?'':'Chưa có người đạt ngưỡng');});
+  K.branch.prizes.forEach((a,i)=>{const b=C.branches[i]; const ok=!!(b&&b.qualified); pz('Điểm bán','Hạng '+(i+1),b?b.name:'—',b?b.pvi:'',b?b.premium:0,K.branch.threshold,ok,ok?a:0,ok?'':'Chưa có điểm đạt ngưỡng');});
+  const hq=C.hubs.filter(h=>h.premium>=K.hub.threshold);
+  K.hub.prizes.forEach((a,i)=>{const h=C.hubs[i]; const ok=!!(h&&h.premium>=K.hub.threshold); pz('GĐ Hub xe','Hạng '+(i+1),h?hubName(h.name):'—',h?h.pvi:'',h?h.premium:0,K.hub.threshold,ok,ok?a:0,ok?'':'Chưa đạt ngưỡng');});
+  const ms=(K.hub.milestones||[]).filter(m=>/\+/.test(m.label));
+  C.hubs.forEach(h=>{let got=null; ms.forEach(m=>{if(h.premium>=m.value) got=m;}); const amt=got?(+String(got.label).replace(/\D/g,''))*1e6:0;
+    pz('Hub xe – thưởng mốc',got?got.label:'—',hubName(h.name),h.pvi,h.premium,ms.length?ms[0].value:0,!!got,amt,got?'':'Chưa đạt mốc');});
+  const mg=K.hub.manager; if(mg) mg.prizes.forEach((a,i)=>pz('Trưởng phòng Hub','Hạng '+(i+1),'Chờ OPES gửi danh sách','',null,mg.threshold,false,0,'Chờ danh sách'));
+  const sumP=P.reduce((s,x)=>s+x.amt,0), early=I?I.bonus_total:0;
+  $('#csPrize').innerHTML='<thead><tr><th>Hạng mục</th><th>Hạng</th><th>Người / đơn vị</th><th>Đơn vị</th><th class="r">Doanh thu</th><th class="r">Ngưỡng</th><th>Trạng thái</th><th class="r">Thưởng</th></tr></thead><tbody>'+
+    P.map(x=>`<tr><td>${esc(x.cat)}</td><td>${esc(x.rank)}</td><td><b>${esc(x.who)}</b></td><td>${esc(x.unit)}</td><td class="r num">${x.v==null?'—':tr(x.v)}</td><td class="r num">${x.thr?tr(x.thr):''}</td><td>${x.ok?'<span class="st g">Đạt</span>':`<span class="st n">${esc(x.note)}</span>`}</td><td class="r num">${x.amt?vi(x.amt):'—'}</td></tr>`).join('')+
+    `<tr><td colspan="7">Thưởng 600 HĐBH đầu tiên (300K × 300 · 200K × 200 · 100K × 100)</td><td class="r num">${vi(early)}</td></tr>`+
+    `<tr class="tot"><td colspan="7">Tổng quỹ thưởng tạm tính (chưa gồm Trưởng phòng Hub)</td><td class="r num">${vi(sumP+early)}</td></tr></tbody>`;
+  CSV.csPrize=()=>csv('chao_san_giai_thuong_tam_tinh',['Hạng mục','Hạng','Người / đơn vị','Đơn vị','Doanh thu','Ngưỡng','Đạt','Thưởng'],P.map(x=>[x.cat,x.rank,x.who,x.unit,x.v,x.thr,x.ok?'Đạt':x.note,x.amt]).concat([['Thưởng 600 HĐBH đầu','','','','','','',early]]));
+
+  /* cá nhân */
+  const units=[...new Set(ppl.map(z=>z.v).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'vi'));
+  $('#csIV').innerHTML='<option value="">Tất cả đơn vị BH PVI</option>'+units.map(u=>`<option>${esc(u)}</option>`).join('');
+  const T=K.early.tiers;
+  const norm=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').toLowerCase();
+  let indRows=ppl;
+  function drawI(){
+    const q=norm($('#csIQ').value), v=$('#csIV').value, st=$('#csIS').value;
+    indRows=ppl.filter(z=>(!q||norm(z.nm+' '+z.id+' '+z.u).includes(q))&&(!v||z.v===v)&&(!st||(st==='q'?z.qualified:z.bonus>0)));
+    $('#csISub').textContent=`${vi(ppl.length)} cán bộ có HĐBH · ${ppl.filter(z=>z.qualified).length} người đạt ngưỡng ${tr(K.individual.threshold)} · đang hiển thị ${vi(indRows.length)}`;
+    $('#csInd').innerHTML='<thead><tr><th class="r">#</th><th>Họ tên</th><th>Mã DAO</th><th>Điểm bán</th><th>Đơn vị BH PVI</th><th class="r">HĐBH</th><th class="r">Doanh thu</th><th>Ngưỡng 125tr</th><th class="r">Suất 300K/200K/100K</th><th class="r">Thưởng sớm</th></tr></thead><tbody>'+
+      indRows.map(z=>`<tr><td class="r">${z.rank}</td><td><b>${esc(z.nm||'—')}</b></td><td class="num">${esc(z.id)}</td><td>${esc(z.k==='HUB'?hubName(z.u):z.u)}</td><td>${esc(z.v)}</td><td class="r num">${z.policies}</td><td class="r num">${tr(z.premium)}</td>`+
+        `<td>${z.qualified?'<span class="st g">Đạt</span>':`<span class="st n">Còn ${tr(K.individual.threshold-z.premium)}</span>`}</td><td class="r num">${(z.early||[]).join(' / ')}</td><td class="r num">${z.bonus?vi(z.bonus):'—'}</td></tr>`).join('')+'</tbody>';
+  }
+  ['csIQ','csIV','csIS'].forEach(id=>$('#'+id).addEventListener('input',drawI)); drawI();
+  CSV.csInd=()=>csv('chao_san_ca_nhan',['Hạng','Họ tên','Mã DAO','Điểm bán','Đơn vị BH PVI','HĐBH','Doanh thu chưa VAT','Đạt ngưỡng',...T.map(t=>'Số suất '+(t.reward/1000)+'K'),'Thưởng 600 HĐ đầu'],
+    indRows.map(z=>[z.rank,z.nm,z.id,z.u,z.v,z.policies,z.premium,z.qualified?'Đạt':'',...(z.early||[]),z.bonus]));
+
+  /* điểm bán */
+  const bu=[...new Set(C.branches.map(b=>b.pvi).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'vi'));
+  $('#csBV').innerHTML='<option value="">Tất cả đơn vị BH PVI</option>'+bu.map(u=>`<option>${esc(u)}</option>`).join('');
+  let brRows=C.branches;
+  function drawB(){
+    const q=norm($('#csBQ').value), v=$('#csBV').value;
+    brRows=C.branches.filter(b=>(!q||norm(b.name+' '+b.id).includes(q))&&(!v||b.pvi===v));
+    $('#csBSub').textContent=`${C.branches.length} điểm có HĐBH · ${C.branches.filter(b=>b.qualified).length} điểm đạt ngưỡng ${tr(K.branch.threshold)} · đang hiển thị ${brRows.length}`;
+    $('#csBr').innerHTML='<thead><tr><th class="r">#</th><th>Điểm bán</th><th>Loại</th><th>Miền</th><th>Đơn vị BH PVI</th><th class="r">HĐBH</th><th class="r">Doanh thu</th><th>Ngưỡng 250tr</th><th>Đơn gần nhất</th></tr></thead><tbody>'+
+      brRows.map(b=>`<tr><td class="r">${b.rank}</td><td><b>${esc(b.name)}</b> <span class="tag">${esc(b.id)}</span></td><td>${esc(b.kind)}</td><td>${esc(b.region||'')}</td><td>${esc(b.pvi)}</td><td class="r num">${b.policies}</td><td class="r num">${tr(b.premium)}</td>`+
+        `<td>${b.qualified?'<span class="st g">Đạt</span>':`<span class="st n">Còn ${tr(K.branch.threshold-b.premium)}</span>`}</td><td>${b.last?ddmm(b.last):''}</td></tr>`).join('')+'</tbody>';
+  }
+  ['csBQ','csBV'].forEach(id=>$('#'+id).addEventListener('input',drawB)); drawB();
+  CSV.csBr=()=>csv('chao_san_diem_ban',['Hạng','Mã CN Bank','Điểm bán','Loại','Miền','Đơn vị BH PVI','HĐBH','Doanh thu chưa VAT','Đạt ngưỡng','Đơn gần nhất'],brRows.map(b=>[b.rank,b.id,b.name,b.kind,b.region,b.pvi,b.policies,b.premium,b.qualified?'Đạt':'',b.last]));
+
+  /* hub */
+  $('#csHSub').textContent=`Ngưỡng ${tr(K.hub.threshold)} · thưởng mốc: `+(K.hub.milestones||[]).filter(m=>/\+/.test(m.label)).map(m=>`${m.label} khi đạt ${tr(m.value)}`).join(', ');
+  $('#csHub').innerHTML='<thead><tr><th>Hub</th><th>Đơn vị BH PVI</th><th class="r">HĐBH</th><th class="r">Doanh thu</th><th>Ngưỡng</th></tr></thead><tbody>'+
+    C.hubs.map(h=>`<tr><td><b>${esc(hubName(h.name))}</b></td><td>${esc(h.pvi)}</td><td class="r num">${h.policies}</td><td class="r num">${tr(h.premium)}</td><td>${h.premium>=K.hub.threshold?'<span class="st g">Đạt</span>':`<span class="st n">${Math.round(h.premium/K.hub.threshold*100)}% · còn ${tr(K.hub.threshold-h.premium)}</span>`}</td></tr>`).join('')+'</tbody>';
+
+  /* thưởng 600 theo đơn vị */
+  const E={}; ppl.forEach(z=>{if(!z.bonus) return; const e=E[z.v]=E[z.v]||{n:0,s:0,b:0}; e.n++; e.s+=(z.early||[]).reduce((a,c)=>a+c,0); e.b+=z.bonus;});
+  const ER=Object.entries(E).sort((a,b)=>b[1].b-a[1].b);
+  $('#csEarly').innerHTML='<thead><tr><th>Đơn vị BH PVI</th><th class="r">Cán bộ</th><th class="r">Suất</th><th class="r">Thưởng</th></tr></thead><tbody>'+
+    ER.map(([u,e])=>`<tr><td>${esc(u||'(chưa xác định)')}</td><td class="r num">${e.n}</td><td class="r num">${e.s}</td><td class="r num">${vi(e.b)}</td></tr>`).join('')+
+    `<tr class="tot"><td>Tổng</td><td class="r num">${ER.reduce((s,x)=>s+x[1].n,0)}</td><td class="r num">${ER.reduce((s,x)=>s+x[1].s,0)}</td><td class="r num">${vi(ER.reduce((s,x)=>s+x[1].b,0))}</td></tr></tbody>`;
 }
 /* tabs */
 function go(t){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.t===t)); document.querySelectorAll('.sec').forEach(s=>s.classList.toggle('on',s.id===t)); scrollTo({top:0});
   requestAnimationFrame(()=>requestAnimationFrame(()=>document.querySelectorAll('#'+t+' .cov b[data-w]').forEach(b=>b.style.width=b.dataset.w+'%'))); try{history.replaceState(null,'','#'+t)}catch(e){} if(t==='ov') dispatchEvent(new Event('resize'));}
 document.querySelector('nav.tabs').addEventListener('click',e=>{const b=e.target.closest('.tab'); if(b) go(b.dataset.t);});
-if(/^#(ov|un|pt|nd|rc)$/.test(location.hash)) setTimeout(()=>go(location.hash.slice(1)),0);
+if(/^#(ov|un|pt|nd|rc|cs)$/.test(location.hash)) setTimeout(()=>go(location.hash.slice(1)),0);
 </script>
 </body>
 </html>
