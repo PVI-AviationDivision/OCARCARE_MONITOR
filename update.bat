@@ -35,6 +35,13 @@ if errorlevel 1 (
   exit /b 1
 )
 
+rem ---- tin nhan Zalo: ban noi bo chep vao clipboard, ban nhom chung mo bang Notepad
+if exist tin_nhan_noibo.txt powershell -NoProfile -Command "Get-Content -Raw -Encoding UTF8 'tin_nhan_noibo.txt' | Set-Clipboard"
+if exist tin_nhan_noibo.txt echo [OK] Tin nhan NHOM NOI BO BH PVI da chep san - mo Zalo nhan Ctrl+V
+if exist tin_nhan_chung.txt start "" notepad tin_nhan_chung.txt
+if exist tin_nhan_chung.txt echo [OK] Tin nhan NHOM CHUNG (co VPBank/OPES) da mo trong Notepad
+echo.
+
 git add docs tools *.bat README.md .gitignore
 git status --short | findstr /i ".xls matkhau data_kiemtra" && (echo [DUNG] Phat hien file khong duoc phep day len! & pause & exit /b 1)
 git diff --cached --quiet

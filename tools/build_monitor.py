@@ -425,6 +425,17 @@ def main():
     else:
         print("  ℹ Không tìm thấy dữ liệu Chào sân OCarCare (D:\\2. Sales Contest*\\OCarCare_Dashboard\\docs\\data.js) — bỏ qua tab này")
 
+    # ---- tin nhắn Zalo hằng ngày (2 mẫu)
+    try:
+        import zalo_msg
+        nb, ch = zalo_msg.make(data)
+        for fn, txt in (("tin_nhan_noibo.txt", nb), ("tin_nhan_chung.txt", ch)):
+            with open(os.path.join(ROOT, fn), "w", encoding="utf-8") as f:
+                f.write(txt)
+        print("✔ Đã soạn tin nhắn Zalo: tin_nhan_noibo.txt (nhóm BH PVI), tin_nhan_chung.txt (nhóm có VPBank/OPES)")
+    except Exception as ex:
+        print(f"  ⚠ Không soạn được tin nhắn Zalo: {ex}")
+
     # ---- mã hoá & ghi
     pw_file = os.path.join(ROOT, "matkhau.txt")
     pw = open(pw_file, encoding="utf-8").read().strip() if os.path.exists(pw_file) else ""
