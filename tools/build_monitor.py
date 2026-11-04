@@ -7,6 +7,7 @@ OCARCARE MONITOR — báo cáo hằng ngày OCARCARE (VPBank × OPES × BH PVI),
     DuLieu/mapping/        file mapping điểm bán (lấy file mới nhất)
     DuLieu/input_opes/     file OPES có Mã DAO (gộp TẤT CẢ file) — dùng để đối soát
     DuLieu/input_thiphan/  file tổng hợp tỷ trọng nhà đồng OPES gửi hằng tháng (RB: sheet TOTAL Tn; SME: tên file có "SME") — ưu tiên dùng
+    DuLieu/input_hubteam/  file OPES có sheet cột "Mã DAO" + "Team" (Hub) — xét giải Trưởng phòng Hub
     DuLieu/input_nhadong/  file "Báo cáo Nhà đồng" chi tiết từng HĐ của OPES (dùng khi chưa có file tổng hợp; đối soát)
 
 Kết quả: docs/data.enc.js — số liệu ĐÃ TỔNG HỢP và MÃ HOÁ bằng mật khẩu trong file matkhau.txt
@@ -524,6 +525,38 @@ def main():
                                     for z in CD["indiv"]["people"]]) if CD.get("indiv") else None),
                 records=CD.get("records"),
             )
+            # ---- giải Trưởng phòng Hub: ghép Mã DAO → Team theo file OPES (DuLieu/input_hubteam, sheet có cột "Team")
+            hfiles = files("input_hubteam")
+            if hfiles and data["contest"]["indiv"]:
+                hf = max(hfiles, key=os.path.getmtime)
+                d2t = {}
+                wbh = openpyxl.load_workbook(hf, read_only=True, data_only=True)
+                for wsh in wbh.worksheets:
+                    rr = list(wsh.iter_rows(values_only=True))
+                    if not rr:
+                        continue
+                    H0 = [norm(v) for v in rr[0]]
+                    if "team" in H0 and "mã dao" in H0:
+                        jt, jd, jc = H0.index("team"), H0.index("mã dao"), (H0.index("mã chi nhánh") if "mã chi nhánh" in H0 else None)
+                        for r in rr[1:]:
+                            if r and r[jd] and r[jt]:
+                                dd = str(r[jd]).strip()
+                                dd = dd[:-2] if dd.endswith(".0") else dd
+                                d2t[dd] = (re.sub(r"\s+", " ", str(r[jt])).strip(), str(r[jc] or "").strip().upper() if jc is not None else "")
+                TT = {}
+                for z in data["contest"]["indiv"]["people"]:
+                    if z.get("k") != "HUB":
+                        continue
+                    tname, hc = d2t.get(z["id"], ("(chưa có team)", ""))
+                    t = TT.setdefault(tname, dict(team=tname, hub=hc or z.get("b", ""), n=0, p=0, mem=[]))
+                    t["n"] += z["policies"]; t["p"] += z["premium"]
+                    t["mem"].append(dict(nm=z["nm"], id=z["id"], n=z["policies"], p=z["premium"]))
+                teams = sorted(TT.values(), key=lambda t: -t["p"])
+                for t in teams:
+                    t["hub"] = "Hub xe Miền Bắc" if t["hub"].endswith("478") else ("Hub xe Miền Nam" if t["hub"].endswith("479") else t["hub"])
+                    t["mem"].sort(key=lambda m: -m["p"])
+                data["contest"]["teams"] = dict(file=os.path.basename(hf), list=teams)
+                print(f"• Trưởng phòng Hub: {os.path.basename(hf)} — {len(teams)} team, cao nhất {teams[0]['team']} {teams[0]['p']:,.0f}đ" if teams else "")
             print(f"• Chào sân OCarCare: lấy từ {cfile} (số liệu {CD['meta'].get('report_date')})")
         except Exception as ex:
             print(f"  ⚠ Không đọc được dữ liệu Chào sân OCarCare ({ex}) — bỏ qua tab này")
