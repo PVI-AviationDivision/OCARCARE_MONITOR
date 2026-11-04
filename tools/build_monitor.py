@@ -6,7 +6,8 @@ OCARCARE MONITOR — báo cáo hằng ngày OCARCARE (VPBank × OPES × BH PVI),
     DuLieu/input/          báo cáo BH PVI hằng ngày (lấy file MỚI NHẤT — số liệu luỹ kế)
     DuLieu/mapping/        file mapping điểm bán (lấy file mới nhất)
     DuLieu/input_opes/     file OPES có Mã DAO (gộp TẤT CẢ file) — dùng để đối soát
-    DuLieu/input_nhadong/  file "Báo cáo Nhà đồng" OPES gửi hằng tháng (lấy file mới nhất) — tỷ trọng nhà đồng
+    DuLieu/input_thiphan/  file tổng hợp tỷ trọng nhà đồng OPES gửi hằng tháng (RB: sheet TOTAL Tn; SME: tên file có "SME") — ưu tiên dùng
+    DuLieu/input_nhadong/  file "Báo cáo Nhà đồng" chi tiết từng HĐ của OPES (dùng khi chưa có file tổng hợp; đối soát)
 
 Kết quả: docs/data.enc.js — số liệu ĐÃ TỔNG HỢP và MÃ HOÁ bằng mật khẩu trong file matkhau.txt
 (matkhau.txt không đẩy lên GitHub). Không xuất tên khách hàng, SĐT, biển số. Tên cán bộ bán chỉ có trong tab Chào sân (đã công khai trên trang thi đua).
@@ -220,6 +221,72 @@ def load_nhadong(path):
         return out, dup
     return None, 0
 
+
+# ---------------------------------------------------------------- Thị phần nhà đồng (file tổng hợp OPES gửi hằng tháng)
+def ins_std(s):
+    s = str(s or "").strip().upper()
+    return "BH PVI" if "PVI" in s else ("VNI (DBV)" if s in ("VNI", "DBV") else s)
+
+def load_thiphan(path):
+    """File tổng hợp RB của OPES: sheet 'TOTAL Tn' (theo chi nhánh × nhà đồng, phí chưa VAT).
+    Trả về {mk: {"tot": {ins: [n, p]}, "br": {code: (tên, vùng, {ins: p})}}}"""
+    wb = openpyxl.load_workbook(path, read_only=True, data_only=True)
+    out = {}
+    for ws in wb.worksheets:
+        m = re.match(r"\s*TOTAL\s*T\s*(\d{1,2})\s*$", ws.title, re.I)
+        if not m:
+            continue
+        rows = list(ws.iter_rows(values_only=True))
+        yr = next((int(y) for r in rows[:2] for v in r if v for y in re.findall(r"(20\d{2})", str(v))), dt.date.today().year)
+        mk = f"{yr}-{int(m.group(1)):02d}"
+        hi = next((i for i, r in enumerate(rows[:8]) if r and norm(r[0]) == "mã chi nhánh"), None)
+        if hi is None:
+            continue
+        names = rows[hi - 1]
+        cols = [(j, ins_std(v)) for j, v in enumerate(names) if v and norm(v) not in ("tổng", "")]
+        tot, br = {}, {}
+        for r in rows[hi + 1:]:
+            if not r:
+                continue
+            code = str(r[0] or "").strip().upper()
+            vals = {i: (to_num(r[j]) if j < len(r) else 0, to_num(r[j + 1]) if j + 1 < len(r) else 0) for j, i in cols}
+            if not code:
+                if not tot and any(v[1] for v in vals.values()):          # dòng tổng
+                    tot = {i: [round(v[0]), v[1]] for i, v in vals.items()}
+                continue
+            if not code.startswith("VN"):
+                continue
+            br[code] = (str(r[1] or "").strip(), str(r[2] or "").strip(), {i: v[1] for i, v in vals.items() if v[1]})
+        if not tot:
+            for code, (_, _, d) in br.items():
+                for i, v in d.items():
+                    tot.setdefault(i, [0, 0.0])[1] += v
+        out[mk] = dict(tot=tot, br=br)
+    return out
+
+def load_sme(path):
+    """File SME của OPES: sheet '2026' — doanh thu theo tháng × nhà đồng (chưa VAT)."""
+    wb = openpyxl.load_workbook(path, read_only=True, data_only=True)
+    ws = next((w for w in wb.worksheets if re.fullmatch(r"20\d{2}", w.title.strip())), None)
+    if ws is None:
+        return None
+    yr = int(ws.title.strip())
+    rows = list(ws.iter_rows(values_only=True))
+    hi = next((i for i, r in enumerate(rows[:8]) if r and any(norm(v) == "tháng 1" for v in r)), None)
+    if hi is None:
+        return None
+    mc = {j: int(re.findall(r"\d+", str(v))[0]) for j, v in enumerate(rows[hi]) if v and norm(v).startswith("tháng")}
+    data = []
+    for r in rows[hi + 1:]:
+        nm = str(r[0] or "").strip()
+        if not nm or norm(nm) == "tổng":
+            continue
+        for j, mo in mc.items():
+            v = to_num(r[j]) if j < len(r) else 0
+            if v:
+                data.append(dict(i=ins_std(nm), m=f"{yr}-{mo:02d}", p=round(v)))
+    return data
+
 # ---------------------------------------------------------------- main
 def main():
     ap = argparse.ArgumentParser()
@@ -349,6 +416,44 @@ def main():
     # ---- tỷ trọng nhà đồng (file OPES hằng tháng)
     nfile = latest("input_nhadong")
     nd = None
+    tfiles = files("input_thiphan")
+    tfile = max((f for f in tfiles if "SME" not in os.path.basename(f).upper()), key=os.path.getmtime, default=None)
+    sfile = max((f for f in tfiles if "SME" in os.path.basename(f).upper()), key=os.path.getmtime, default=None)
+    TP = load_thiphan(tfile) if tfile else {}
+    if TP:
+        months = sorted(TP)
+        insurers_all = set()
+        for mk in months:
+            insurers_all |= set(TP[mk]["tot"])
+        insurers = sorted((i for i in insurers_all if any(TP[m]["tot"].get(i, [0, 0])[1] for m in months)),
+                          key=lambda s: (s != "BH PVI", -sum(TP[m]["tot"].get(s, [0, 0])[1] for m in months)))
+        for mk in months:
+            TP[mk]["tot"] = {i: v for i, v in TP[mk]["tot"].items() if i in insurers}
+        last = months[-1]
+        by_v, by_u, by_c = defaultdict(lambda: defaultdict(float)), defaultdict(lambda: defaultdict(float)), {}
+        for code, (bname, vung, d) in TP[last]["br"].items():
+            rec = M.get(code)
+            for i, v in d.items():
+                by_v[(rec or {}).get("vg") or vung or "Khác"][i] += v
+                by_u[(rec or {}).get("v") or "Chưa có trong mapping"][i] += v
+            by_c[code] = (bname, d)
+        pack = lambda D: [dict(k=k, t=round(sum(v.values())), s={i: round(v.get(i, 0)) for i in insurers})
+                          for k, v in sorted(D.items(), key=lambda kv: -sum(kv[1].values()))]
+        ly, lm = int(last[:4]), int(last[5:])
+        asof = (dt.date(ly + (lm == 12), lm % 12 + 1, 1) - dt.timedelta(days=1))
+        sme = load_sme(sfile) if sfile else None
+        nd = dict(kind="summary", since=CONFIG["start"][:7], file=os.path.basename(tfile), min=months[0] + "-01", asof=asof.isoformat(),
+                  detail_month=last, insurers=insurers, months=months, dup=0, vat_adjusted=False,
+                  monthly=[dict(i=i, m=mk, n=v[0], p=round(v[1])) for mk in months for i, v in TP[mk]["tot"].items()],
+                  by_vung=pack(by_v), by_unit=pack(by_u),
+                  by_point=[dict(c=k, n=(M.get(k) or {}).get("n", bn), v=(M.get(k) or {}).get("v", ""),
+                                 t=round(sum(d.values())), pvi=round(d.get("BH PVI", 0))) for k, (bn, d) in by_c.items()],
+                  sme=dict(file=os.path.basename(sfile), data=sme) if sme else None)
+        lt = TP[last]["tot"]; T_ = sum(v[1] for v in lt.values())
+        print(f"• Thị phần nhà đồng: {os.path.basename(tfile)} ({', '.join(months)}) — tháng {lm}: BH PVI "
+              f"{lt.get('BH PVI', [0, 0])[1]:,.0f}đ / {T_:,.0f}đ = {lt.get('BH PVI', [0, 0])[1] / T_ * 100 if T_ else 0:.1f}%"
+              + (f" · SME: {os.path.basename(sfile)}" if sme else ""))
+        nfile = None
     if nfile:
         rows, dup = load_nhadong(nfile)
         if rows:

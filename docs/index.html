@@ -354,7 +354,7 @@ tbody tr{transition:background .15s}
 <div class="tip" id="tip"></div>
 <button id="toTop" title="Lên đầu trang" aria-label="Lên đầu trang">↑</button>
 
-<script src="data.enc.js?v=20261103084941"></script>
+<script src="data.enc.js?v=20261104100751"></script>
 <script>
 "use strict";
 const $=s=>document.querySelector(s);
@@ -591,26 +591,38 @@ function render(data){
     const ins=N.insurers, colr=i=>`var(--s${ins.indexOf(i)+1})`;
     const leg=`<div class="legend">${ins.map(i=>`<span><i style="background:${colr(i)}"></i>${esc(i)}</span>`).join('')}</div>`;
     const mm=N.months, tot=m=>N.monthly.filter(x=>x.m===m).reduce((s,x)=>s+x.p,0), get=(i,m)=>N.monthly.find(x=>x.i===i&&x.m===m)||{n:0,p:0};
-    const allT=mm.reduce((s,m)=>s+tot(m),0), allI=i=>mm.reduce((s,m)=>s+get(i,m).p,0), allN=i=>mm.reduce((s,m)=>s+get(i,m).n,0);
+    const mmK=mm.filter(m=>!N.since||m>=N.since), kyL=N.since&&mmK.length<mm.length?(mmK.length>1?mlabel(mmK[0]).split('/')[0]+'–'+mlabel(mmK[mmK.length-1]):mlabel(mmK[0])):'Cả kỳ';
+    const allT=mmK.reduce((s,m)=>s+tot(m),0), allI=i=>mmK.reduce((s,m)=>s+get(i,m).p,0), allN=i=>mmK.reduce((s,m)=>s+get(i,m).n,0);
     const stackRow=(label,obj,t,extra='')=>`<div class="srow"><div class="n" title="${esc(label)}">${esc(label)}</div><div class="stack" data-tip="${esc(label)}">${ins.map(i=>{const v=obj[i]||0; return v>0?`<i style="width:${v/t*100}%;background:${colr(i)}" data-i="${esc(i)}" data-v="${v}" data-t="${t}"></i>`:''}).join('')}</div><div class="p num">${pctf((obj['BH PVI']||0)/t)}</div></div>`;
-    const monthRows=mm.map(m=>{const o={}; ins.forEach(i=>o[i]=get(i,m).p); return stackRow(mlabel(m),o,tot(m));}).join('')+(()=>{const o={}; ins.forEach(i=>o[i]=allI(i)); return stackRow('Cả kỳ',o,allT);})();
+    const monthRows=mm.map(m=>{const o={}; ins.forEach(i=>o[i]=get(i,m).p); return stackRow(mlabel(m),o,tot(m));}).join('')+(()=>{const o={}; ins.forEach(i=>o[i]=allI(i)); return stackRow(kyL,o,allT);})();
     $('#ndBody').innerHTML=`
-      <div class="callout w">Nguồn: <b>${esc(N.file)}</b> (OPES gửi hằng tháng) · số liệu từ ${ddmm(N.min)} đến ${ddmmyy(N.asof)} · đã loại ${N.dup} dòng trùng${N.vat_adjusted?' · phí đã quy về <b>chưa VAT</b> (cột phí trong file OPES đang gồm VAT)':''}. Số liệu nhà đồng chỉ cập nhật khi có file mới.</div>
+      <div class="callout w">${N.kind==='summary'
+        ?`Nguồn: <b>${esc(N.file)}</b> – báo cáo tỷ trọng nhà đồng kênh VPBank RB do OPES tổng hợp hằng tháng · ${mm.length} tháng (${mm.map(mlabel).join(', ')}) đến ${ddmmyy(N.asof)} · phí chưa VAT. BH PVI tham gia từ 21/09/2026. Phần theo đơn vị, vùng, điểm bán tính theo <b>${mlabel(N.detail_month)}</b>.`
+        :`Nguồn: <b>${esc(N.file)}</b> (OPES gửi hằng tháng) · số liệu từ ${ddmm(N.min)} đến ${ddmmyy(N.asof)} · đã loại ${N.dup} dòng trùng${N.vat_adjusted?' · phí đã quy về <b>chưa VAT</b> (cột phí trong file OPES đang gồm VAT)':''}.`} Số liệu nhà đồng chỉ cập nhật khi có file mới.</div>
       <div class="row2">
         <div class="card"><h2>Tỷ trọng phí theo nhà đồng</h2><div class="sub">Toàn kênh OCARCARE · cột phải = tỷ trọng BH PVI</div>${leg}${monthRows}</div>
         <div class="card"><h2>Chi tiết theo tháng</h2><div class="sub">Phí chưa VAT · HĐ</div><div class="tw"><table>
-          <thead><tr><th>Nhà đồng</th>${mm.map(m=>`<th class="r">${mlabel(m)}</th>`).join('')}<th class="r">Cả kỳ</th><th class="r">HĐ</th></tr></thead><tbody>
+          <thead><tr><th>Nhà đồng</th>${mm.map(m=>`<th class="r">${mlabel(m)}</th>`).join('')}<th class="r">${kyL}</th><th class="r">HĐ</th></tr></thead><tbody>
           ${ins.map(i=>`<tr><td><span class="legend" style="margin:0"><span><i style="background:${colr(i)}"></i>${esc(i)}</span></span></td>${mm.map(m=>`<td class="r num">${money(get(i,m).p)}<div class="note" style="margin:0">${pctf(get(i,m).p/tot(m))}</div></td>`).join('')}<td class="r num"><b>${pctf(allI(i)/allT)}</b></td><td class="r num">${vi(allN(i))}</td></tr>`).join('')}
           <tr class="tot"><td>Tổng</td>${mm.map(m=>`<td class="r num">${money(tot(m))}</td>`).join('')}<td class="r num">${money(allT)}</td><td class="r num">${vi(ins.reduce((s,i)=>s+allN(i),0))}</td></tr></tbody></table></div></div>
       </div>
       <div class="row2">
-        <div class="card"><div class="hd"><div><h2>Theo đơn vị BH PVI</h2><div class="sub">Tỷ trọng các nhà đồng tại các điểm bán do đơn vị phụ trách</div></div><button class="btn" data-csv="ndUnit">⬇ CSV</button></div>${leg}${N.by_unit.map(o=>stackRow(o.k,o.s,o.t)).join('')}</div>
-        <div class="card"><div class="hd"><div><h2>Theo vùng VPBank</h2><div class="sub">Vùng KHCN theo mapping</div></div><button class="btn" data-csv="ndVung">⬇ CSV</button></div>${leg}${N.by_vung.map(o=>stackRow(o.k,o.s,o.t)).join('')}</div>
+        <div class="card"><div class="hd"><div><h2>Theo đơn vị BH PVI</h2><div class="sub">Tỷ trọng các nhà đồng tại các điểm bán do đơn vị phụ trách${N.detail_month?' · '+mlabel(N.detail_month):''}</div></div><button class="btn" data-csv="ndUnit">⬇ CSV</button></div>${leg}${N.by_unit.map(o=>stackRow(o.k,o.s,o.t)).join('')}</div>
+        <div class="card"><div class="hd"><div><h2>Theo vùng VPBank</h2><div class="sub">Vùng KHCN theo mapping${N.detail_month?' · '+mlabel(N.detail_month):''}</div></div><button class="btn" data-csv="ndVung">⬇ CSV</button></div>${leg}${N.by_vung.map(o=>stackRow(o.k,o.s,o.t)).join('')}</div>
       </div>
-      <div class="card mt"><div class="hd"><div><h2>Điểm bán có doanh thu nhà đồng khác nhưng BH PVI chiếm tỷ trọng thấp <span class="cnt" id="ndLowH"></span></h2><div class="sub">Phí nhà đồng ≥ 50 tr và tỷ trọng BH PVI &lt; 10% · cơ hội tăng tỷ trọng</div></div><button class="btn" data-csv="ndPoint">⬇ CSV</button></div>
+      <div class="card mt"><div class="hd"><div><h2>Điểm bán có doanh thu nhà đồng khác nhưng BH PVI chiếm tỷ trọng thấp <span class="cnt" id="ndLowH"></span></h2><div class="sub">Phí nhà đồng ≥ 50 tr và tỷ trọng BH PVI &lt; 10% · cơ hội tăng tỷ trọng${N.detail_month?' · '+mlabel(N.detail_month):''}</div></div><button class="btn" data-csv="ndPoint">⬇ CSV</button></div>
         <div class="tw"><table><thead><tr><th>Điểm bán</th><th>Đơn vị BH PVI</th><th class="r">Phí toàn kênh</th><th class="r">Phí BH PVI</th><th class="r">Tỷ trọng BH PVI</th></tr></thead><tbody>
         ${N.by_point.filter(o=>o.t>=5e7&&o.pvi/o.t<0.1).sort((a,b)=>b.t-a.t).map((o,i)=>(i===20?'<tr class="morer"><td colspan="5"><button class="btn" id="ndMore">Xem thêm</button></td></tr>':'')+`<tr${i>=20?' class="xtra" hidden':''}><td>${esc(o.n)}<div class="note" style="margin:0">${esc(o.c)}</div></td><td>${esc(o.v)}</td><td class="r num">${money(o.t)}</td><td class="r num">${o.pvi?money(o.pvi):'—'}</td><td class="r num">${o.pvi?pctf(o.pvi/o.t):'<span class="st b">0%</span>'}</td></tr>`).join('')||'<tr><td colspan="5" class="empty">Không có</td></tr>'}
         </tbody></table></div></div>`;
+    if(N.sme&&N.sme.data&&N.sme.data.length){
+      const S=N.sme.data, sm=[...new Set(S.map(x=>x.m))].sort(), si=[...new Set(S.map(x=>x.i))].sort((a,b)=>S.filter(x=>x.i===b).reduce((s,x)=>s+x.p,0)-S.filter(x=>x.i===a).reduce((s,x)=>s+x.p,0));
+      const sg=(i,m)=>(S.find(x=>x.i===i&&x.m===m)||{p:0}).p, st=m=>S.filter(x=>x.m===m).reduce((s,x)=>s+x.p,0), sk=sm.slice(-4);
+      const ci=i=>ins.includes(i)?colr(i):'var(--ink3)';
+      $('#ndBody').insertAdjacentHTML('beforeend',`<div class="card mt"><div class="hd"><div><h2>Kênh VPBank SME (KHDN) – tham khảo</h2><div class="sub">Nguồn: ${esc(N.sme.file)} · phí chưa VAT · BH PVI chưa tham gia kênh SME</div></div></div>
+        <div class="tw"><table><thead><tr><th>Nhà đồng</th>${sk.map(m=>`<th class="r">${mlabel(m)}</th>`).join('')}<th class="r">Luỹ kế ${sm[0].slice(0,4)}</th></tr></thead><tbody>
+        ${si.map(i=>`<tr><td><span class="legend" style="margin:0"><span><i style="background:${ci(i)}"></i>${esc(i)}</span></span></td>${sk.map(m=>`<td class="r num">${money(sg(i,m))}<div class="note" style="margin:0">${pctf(sg(i,m)/(st(m)||1))}</div></td>`).join('')}<td class="r num">${money(sm.reduce((s,m)=>s+sg(i,m),0))}</td></tr>`).join('')}
+        <tr class="tot"><td>Tổng</td>${sk.map(m=>`<td class="r num">${money(st(m))}</td>`).join('')}<td class="r num">${money(sm.reduce((s,m)=>s+st(m),0))}</td></tr></tbody></table></div></div>`);
+    }
     const nm=$('#ndMore'); if(nm) nm.onclick=()=>{document.querySelectorAll('#ndBody tr.xtra').forEach(r=>r.hidden=false); nm.closest('tr').remove();};
     const lowN=N.by_point.filter(o=>o.t>=5e7&&o.pvi/o.t<0.1).length; const hh=document.querySelector('#ndLowH'); if(hh) hh.textContent=lowN;
     document.querySelectorAll('#ndBody .stack i').forEach(el=>{el.addEventListener('mousemove',e=>showTip(e,`<b>${esc(el.closest('.stack').dataset.tip)}</b><br>${esc(el.dataset.i)}: ${money(+el.dataset.v)} · ${pctf(+el.dataset.v/+el.dataset.t)}`)); el.addEventListener('mouseleave',softHide); el.addEventListener('click',e=>{e.stopPropagation(); showTip(e,`<b>${esc(el.closest('.stack').dataset.tip)}</b><br>${esc(el.dataset.i)}: ${money(+el.dataset.v)} · ${pctf(+el.dataset.v/+el.dataset.t)}`);});});
