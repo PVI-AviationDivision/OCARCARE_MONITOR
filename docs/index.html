@@ -152,6 +152,11 @@ tbody tr:hover td{background:var(--surface2)}
 .filters select,.filters input{padding:8px 10px;border:1px solid var(--line2);border-radius:9px;background:var(--surface2);font-size:13px;min-width:0}
 .filters input{flex:1 1 180px}
 .note{font-size:12px;color:var(--ink3);margin-top:10px}
+.mbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 14px;padding:8px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.mbar label{font-size:12.5px;font-weight:700;color:var(--ink2)}
+.mbar select{padding:7px 10px;border:1px solid var(--line2);border-radius:9px;background:var(--surface2);font-size:13px;font-weight:600;color:var(--ink);min-width:0}
+.mbar .note{margin:0}
+tr.sel td{background:var(--good-soft)}
 .callout{border-radius:10px;padding:10px 12px;font-size:13px;background:var(--surface2);border:1px solid var(--line);color:var(--ink2)}
 .callout.w{background:var(--warn-soft);border-color:transparent;color:var(--ink)}
 .legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--ink2);margin:6px 0 10px}
@@ -266,6 +271,7 @@ tbody tr{transition:background .15s}
 
 <section class="sec on" id="ov">
   <div class="shero"><div><h1>Tổng quan</h1><p>Luỹ kế toàn chương trình, diễn biến theo ngày, tuần, tháng</p></div><img src="img/ic-1.webp" alt="" onerror="this.remove()"></div>
+<div class="mbar"><label for="ovM">Kỳ xem</label><select id="ovM"></select><span class="note">Áp dụng cho biểu đồ ngày, bảng tuần, loại điểm bán, miền. Thẻ số liệu và Điểm nhấn luôn tính theo ngày số liệu mới nhất.</span></div>
   <div class="card hi" id="hilite"></div>
   <div class="grid k4" id="kpis"></div>
   <div class="row2">
@@ -288,6 +294,7 @@ tbody tr{transition:background .15s}
 
 <section class="sec" id="un">
   <div class="shero"><div><h1>Đơn vị BH PVI</h1><p>Kết quả, độ phủ điểm bán và nhịp ra đơn của 16 đơn vị</p></div><img src="img/ic-2.webp" alt="" onerror="this.remove()"></div>
+  <div class="mbar"><label for="unM">Kỳ xem</label><select id="unM"></select><span class="note">Chọn tháng để xem HĐBH, phí và độ phủ điểm bán của riêng tháng đó.</span></div>
   <div class="card">
     <div class="hd"><div><h2>Kết quả theo đơn vị BH PVI</h2><div class="sub">Bấm vào tên đơn vị để xem danh sách điểm bán</div></div>
       <button class="btn" data-csv="units">⬇ Tải Excel (CSV)</button></div>
@@ -298,6 +305,7 @@ tbody tr{transition:background .15s}
 
 <section class="sec" id="pt">
   <div class="shero"><div><h1>Điểm bán</h1><p>Toàn bộ CN, PGD, TTTC, House Hold và Hub xe trong mapping</p></div><img src="img/ic-3.webp" alt="" onerror="this.remove()"></div>
+  <div class="mbar"><label for="ptM">Kỳ xem</label><select id="ptM"></select><span class="note">Số HĐBH, phí và trạng thái "Có đơn" tính theo kỳ đã chọn.</span></div>
   <div class="card">
     <div class="hd"><div><h2>Danh sách điểm bán</h2><div class="sub" id="ptSub"></div></div>
       <button class="btn" data-csv="points">⬇ Tải Excel (CSV)</button></div>
@@ -345,6 +353,7 @@ tbody tr{transition:background .15s}
 
 <section class="sec" id="rc">
   <div class="shero"><div><h1>Đối soát OPES × BH PVI</h1><p>Các hợp đồng chênh lệch giữa hai bên cần kiểm tra</p></div><img src="img/ic-5.webp" alt="" onerror="this.remove()"></div>
+  <div class="mbar"><label for="rcM">Kỳ xem</label><select id="rcM"></select><span class="note">Lọc các HĐ chênh lệch theo tháng cấp đơn.</span></div>
   <div id="rcBody"></div>
 </section>
 
@@ -354,7 +363,7 @@ tbody tr{transition:background .15s}
 <div class="tip" id="tip"></div>
 <button id="toTop" title="Lên đầu trang" aria-label="Lên đầu trang">↑</button>
 
-<script src="data.enc.js?v=20261110131635"></script>
+<script src="data.enc.js?v=20261110164649"></script>
 <script>
 "use strict";
 const $=s=>document.querySelector(s);
@@ -436,13 +445,18 @@ function render(data){
   const P=D.points, days=D.days;
   const ago=s=>s?Math.round((pd(rd)-pd(s))/864e5):null;
   const curM=rd.slice(0,7);
+  const pMonths=[...new Set(days.map(d=>d[0].slice(0,7)))].sort().reverse();
+  const mOpt=(id,allLabel)=>{ $(id).innerHTML=`<option value="">${allLabel}</option>`+pMonths.map(m=>`<option value="${m}">Tháng ${+m.slice(5)}/${m.slice(0,4)}${m===curM?` (đến ${ddmm(rd)})`:''}</option>`).join(''); };
+  const prevOf=m=>{let y=+m.slice(0,4), mo=+m.slice(5)-1; if(!mo){mo=12;y--;} return y+'-'+String(mo).padStart(2,'0')};
+  const pv=(z,mo)=>mo?(z.m[mo]||[0,0]):[z.pn,z.p];        // [HĐ, phí] của điểm bán trong kỳ
+  const kyName=mo=>mo?'T'+(+mo.slice(5))+'/'+mo.slice(0,4):'luỹ kế';
 
   /* ---------- KPIs ---------- */
   const yIdx=days.length-2, y=days[yIdx]||days[days.length-1];
   const act=P.filter(z=>z.pn>0).length;
   const mtd=days.filter(d=>d[0].slice(0,7)===curM), mtdN=mtd.reduce((s,d)=>s+d[1],0), mtdP=mtd.reduce((s,d)=>s+d[2],0);
   // cùng kỳ tháng trước (cùng số ngày)
-  const prevM=(()=>{const d=pd(curM+'-01'); d.setMonth(d.getMonth()-1); return d.toISOString().slice(0,7)})();
+  const prevM=(()=>{let y=+curM.slice(0,4), mo=+curM.slice(5)-1; if(!mo){mo=12;y--;} return y+'-'+String(mo).padStart(2,'0')})();
   const dayNo=+rd.slice(8,10);
   const pm=days.filter(d=>d[0].slice(0,7)===prevM && +d[0].slice(8,10)<=dayNo), pmP=pm.reduce((s,d)=>s+d[2],0);
   const last7=days.slice(-8,-1), avg7=last7.reduce((s,d)=>s+d[1],0)/Math.max(1,last7.length);
@@ -496,22 +510,22 @@ function render(data){
   })();
 
   /* ---------- daily chart ---------- */
-  let mode='n';
-  const dSub=()=>$('#dSub').textContent=`${ddmm(M.start)} – ${ddmm(rd)} · ngày ${ddmm(rd)} tính đến giờ báo cáo`+(mode==='p'?' · số trên cột: triệu đồng':''); dSub();
+  let mode='n', ovMo='', DV=days;
+  const dSub=()=>$('#dSub').textContent=`${ddmm(DV[0][0])} – ${ddmm(DV[DV.length-1][0])}`+(DV[DV.length-1][0]===rd?` · ngày ${ddmm(rd)} tính đến giờ báo cáo`:'')+(mode==='p'?' · số trên cột: triệu đồng':''); dSub();
   let animNext=true;
   function drawDaily(){
     const el=$('#cDaily'), W=Math.max(320,el.clientWidth||700), H=250, pl=46, pr=8, pt=12, pb=26;
-    const vals=days.map(d=>mode==='n'?d[1]:d[2]), mx=Math.max(1,...vals);
+    const days_=DV, vals=days_.map(d=>mode==='n'?d[1]:d[2]), mx=Math.max(1,...vals);
     const step=(()=>{const raw=mx/4, p=Math.pow(10,Math.floor(Math.log10(raw))); return [1,2,2.5,5,10].map(m=>m*p).find(s=>s>=raw)})();
-    const top=Math.ceil(mx*1.15/step)*step, n=days.length, bw=(W-pl-pr)/n, gap=Math.min(2,bw*.25);
+    const top=Math.ceil(mx*1.15/step)*step, n=days_.length, bw=(W-pl-pr)/n, gap=Math.min(2,bw*.25);
     const yv=v=>pt+(H-pt-pb)*(1-v/top);
     const labs=vals.map(v=>mode==='n'?vi(v):(v/1e6).toLocaleString('vi-VN',{maximumFractionDigits:v<1e7?1:0}));
     const rot=labs.some(l=>l.length*6.2+2>bw), fs=Math.max(7,Math.min(10,bw*0.95));
     let g='';
     for(let v=0;v<=top+1e-9;v+=step){ g+=`<line x1="${pl}" x2="${W-pr}" y1="${yv(v)}" y2="${yv(v)}" stroke="var(--grid)"/><text x="${pl-6}" y="${yv(v)+4}" text-anchor="end">${mode==='n'?vi(v):money(v).replace(' đ','')}</text>`; }
     const lblEvery=Math.ceil(n/(W/58));
-    days.forEach((d,i)=>{ const x=pl+i*bw, v=vals[i], h=Math.max(0,yv(0)-yv(v));
-      const today=i===n-1;
+    days_.forEach((d,i)=>{ const x=pl+i*bw, v=vals[i], h=Math.max(0,yv(0)-yv(v));
+      const today=d[0]===rd;
       g+=`<rect class="bar" style="animation-delay:${(i*14)}ms" x="${x+gap/2}" y="${yv(v)}" width="${Math.max(1,bw-gap)}" height="${h}" rx="${Math.min(3,bw/3)}" fill="${today?'var(--bar2)':'var(--bar)'}"/>`;
       if(v>0){ const lab=labs[i]; const cx=x+bw/2, ty=yv(v)-4;
         const dl=`style="animation-delay:${300+i*14}ms"`;
@@ -521,7 +535,7 @@ function render(data){
       if(i%lblEvery===0) g+=`<text x="${x+bw/2}" y="${H-8}" text-anchor="middle">${ddmm(d[0])}</text>`; });
     el.classList.toggle('anim',animNext); animNext=false;
     el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Biểu đồ ${mode==='n'?'HĐBH':'phí'} theo ngày">${g}</svg>`;
-    el.querySelectorAll('.hit').forEach(r=>{r.addEventListener('mousemove',e=>{const d=days[+r.dataset.i]; showTip(e,`<b>${ddmmyy(d[0])}</b><br>${vi(d[1])} HĐBH · ${money(d[2])}<br>Phần BH PVI: ${money(d[2]*share)}`+(+r.dataset.i===n-1?'<br><i>đến giờ báo cáo</i>':''));}); r.addEventListener('mouseleave',softHide); r.addEventListener('click',e=>{e.stopPropagation(); r.dispatchEvent(new MouseEvent('mousemove',{clientX:e.clientX,clientY:e.clientY})); showTip(e,tip.innerHTML);});});
+    el.querySelectorAll('.hit').forEach(r=>{r.addEventListener('mousemove',e=>{const d=days_[+r.dataset.i]; showTip(e,`<b>${ddmmyy(d[0])}</b><br>${vi(d[1])} HĐBH · ${money(d[2])}<br>Phần BH PVI: ${money(d[2]*share)}`+(d[0]===rd?'<br><i>đến giờ báo cáo</i>':''));}); r.addEventListener('mouseleave',softHide); r.addEventListener('click',e=>{e.stopPropagation(); r.dispatchEvent(new MouseEvent('mousemove',{clientX:e.clientX,clientY:e.clientY})); showTip(e,tip.innerHTML);});});
   }
   $('#dMode').addEventListener('click',e=>{const b=e.target.closest('button'); if(!b) return; mode=b.dataset.m; dSub(); animNext=true; $('#dMode').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); drawDaily();});
   drawDaily(); window.__redraw=()=>{animNext=false; drawDaily();}; let rz; addEventListener('resize',()=>{clearTimeout(rz); rz=setTimeout(drawDaily,150)});
@@ -529,60 +543,79 @@ function render(data){
   /* ---------- month & week tables ---------- */
   const months={}; days.forEach(d=>{const m=d[0].slice(0,7); (months[m]=months[m]||{n:0,p:0,days:0}); months[m].n+=d[1]; months[m].p+=d[2]; months[m].days++;});
   const mk=Object.keys(months).sort();
-  $('#tMonth').innerHTML=`<thead><tr><th>Tháng</th><th class="r">HĐBH</th><th class="r">Phí 100%</th><th class="r">Phần BH PVI</th><th class="r">TB/ngày</th></tr></thead><tbody>`+
-    mk.map(m=>{const o=months[m]; return `<tr><td>${mlabel(m)}<div class="note" style="margin:0">${o.days} ngày</div></td><td class="r num">${vi(o.n)}</td><td class="r num">${money(o.p)}</td><td class="r num">${money(o.p*share)}</td><td class="r num">${money(o.p/o.days)}</td></tr>`}).join('')+
-    `<tr class="tot"><td>Luỹ kế</td><td class="r num">${vi(M.total_n)}</td><td class="r num">${money(M.total_p)}</td><td class="r num">${money(M.total_p*share)}</td><td class="r num">${money(M.total_p/days.length)}</td></tr></tbody>`;
-  const weeks=[]; days.forEach(d=>{const dt=pd(d[0]), wd=(dt.getDay()+6)%7; const st=new Date(dt); st.setDate(dt.getDate()-wd); const key=st.toISOString().slice(0,10);
+  const drawMonthT=()=>{ $('#tMonth').innerHTML=`<thead><tr><th>Tháng</th><th class="r">HĐBH</th><th class="r">Phí 100%</th><th class="r">Phần BH PVI</th><th class="r">TB/ngày</th></tr></thead><tbody>`+
+    mk.map(m=>{const o=months[m]; return `<tr${m===ovMo?' class="sel"':''}><td>${mlabel(m)}<div class="note" style="margin:0">${o.days} ngày</div></td><td class="r num">${vi(o.n)}</td><td class="r num">${money(o.p)}</td><td class="r num">${money(o.p*share)}</td><td class="r num">${money(o.p/o.days)}</td></tr>`}).join('')+
+    `<tr class="tot"><td>Luỹ kế</td><td class="r num">${vi(M.total_n)}</td><td class="r num">${money(M.total_p)}</td><td class="r num">${money(M.total_p*share)}</td><td class="r num">${money(M.total_p/days.length)}</td></tr></tbody>`; };
+  let weeks=[];
+  function drawWeeks(){
+  weeks=[]; DV.forEach(d=>{const dt=pd(d[0]), wd=(dt.getDay()+6)%7; const st=new Date(dt); st.setDate(dt.getDate()-wd); const key=st.toISOString().slice(0,10);
     let w=weeks[weeks.length-1]; if(!w||w.k!==key){w={k:key,a:d[0],b:d[0],n:0,p:0}; weeks.push(w);} w.b=d[0]; w.n+=d[1]; w.p+=d[2];});
   $('#tWeek').innerHTML=`<thead><tr><th>Tuần</th><th class="r">HĐBH</th><th class="r">Phí 100%</th><th class="r">Phần BH PVI</th><th class="r">So tuần trước</th></tr></thead><tbody>`+
     weeks.slice().reverse().map((w,i,arr)=>{const pv=arr[i+1]; const part=i===0&&pd(w.b).getDay()!==0; const ch=!part&&pv&&pv.p?w.p/pv.p-1:null; return `<tr><td>${ddmm(w.a)} – ${ddmm(w.b)}${part?'<div class="note" style="margin:0">đang chạy</div>':''}</td><td class="r num">${vi(w.n)}</td><td class="r num">${money(w.p)}</td><td class="r num">${money(w.p*share)}</td><td class="r num">${ch==null?'—':`<span class="${ch>=0?'up':'dn'}">${ch>=0?'▲':'▼'} ${pctf(Math.abs(ch),0)}</span>`}</td></tr>`}).join('')+`</tbody>`;
+  }
   CSV.weeks=()=>csv('ocarcare_theo_tuan',['Từ','Đến','HĐBH','Phí 100% chưa VAT','Phần BH PVI'],weeks.map(w=>[w.a,w.b,w.n,w.p,Math.round(w.p*share)]));
 
   /* kind & region */
   function groupBy(key,label){
-    const g={}; P.forEach(z=>{const k=z[key]||'Khác'; const o=(g[k]=g[k]||{t:0,a:0,n:0,p:0}); o.t++; if(z.pn) o.a++; o.n+=z.pn; o.p+=z.p;});
-    return Object.entries(g).sort((a,b)=>b[1].p-a[1].p).map(([k,o])=>`<tr><td>${esc(label?label(k):k)}</td><td class="r num">${o.a}/${o.t}</td><td class="r num">${vi(o.n)}</td><td class="r num">${money(o.p)}</td><td class="r num">${pctf(o.p/M.total_p)}</td></tr>`).join('');
+    const g={}; let T=0; P.forEach(z=>{const k=z[key]||'Khác', [n,p]=pv(z,ovMo); const o=(g[k]=g[k]||{t:0,a:0,n:0,p:0}); o.t++; if(n) o.a++; o.n+=n; o.p+=p; T+=p;});
+    return Object.entries(g).sort((a,b)=>b[1].p-a[1].p).map(([k,o])=>`<tr><td>${esc(label?label(k):k)}</td><td class="r num">${o.a}/${o.t}</td><td class="r num">${vi(o.n)}</td><td class="r num">${money(o.p)}</td><td class="r num">${pctf(T?o.p/T:0)}</td></tr>`).join('');
   }
   const gh='<thead><tr><th></th><th class="r">Điểm có đơn</th><th class="r">HĐBH</th><th class="r">Phí 100%</th><th class="r">Tỷ trọng</th></tr></thead>';
-  $('#tKind').innerHTML=gh+'<tbody>'+groupBy('k',k=>KIND[k]||k)+'</tbody>';
-  $('#tRegion').innerHTML=gh+'<tbody>'+groupBy('r')+'</tbody>';
+  function drawOv(){
+    DV=ovMo?days.filter(d=>d[0].slice(0,7)===ovMo):days; dSub(); animNext=true; drawDaily(); drawMonthT(); drawWeeks();
+    $('#tKind').innerHTML=gh+'<tbody>'+groupBy('k',k=>KIND[k]||k)+'</tbody>';
+    $('#tRegion').innerHTML=gh+'<tbody>'+groupBy('r')+'</tbody>';
+  }
+  mOpt('#ovM','Luỹ kế từ '+ddmmyy(M.start)); $('#ovM').onchange=e=>{ovMo=e.target.value; drawOv();}; drawOv();
 
   /* ---------- units ---------- */
-  const U={}; P.forEach(z=>{const o=(U[z.v]=U[z.v]||{v:z.v,t:0,a:0,am:0,n:0,p:0,mn:0,mp:0,stale:0,last:null}); o.t++; if(z.pn){o.a++; if(ago(z.last)>M.stale_days) o.stale++;} if(z.m[curM]){o.am++; o.mn+=z.m[curM][0]; o.mp+=z.m[curM][1];} o.n+=z.pn; o.p+=z.p; if(z.last&&(!o.last||z.last>o.last)) o.last=z.last;});
-  const UL=Object.values(U).sort((a,b)=>b.p-a.p);
+  let unMo='', UL=[];
   const lastTag=s=>{const d=ago(s); if(d==null) return '<span class="st n">Chưa có đơn</span>'; const c=d<=3?'g':d<=M.stale_days?'w':'b'; return `<span class="st ${c}">${ddmm(s)} · ${d===0?'hôm nay':d+' ngày'}</span>`;};
-  const sumU=UL.reduce((s,o)=>({t:s.t+o.t,a:s.a+o.a,n:s.n+o.n,p:s.p+o.p,mp:s.mp+o.mp,stale:s.stale+o.stale}),{t:0,a:0,n:0,p:0,mp:0,stale:0});
-  $('#tUnit').innerHTML=`<thead><tr><th>#</th><th>Đơn vị BH PVI</th><th class="r">HĐBH</th><th class="r">Phí 100%</th><th class="r">Phần BH PVI</th><th class="r">Phí T${+curM.slice(5)}</th><th>Độ phủ điểm bán</th><th class="r">Điểm "ngủ"</th><th>Đơn gần nhất</th></tr></thead><tbody>`+
-    UL.map((o,i)=>`<tr><td class="num">${i+1}</td><td><a href="#" data-unit="${esc(o.v)}" style="color:inherit;font-weight:600">${esc(o.v)}</a></td><td class="r num">${vi(o.n)}</td><td class="r num">${money(o.p)}</td><td class="r num">${money(o.p*share)}</td><td class="r num">${money(o.mp)}</td>
-      <td><div class="cov"><i><b style="width:0" data-w="${o.t?o.a/o.t*100:0}"></b></i><span class="num">${o.a}/${o.t}</span></div></td><td class="r num">${o.stale?`<span class="st b">${o.stale}</span>`:'0'}</td><td>${lastTag(o.last)}</td></tr>`).join('')+
-    `<tr class="tot"><td></td><td>Tổng</td><td class="r num">${vi(sumU.n)}</td><td class="r num">${money(sumU.p)}</td><td class="r num">${money(sumU.p*share)}</td><td class="r num">${money(sumU.mp)}</td><td><span class="num">${sumU.a}/${sumU.t}</span></td><td class="r num">${sumU.stale}</td><td></td></tr></tbody>`;
+  const UL0x=(()=>{const U={}; P.forEach(z=>{const o=(U[z.v]=U[z.v]||{v:z.v,p:0}); o.p+=z.p;}); return Object.values(U).sort((a,b)=>b.p-a.p);})();
+  function drawUnits(){
+    const mo=unMo, cmpM=mo?prevOf(mo):curM, cmpL=`Phí T${+cmpM.slice(5)}`;
+    const U={}; P.forEach(z=>{const [n,p]=pv(z,mo); const o=(U[z.v]=U[z.v]||{v:z.v,t:0,a:0,n:0,p:0,mp:0,cp:0,stale:0,last:null}); o.t++; if(n) o.a++; if(z.pn&&ago(z.last)>M.stale_days) o.stale++;
+      o.n+=n; o.p+=p; if(z.m[curM]) o.mp+=z.m[curM][1]; if(mo&&z.m[cmpM]) o.cp+=z.m[cmpM][1]; if(z.last&&(!o.last||z.last>o.last)) o.last=z.last;});
+    UL=Object.values(U).sort((a,b)=>b.p-a.p||a.v.localeCompare(b.v,'vi'));
+    const sumU=UL.reduce((s,o)=>({t:s.t+o.t,a:s.a+o.a,n:s.n+o.n,p:s.p+o.p,mp:s.mp+o.mp,cp:s.cp+o.cp,stale:s.stale+o.stale}),{t:0,a:0,n:0,p:0,mp:0,cp:0,stale:0});
+    const fullCmp=mo&&mo!==curM&&cmpM>M.start.slice(0,7);   // chỉ so % khi cả hai tháng đều đủ tháng
+    const cmpCell=o=>mo?(o.cp?money(o.cp)+(fullCmp?`<div class="note" style="margin:0"><span class="${o.p>=o.cp?'up':'dn'}">${o.p>=o.cp?'▲':'▼'} ${pctf(Math.abs(o.p/o.cp-1),0)}</span></div>`:''):'—'):money(o.mp);
+    $('#tUnit').innerHTML=`<thead><tr><th>#</th><th>Đơn vị BH PVI</th><th class="r">HĐBH${mo?' '+kyName(mo):''}</th><th class="r">Phí 100%</th><th class="r">Phần BH PVI</th><th class="r">${cmpL}</th><th>Độ phủ điểm bán${mo?' (trong tháng)':''}</th><th class="r">Điểm "ngủ"</th><th>Đơn gần nhất</th></tr></thead><tbody>`+
+      UL.map((o,i)=>`<tr><td class="num">${i+1}</td><td><a href="#" data-unit="${esc(o.v)}" style="color:inherit;font-weight:600">${esc(o.v)}</a></td><td class="r num">${vi(o.n)}</td><td class="r num">${money(o.p)}</td><td class="r num">${money(o.p*share)}</td><td class="r num">${cmpCell(o)}</td>
+        <td><div class="cov"><i><b style="width:0" data-w="${o.t?o.a/o.t*100:0}"></b></i><span class="num">${o.a}/${o.t}</span></div></td><td class="r num">${o.stale?`<span class="st b">${o.stale}</span>`:'0'}</td><td>${lastTag(o.last)}</td></tr>`).join('')+
+      `<tr class="tot"><td></td><td>Tổng</td><td class="r num">${vi(sumU.n)}</td><td class="r num">${money(sumU.p)}</td><td class="r num">${money(sumU.p*share)}</td><td class="r num">${cmpCell(sumU)}</td><td><span class="num">${sumU.a}/${sumU.t}</span></td><td class="r num">${sumU.stale}</td><td></td></tr></tbody>`;
+    requestAnimationFrame(()=>document.querySelectorAll('#tUnit .cov b').forEach(b=>b.style.width=b.dataset.w+'%'));
+  }
+  mOpt('#unM','Luỹ kế từ '+ddmmyy(M.start)); $('#unM').onchange=e=>{unMo=e.target.value; drawUnits();}; drawUnits();
   $('#tUnit').addEventListener('click',e=>{const a=e.target.closest('a[data-unit]'); if(!a) return; e.preventDefault(); $('#fU').value=a.dataset.unit; $('#fS').value=''; go('pt'); drawPoints();});
-  CSV.units=()=>csv('ocarcare_don_vi_bh_pvi_'+rd,['Đơn vị BH PVI','HĐBH','Phí 100% chưa VAT','Phần BH PVI','Phí tháng '+curM,'Điểm có đơn','Tổng điểm','Điểm ngủ','Đơn gần nhất'],UL.map(o=>[o.v,o.n,o.p,Math.round(o.p*share),o.mp,o.a,o.t,o.stale,o.last||'']));
+  CSV.units=()=>csv('ocarcare_don_vi_bh_pvi_'+(unMo||'luyke')+'_'+rd,['Kỳ','Đơn vị BH PVI','HĐBH','Phí 100% chưa VAT','Phần BH PVI',unMo?'Phí tháng '+prevOf(unMo):'Phí tháng '+curM,'Điểm có đơn','Tổng điểm','Điểm ngủ','Đơn gần nhất'],UL.map(o=>[unMo||'Luỹ kế',o.v,o.n,o.p,Math.round(o.p*share),unMo?o.cp:o.mp,o.a,o.t,o.stale,o.last||'']));
 
   /* ---------- points ---------- */
   const opt=(arr,all)=>`<option value="">${all}</option>`+arr.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join('');
-  $('#fU').innerHTML=opt(UL.map(o=>o.v),'Tất cả đơn vị BH PVI');
+  $('#fU').innerHTML=opt(UL0x.map(o=>o.v),'Tất cả đơn vị BH PVI');
   $('#fK').innerHTML=`<option value="">Tất cả loại</option>`+Object.keys(KIND).filter(k=>P.some(z=>z.k===k)).map(k=>`<option value="${k}">${KIND[k]}</option>`).join('');
   $('#fV').innerHTML=opt([...new Set(P.map(z=>z.vg).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'vi',{numeric:true})),'Tất cả vùng');
   $('#fS').options[3].textContent=`Quá ${M.stale_days} ngày chưa có đơn`;
-  let sortK='p', sortD=-1, PF=[];
-  const cols=[['n','Điểm bán'],['k','Loại'],['vg','Vùng'],['v','Đơn vị BH PVI'],['pn','HĐBH','r'],['p','Phí 100%','r'],['mp',`Phí T${+curM.slice(5)}`,'r'],['last','Đơn gần nhất']];
+  let sortK='p', sortD=-1, PF=[], ptMo='';
   function drawPoints(){
+    const mo=ptMo, xN=z=>pv(z,mo)[0], xP=z=>pv(z,mo)[1], xM=z=>mo?z.p:(z.m[curM]?z.m[curM][1]:0);
+    const cols=[['n','Điểm bán'],['k','Loại'],['vg','Vùng'],['v','Đơn vị BH PVI'],['pn',mo?'HĐBH '+kyName(mo):'HĐBH','r'],['p',mo?'Phí '+kyName(mo):'Phí 100%','r'],['mp',mo?'Phí luỹ kế':`Phí T${+curM.slice(5)}`,'r'],['last','Đơn gần nhất']];
     const q=fold($('#fQ').value.trim()), u=$('#fU').value, kk=$('#fK').value, vv=$('#fV').value, s=$('#fS').value;
     PF=P.filter(z=>(!q||fold(z.n+' '+z.c+' '+z.pr).includes(q))&&(!u||z.v===u)&&(!kk||z.k===kk)&&(!vv||z.vg===vv)&&
-      (!s||(s==='act'&&z.pn)||(s==='m'&&z.m[curM])||(s==='zero'&&!z.pn)||(s==='stale'&&z.pn&&ago(z.last)>M.stale_days)));
-    const val=z=>sortK==='mp'?(z.m[curM]?z.m[curM][1]:0):sortK==='last'?(z.last||''):z[sortK];
+      (!s||(s==='act'&&xN(z))||(s==='m'&&z.m[curM])||(s==='zero'&&!xN(z))||(s==='stale'&&z.pn&&ago(z.last)>M.stale_days)));
+    const val=z=>sortK==='mp'?xM(z):sortK==='pn'?xN(z):sortK==='p'?xP(z):sortK==='last'?(z.last||''):z[sortK];
     PF.sort((a,b)=>{const x=val(a),y=val(b); return (typeof x==='string'?String(x).localeCompare(String(y),'vi'):(x-y))*sortD;});
-    const a=PF.filter(z=>z.pn).length, sp=PF.reduce((s,z)=>s+z.p,0);
-    $('#ptSub').textContent=`${PF.length} điểm · ${a} điểm có đơn · ${money(sp)}`;
+    const a=PF.filter(z=>xN(z)).length, sp=PF.reduce((s,z)=>s+xP(z),0);
+    $('#ptSub').textContent=`${PF.length} điểm · ${a} điểm có đơn${mo?' trong '+kyName(mo):''} · ${money(sp)}`;
     $('#tPoint').innerHTML=`<thead><tr>${cols.map(c=>`<th class="s ${c[2]||''}" data-k="${c[0]}">${c[1]}${sortK===c[0]?(sortD<0?' ↓':' ↑'):''}</th>`).join('')}</tr></thead><tbody>`+
-      (PF.length?PF.slice(0,600).map(z=>`<tr><td><b style="font-weight:600">${esc(nm(z))}</b><div class="note" style="margin:0">${esc(z.c)}${z.pr?' · '+esc(z.pr):''}</div></td><td><span class="tag">${esc(KIND[z.k]||z.k)}</span></td><td>${esc(z.vg)}</td><td>${esc(z.v)}</td><td class="r num">${z.pn?vi(z.pn):'—'}</td><td class="r num">${z.p?money(z.p):'—'}</td><td class="r num">${z.m[curM]?money(z.m[curM][1]):'—'}</td><td>${lastTag(z.last)}</td></tr>`).join(''):`<tr><td colspan="8" class="empty">Không có điểm bán phù hợp</td></tr>`)+'</tbody>';
+      (PF.length?PF.slice(0,600).map(z=>`<tr><td><b style="font-weight:600">${esc(nm(z))}</b><div class="note" style="margin:0">${esc(z.c)}${z.pr?' · '+esc(z.pr):''}</div></td><td><span class="tag">${esc(KIND[z.k]||z.k)}</span></td><td>${esc(z.vg)}</td><td>${esc(z.v)}</td><td class="r num">${xN(z)?vi(xN(z)):'—'}</td><td class="r num">${xP(z)?money(xP(z)):'—'}</td><td class="r num">${xM(z)?money(xM(z)):'—'}</td><td>${lastTag(z.last)}</td></tr>`).join(''):`<tr><td colspan="8" class="empty">Không có điểm bán phù hợp</td></tr>`)+'</tbody>';
   }
   $('#tPoint').addEventListener('click',e=>{const th=e.target.closest('th[data-k]'); if(!th) return; const k=th.dataset.k; if(sortK===k) sortD=-sortD; else {sortK=k; sortD=['n','k','vg','v'].includes(k)?1:-1;} drawPoints();});
   ['#fQ','#fU','#fK','#fV','#fS'].forEach(s=>$(s).addEventListener('input',drawPoints));
+  mOpt('#ptM','Luỹ kế từ '+ddmmyy(M.start)); $('#ptM').onchange=e=>{ptMo=e.target.value; drawPoints();};
   drawPoints();
-  CSV.points=()=>csv('ocarcare_diem_ban_'+rd,['Mã','Điểm bán','Loại','Miền','Tỉnh','Vùng','Đơn vị BH PVI','HĐBH','Phí 100% chưa VAT','Phần BH PVI','HĐBH tháng '+curM,'Phí tháng '+curM,'Đơn đầu tiên','Đơn gần nhất','Số ngày chưa có đơn mới'],
-    PF.map(z=>[z.c,z.n,KIND[z.k]||z.k,z.r,z.pr,z.vg,z.v,z.pn,z.p,Math.round(z.p*share),z.m[curM]?z.m[curM][0]:0,z.m[curM]?z.m[curM][1]:0,z.first||'',z.last||'',ago(z.last)??'']));
+  CSV.points=()=>{const mo=ptMo, mk_=mo||curM; csv('ocarcare_diem_ban_'+(mo||'luyke')+'_'+rd,['Mã','Điểm bán','Loại','Miền','Tỉnh','Vùng','Đơn vị BH PVI','HĐBH luỹ kế','Phí luỹ kế chưa VAT','Phần BH PVI luỹ kế','HĐBH tháng '+mk_,'Phí tháng '+mk_,'Phần BH PVI tháng '+mk_,'Đơn đầu tiên','Đơn gần nhất','Số ngày chưa có đơn mới'],
+    PF.map(z=>{const x=z.m[mk_]||[0,0]; return [z.c,z.n,KIND[z.k]||z.k,z.r,z.pr,z.vg,z.v,z.pn,z.p,Math.round(z.p*share),x[0],x[1],Math.round(x[1]*share),z.first||'',z.last||'',ago(z.last)??''];}));};
 
   /* ---------- nhà đồng ---------- */
   const N=D.nhadong;
@@ -597,7 +630,7 @@ function render(data){
     const monthRows=mm.map(m=>{const o={}; ins.forEach(i=>o[i]=get(i,m).p); return stackRow(mlabel(m),o,tot(m));}).join('')+(()=>{const o={}; ins.forEach(i=>o[i]=allI(i)); return stackRow(kyL,o,allT);})();
     $('#ndBody').innerHTML=`
       <div class="callout w">${N.kind==='summary'
-        ?`Nguồn: <b>${esc(N.file)}</b> – báo cáo tỷ trọng nhà đồng kênh VPBank RB do OPES tổng hợp hằng tháng · ${mm.length} tháng (${mm.map(mlabel).join(', ')}) đến ${ddmmyy(N.asof)} · phí chưa VAT. BH PVI tham gia từ 21/09/2026. Phần theo đơn vị, vùng, điểm bán tính theo <b>${mlabel(N.detail_month)}</b>.`
+        ?`Nguồn: <b>${esc(N.file)}</b> – báo cáo tỷ trọng nhà đồng kênh VPBank RB do OPES tổng hợp hằng tháng · ${mm.length} tháng (${mm.map(mlabel).join(', ')}) đến ${ddmmyy(N.asof)} · phí chưa VAT. BH PVI tham gia từ 21/09/2026. Phần theo đơn vị, vùng, điểm bán chọn tháng ở mục <b>Kỳ xem</b>.`
         :`Nguồn: <b>${esc(N.file)}</b> (OPES gửi hằng tháng) · số liệu từ ${ddmm(N.min)} đến ${ddmmyy(N.asof)} · đã loại ${N.dup} dòng trùng${N.vat_adjusted?' · phí đã quy về <b>chưa VAT</b> (cột phí trong file OPES đang gồm VAT)':''}.`} Số liệu nhà đồng chỉ cập nhật khi có file mới.</div>
       <div class="row2">
         <div class="card"><h2>Tỷ trọng phí theo nhà đồng</h2><div class="sub">Toàn kênh OCARCARE · cột phải = tỷ trọng BH PVI</div>${leg}${monthRows}</div>
@@ -606,14 +639,8 @@ function render(data){
           ${ins.map(i=>`<tr><td><span class="legend" style="margin:0"><span><i style="background:${colr(i)}"></i>${esc(i)}</span></span></td>${mm.map(m=>`<td class="r num">${money(get(i,m).p)}<div class="note" style="margin:0">${pctf(get(i,m).p/tot(m))}</div></td>`).join('')}<td class="r num"><b>${pctf(allI(i)/allT)}</b></td><td class="r num">${vi(allN(i))}</td></tr>`).join('')}
           <tr class="tot"><td>Tổng</td>${mm.map(m=>`<td class="r num">${money(tot(m))}</td>`).join('')}<td class="r num">${money(allT)}</td><td class="r num">${vi(ins.reduce((s,i)=>s+allN(i),0))}</td></tr></tbody></table></div></div>
       </div>
-      <div class="row2">
-        <div class="card"><div class="hd"><div><h2>Theo đơn vị BH PVI</h2><div class="sub">Tỷ trọng các nhà đồng tại các điểm bán do đơn vị phụ trách${N.detail_month?' · '+mlabel(N.detail_month):''}</div></div><button class="btn" data-csv="ndUnit">⬇ CSV</button></div>${leg}${N.by_unit.map(o=>stackRow(o.k,o.s,o.t)).join('')}</div>
-        <div class="card"><div class="hd"><div><h2>Theo vùng VPBank</h2><div class="sub">Vùng KHCN theo mapping${N.detail_month?' · '+mlabel(N.detail_month):''}</div></div><button class="btn" data-csv="ndVung">⬇ CSV</button></div>${leg}${N.by_vung.map(o=>stackRow(o.k,o.s,o.t)).join('')}</div>
-      </div>
-      <div class="card mt"><div class="hd"><div><h2>Điểm bán có doanh thu nhà đồng khác nhưng BH PVI chiếm tỷ trọng thấp <span class="cnt" id="ndLowH"></span></h2><div class="sub">Phí nhà đồng ≥ 50 tr và tỷ trọng BH PVI &lt; 10% · cơ hội tăng tỷ trọng${N.detail_month?' · '+mlabel(N.detail_month):''}</div></div><button class="btn" data-csv="ndPoint">⬇ CSV</button></div>
-        <div class="tw"><table><thead><tr><th>Điểm bán</th><th>Đơn vị BH PVI</th><th class="r">Phí toàn kênh</th><th class="r">Phí BH PVI</th><th class="r">Tỷ trọng BH PVI</th></tr></thead><tbody>
-        ${N.by_point.filter(o=>o.t>=5e7&&o.pvi/o.t<0.1).sort((a,b)=>b.t-a.t).map((o,i)=>(i===20?'<tr class="morer"><td colspan="5"><button class="btn" id="ndMore">Xem thêm</button></td></tr>':'')+`<tr${i>=20?' class="xtra" hidden':''}><td>${esc(o.n)}<div class="note" style="margin:0">${esc(o.c)}</div></td><td>${esc(o.v)}</td><td class="r num">${money(o.t)}</td><td class="r num">${o.pvi?money(o.pvi):'—'}</td><td class="r num">${o.pvi?pctf(o.pvi/o.t):'<span class="st b">0%</span>'}</td></tr>`).join('')||'<tr><td colspan="5" class="empty">Không có</td></tr>'}
-        </tbody></table></div></div>`;
+      <div class="mbar mt"><label for="ndM">Kỳ xem</label><select id="ndM"></select><span class="note">Áp dụng cho phần theo đơn vị BH PVI, vùng VPBank và điểm bán bên dưới.</span></div>
+      <div id="ndDet"></div>`;
     if(N.sme&&N.sme.data&&N.sme.data.length){
       const S=N.sme.data, sm=[...new Set(S.map(x=>x.m))].sort(), si=[...new Set(S.map(x=>x.i))].sort((a,b)=>S.filter(x=>x.i===b).reduce((s,x)=>s+x.p,0)-S.filter(x=>x.i===a).reduce((s,x)=>s+x.p,0));
       const sg=(i,m)=>(S.find(x=>x.i===i&&x.m===m)||{p:0}).p, st=m=>S.filter(x=>x.m===m).reduce((s,x)=>s+x.p,0), sk=sm.slice(-4);
@@ -623,31 +650,63 @@ function render(data){
         ${si.map(i=>`<tr><td><span class="legend" style="margin:0"><span><i style="background:${ci(i)}"></i>${esc(i)}</span></span></td>${sk.map(m=>`<td class="r num">${money(sg(i,m))}<div class="note" style="margin:0">${pctf(sg(i,m)/(st(m)||1))}</div></td>`).join('')}<td class="r num">${money(sm.reduce((s,m)=>s+sg(i,m),0))}</td></tr>`).join('')}
         <tr class="tot"><td>Tổng</td>${sk.map(m=>`<td class="r num">${money(st(m))}</td>`).join('')}<td class="r num">${money(sm.reduce((s,m)=>s+st(m),0))}</td></tr></tbody></table></div></div>`);
     }
-    const nm=$('#ndMore'); if(nm) nm.onclick=()=>{document.querySelectorAll('#ndBody tr.xtra').forEach(r=>r.hidden=false); nm.closest('tr').remove();};
-    const lowN=N.by_point.filter(o=>o.t>=5e7&&o.pvi/o.t<0.1).length; const hh=document.querySelector('#ndLowH'); if(hh) hh.textContent=lowN;
-    document.querySelectorAll('#ndBody .stack i').forEach(el=>{el.addEventListener('mousemove',e=>showTip(e,`<b>${esc(el.closest('.stack').dataset.tip)}</b><br>${esc(el.dataset.i)}: ${money(+el.dataset.v)} · ${pctf(+el.dataset.v/+el.dataset.t)}`)); el.addEventListener('mouseleave',softHide); el.addEventListener('click',e=>{e.stopPropagation(); showTip(e,`<b>${esc(el.closest('.stack').dataset.tip)}</b><br>${esc(el.dataset.i)}: ${money(+el.dataset.v)} · ${pctf(+el.dataset.v/+el.dataset.t)}`);});});
+    const DET=N.detail||{[N.detail_month||'_']:{by_unit:N.by_unit,by_vung:N.by_vung,by_point:N.by_point}};
+    const dMs=Object.keys(DET).sort().reverse(), kyMs=dMs.filter(m=>!N.since||m>=N.since);
+    const aggK=(arr,key)=>{const g={}; arr.forEach(o=>{const x=(g[o[key]]=g[o[key]]||{k:o.k,t:0,s:{}}); x.t+=o.t; for(const i in o.s) x.s[i]=(x.s[i]||0)+o.s[i];}); return Object.values(g).sort((a,b)=>b.t-a.t);};
+    const aggP=arr=>{const g={}; arr.forEach(o=>{const x=(g[o.c]=g[o.c]||{c:o.c,n:o.n,v:o.v,t:0,pvi:0}); x.t+=o.t; x.pvi+=o.pvi;}); return Object.values(g);};
+    let ndCur=null;
+    function drawNdDet(mo){
+      const pick=mo==='ky'?kyMs:[mo], L=mo==='ky'?kyL:mlabel(mo);
+      const bu=pick.length>1?aggK(pick.flatMap(m=>DET[m].by_unit),'k'):DET[pick[0]].by_unit;
+      const bv=pick.length>1?aggK(pick.flatMap(m=>DET[m].by_vung),'k'):DET[pick[0]].by_vung;
+      const bp=pick.length>1?aggP(pick.flatMap(m=>DET[m].by_point)):DET[pick[0]].by_point;
+      const thr=5e7*pick.length, low=bp.filter(o=>o.t>=thr&&o.pvi/o.t<0.1).sort((a,b)=>b.t-a.t);
+      ndCur={bu,bv,bp,L};
+      $('#ndDet').innerHTML=`<div class="row2">
+        <div class="card"><div class="hd"><div><h2>Theo đơn vị BH PVI</h2><div class="sub">Tỷ trọng các nhà đồng tại các điểm bán do đơn vị phụ trách · ${L}</div></div><button class="btn" data-csv="ndUnit">⬇ CSV</button></div>${leg}${bu.map(o=>stackRow(o.k,o.s,o.t)).join('')}</div>
+        <div class="card"><div class="hd"><div><h2>Theo vùng VPBank</h2><div class="sub">Vùng KHCN theo mapping · ${L}</div></div><button class="btn" data-csv="ndVung">⬇ CSV</button></div>${leg}${bv.map(o=>stackRow(o.k,o.s,o.t)).join('')}</div>
+      </div>
+      <div class="card mt"><div class="hd"><div><h2>Điểm bán có doanh thu nhà đồng khác nhưng BH PVI chiếm tỷ trọng thấp <span class="cnt">${low.length}</span></h2><div class="sub">Phí toàn kênh ≥ ${money(thr)} và tỷ trọng BH PVI &lt; 10% · cơ hội tăng tỷ trọng · ${L}</div></div><button class="btn" data-csv="ndPoint">⬇ CSV</button></div>
+        <div class="tw"><table><thead><tr><th>Điểm bán</th><th>Đơn vị BH PVI</th><th class="r">Phí toàn kênh</th><th class="r">Phí BH PVI</th><th class="r">Tỷ trọng BH PVI</th></tr></thead><tbody>
+        ${low.map((o,i)=>(i===20?'<tr class="morer"><td colspan="5"><button class="btn" id="ndMore">Xem thêm</button></td></tr>':'')+`<tr${i>=20?' class="xtra" hidden':''}><td>${esc(o.n)}<div class="note" style="margin:0">${esc(o.c)}</div></td><td>${esc(o.v)}</td><td class="r num">${money(o.t)}</td><td class="r num">${o.pvi?money(o.pvi):'—'}</td><td class="r num">${o.pvi?pctf(o.pvi/o.t):'<span class="st b">0%</span>'}</td></tr>`).join('')||'<tr><td colspan="5" class="empty">Không có</td></tr>'}
+        </tbody></table></div></div>`;
+      const nm=$('#ndMore'); if(nm) nm.onclick=()=>{document.querySelectorAll('#ndDet tr.xtra').forEach(r=>r.hidden=false); nm.closest('tr').remove();};
+      bindStack('#ndDet');
+    }
+    function bindStack(root){ document.querySelectorAll(root+' .stack i').forEach(el=>{el.addEventListener('mousemove',e=>showTip(e,`<b>${esc(el.closest('.stack').dataset.tip)}</b><br>${esc(el.dataset.i)}: ${money(+el.dataset.v)} · ${pctf(+el.dataset.v/+el.dataset.t)}`)); el.addEventListener('mouseleave',softHide); el.addEventListener('click',e=>{e.stopPropagation(); showTip(e,`<b>${esc(el.closest('.stack').dataset.tip)}</b><br>${esc(el.dataset.i)}: ${money(+el.dataset.v)} · ${pctf(+el.dataset.v/+el.dataset.t)}`);});}); }
+    $('#ndM').innerHTML=dMs.map(m=>`<option value="${m}">Tháng ${+m.slice(5)}/${m.slice(0,4)}</option>`).join('')+(kyMs.length>1?`<option value="ky">${kyL} (cộng các tháng)</option>`:'');
+    $('#ndM').value=N.detail_month&&DET[N.detail_month]?N.detail_month:dMs[0];
+    $('#ndM').onchange=e=>drawNdDet(e.target.value); drawNdDet($('#ndM').value);
+    document.querySelectorAll('#ndBody > .row2 .stack i').forEach(el=>{el.addEventListener('mousemove',e=>showTip(e,`<b>${esc(el.closest('.stack').dataset.tip)}</b><br>${esc(el.dataset.i)}: ${money(+el.dataset.v)} · ${pctf(+el.dataset.v/+el.dataset.t)}`)); el.addEventListener('mouseleave',softHide); el.addEventListener('click',e=>{e.stopPropagation(); showTip(e,`<b>${esc(el.closest('.stack').dataset.tip)}</b><br>${esc(el.dataset.i)}: ${money(+el.dataset.v)} · ${pctf(+el.dataset.v/+el.dataset.t)}`);});});
     const ndCsv=(name,arr)=>csv(name,['Nhóm','Tổng phí chưa VAT',...ins.map(i=>i+' (phí)'),...ins.map(i=>i+' (%)')],arr.map(o=>[o.k,o.t,...ins.map(i=>o.s[i]||0),...ins.map(i=>((o.s[i]||0)/o.t*100).toFixed(1))]));
-    CSV.ndUnit=()=>ndCsv('ty_trong_nha_dong_theo_don_vi',N.by_unit); CSV.ndVung=()=>ndCsv('ty_trong_nha_dong_theo_vung',N.by_vung);
-    CSV.ndPoint=()=>csv('ty_trong_nha_dong_theo_diem_ban',['Mã','Điểm bán','Đơn vị BH PVI','Phí toàn kênh','Phí BH PVI','Tỷ trọng BH PVI (%)'],N.by_point.sort((a,b)=>b.t-a.t).map(o=>[o.c,o.n,o.v,o.t,o.pvi,(o.pvi/o.t*100).toFixed(1)]));
+    const fk=()=>String(ndCur.L).replace(/[^\w–-]+/g,'_');
+    CSV.ndUnit=()=>ndCsv('ty_trong_nha_dong_theo_don_vi_'+fk(),ndCur.bu); CSV.ndVung=()=>ndCsv('ty_trong_nha_dong_theo_vung_'+fk(),ndCur.bv);
+    CSV.ndPoint=()=>csv('ty_trong_nha_dong_theo_diem_ban_'+fk(),['Kỳ','Mã','Điểm bán','Đơn vị BH PVI','Phí toàn kênh','Phí BH PVI','Tỷ trọng BH PVI (%)'],ndCur.bp.slice().sort((a,b)=>b.t-a.t).map(o=>[ndCur.L,o.c,o.n,o.v,o.t,o.pvi,(o.t?o.pvi/o.t*100:0).toFixed(1)]));
   }
 
   /* ---------- đối soát ---------- */
   const R=D.recon;
-  if(!R){ $('#rcBody').innerHTML='<div class="card"><div class="empty">Chưa có file OPES để đối soát.</div></div>'; $('#rcCnt').textContent='–'; }
+  if(!R){ $('#rcBody').innerHTML='<div class="card"><div class="empty">Chưa có file OPES để đối soát.</div></div>'; $('#rcCnt').textContent='–';  $('#rcM').closest('.mbar').hidden=true; }
   else{
     const issues=R.only_opes.length+R.only_pvi.length+R.code_diff.length+R.fee_diff.length; $('#rcCnt').textContent=issues;
+    const rMs=[...new Set([...R.only_opes,...R.only_pvi,...R.code_diff,...R.fee_diff].map(z=>(z.d||'').slice(0,7)).filter(Boolean))].sort().reverse();
+    $('#rcM').innerHTML='<option value="">Tất cả các tháng</option>'+rMs.map(m=>`<option value="${m}">Tháng ${+m.slice(5)}/${m.slice(0,4)}</option>`).join('');
+    function drawRc(){ const mo=$('#rcM').value, f=a=>mo?a.filter(z=>(z.d||'').slice(0,7)===mo):a;
+    const RO=f(R.only_opes), RP=f(R.only_pvi), RC=f(R.code_diff), RF=f(R.fee_diff);
     const tbl=(id,title,sub,head,rows,fn)=>`<div class="card mt"><div class="hd"><div><h2>${title} <span class="cnt">${rows.length}</span></h2><div class="sub">${sub}</div></div>${rows.length?`<button class="btn" data-csv="${id}">⬇ CSV</button>`:''}</div>
       ${rows.length?`<div class="tw"><table><thead><tr>${head.map(h=>`<th class="${h[1]||''}">${h[0]}</th>`).join('')}</tr></thead><tbody>${rows.map(fn).join('')}</tbody></table></div>`:'<div class="empty">Không có chênh lệch ✔</div>'}</div>`;
     const base=[['Số hợp đồng'],['Ngày cấp'],['Điểm bán'],['Đơn vị BH PVI']];
     $('#rcBody').innerHTML=`<div class="callout">Đối chiếu báo cáo BH PVI (${esc(M.source)}) với dữ liệu OPES (${R.files.length} file, số liệu OPES đến <b>${R.asof?ddmmyy(R.asof):'—'}</b>). Khớp <b>${vi(R.matched)}</b> HĐ. Chỉ xét HĐ cấp trước ngày số liệu; HĐ BH PVI cấp sau ngày ${R.asof?ddmm(R.asof):''} chưa đối chiếu được cho đến khi có file OPES mới.</div>`+
-      tbl('rcO','Có bên OPES, chưa có trong báo cáo BH PVI','Cần BH PVI kiểm tra việc cấp đơn / ghi nhận',[...base,['Phí (chưa VAT, theo OPES)','r']],R.only_opes,z=>`<tr><td class="num">${esc(z.pol)}</td><td>${z.d?ddmm(z.d):''}</td><td>${esc(z.n)}</td><td>${esc(z.v)}</td><td class="r num">${money(z.fee)}</td></tr>`)+
-      tbl('rcP','Có trong báo cáo BH PVI, không có bên OPES','Cần OPES kiểm tra',[...base,['Phí (chưa VAT)','r']],R.only_pvi,z=>`<tr><td class="num">${esc(z.pol)}</td><td>${ddmm(z.d)}</td><td>${esc(z.n)}</td><td>${esc(z.v)}</td><td class="r num">${money(z.fee)}</td></tr>`)+
-      tbl('rcC','Lệch mã điểm bán','Cùng HĐ nhưng hai bên ghi nhận điểm bán khác nhau',[['Số hợp đồng'],['Ngày cấp'],['Theo BH PVI'],['Theo OPES']],R.code_diff,z=>`<tr><td class="num">${esc(z.pol)}</td><td>${ddmm(z.d)}</td><td>${esc(z.n)}</td><td>${esc(z.no)}</td></tr>`)+
-      tbl('rcF','Lệch phí','Phí BH PVI (gồm SĐBS) so với phí OPES quy về chưa VAT, lệch trên 1%',[['Số hợp đồng'],['Ngày cấp'],['Điểm bán'],['Phí BH PVI','r'],['Phí OPES','r'],['Chênh lệch','r']],R.fee_diff,z=>`<tr><td class="num">${esc(z.pol)}</td><td>${ddmm(z.d)}</td><td>${esc(z.n)}</td><td class="r num">${vi(z.fp)}</td><td class="r num">${vi(z.fo)}</td><td class="r num">${vi(z.fp-z.fo)}</td></tr>`);
-    CSV.rcO=()=>csv('doi_soat_chi_co_ben_OPES',['Số hợp đồng','Ngày','Mã điểm bán','Điểm bán','Đơn vị BH PVI','Phí chưa VAT (OPES)'],R.only_opes.map(z=>[z.pol,z.d,z.c,z.n,z.v,z.fee]));
-    CSV.rcP=()=>csv('doi_soat_chi_co_ben_BH_PVI',['Số hợp đồng','Ngày','Mã điểm bán','Điểm bán','Đơn vị BH PVI','Phí chưa VAT'],R.only_pvi.map(z=>[z.pol,z.d,z.c,z.n,z.v,z.fee]));
-    CSV.rcC=()=>csv('doi_soat_lech_ma_diem_ban',['Số hợp đồng','Ngày','Mã BH PVI','Điểm bán BH PVI','Mã OPES','Điểm bán OPES'],R.code_diff.map(z=>[z.pol,z.d,z.c,z.n,z.co,z.no]));
-    CSV.rcF=()=>csv('doi_soat_lech_phi',['Số hợp đồng','Ngày','Mã điểm bán','Điểm bán','Phí BH PVI','Phí OPES chưa VAT','Chênh lệch'],R.fee_diff.map(z=>[z.pol,z.d,z.c,z.n,z.fp,z.fo,z.fp-z.fo]));
+      tbl('rcO','Có bên OPES, chưa có trong báo cáo BH PVI','Cần BH PVI kiểm tra việc cấp đơn / ghi nhận',[...base,['Phí (chưa VAT, theo OPES)','r']],RO,z=>`<tr><td class="num">${esc(z.pol)}</td><td>${z.d?ddmm(z.d):''}</td><td>${esc(z.n)}</td><td>${esc(z.v)}</td><td class="r num">${money(z.fee)}</td></tr>`)+
+      tbl('rcP','Có trong báo cáo BH PVI, không có bên OPES','Cần OPES kiểm tra',[...base,['Phí (chưa VAT)','r']],RP,z=>`<tr><td class="num">${esc(z.pol)}</td><td>${ddmm(z.d)}</td><td>${esc(z.n)}</td><td>${esc(z.v)}</td><td class="r num">${money(z.fee)}</td></tr>`)+
+      tbl('rcC','Lệch mã điểm bán','Cùng HĐ nhưng hai bên ghi nhận điểm bán khác nhau',[['Số hợp đồng'],['Ngày cấp'],['Theo BH PVI'],['Theo OPES']],RC,z=>`<tr><td class="num">${esc(z.pol)}</td><td>${ddmm(z.d)}</td><td>${esc(z.n)}</td><td>${esc(z.no)}</td></tr>`)+
+      tbl('rcF','Lệch phí','Phí BH PVI (gồm SĐBS) so với phí OPES quy về chưa VAT, lệch trên 1%',[['Số hợp đồng'],['Ngày cấp'],['Điểm bán'],['Phí BH PVI','r'],['Phí OPES','r'],['Chênh lệch','r']],RF,z=>`<tr><td class="num">${esc(z.pol)}</td><td>${ddmm(z.d)}</td><td>${esc(z.n)}</td><td class="r num">${vi(z.fp)}</td><td class="r num">${vi(z.fo)}</td><td class="r num">${vi(z.fp-z.fo)}</td></tr>`);
+    CSV.rcO=()=>csv('doi_soat_chi_co_ben_OPES',['Số hợp đồng','Ngày','Mã điểm bán','Điểm bán','Đơn vị BH PVI','Phí chưa VAT (OPES)'],RO.map(z=>[z.pol,z.d,z.c,z.n,z.v,z.fee]));
+    CSV.rcP=()=>csv('doi_soat_chi_co_ben_BH_PVI',['Số hợp đồng','Ngày','Mã điểm bán','Điểm bán','Đơn vị BH PVI','Phí chưa VAT'],RP.map(z=>[z.pol,z.d,z.c,z.n,z.v,z.fee]));
+    CSV.rcC=()=>csv('doi_soat_lech_ma_diem_ban',['Số hợp đồng','Ngày','Mã BH PVI','Điểm bán BH PVI','Mã OPES','Điểm bán OPES'],RC.map(z=>[z.pol,z.d,z.c,z.n,z.co,z.no]));
+    CSV.rcF=()=>csv('doi_soat_lech_phi',['Số hợp đồng','Ngày','Mã điểm bán','Điểm bán','Phí BH PVI','Phí OPES chưa VAT','Chênh lệch'],RF.map(z=>[z.pol,z.d,z.c,z.n,z.fp,z.fo,z.fp-z.fo]));
+    }
+    $('#rcM').onchange=drawRc; drawRc();
   }
   document.addEventListener('click',e=>{const b=e.target.closest('[data-csv]'); if(b&&CSV[b.dataset.csv]) CSV[b.dataset.csv]();});
   if(D.contest) renderContest(D.contest);

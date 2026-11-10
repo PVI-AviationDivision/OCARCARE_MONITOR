@@ -431,15 +431,25 @@ def main():
         for mk in months:
             TP[mk]["tot"] = {i: v for i, v in TP[mk]["tot"].items() if i in insurers}
         last = months[-1]
-        by_v, by_u, by_c = defaultdict(lambda: defaultdict(float)), defaultdict(lambda: defaultdict(float)), {}
-        for code, (bname, vung, d) in TP[last]["br"].items():
-            rec = M.get(code)
-            for i, v in d.items():
-                by_v[(rec or {}).get("vg") or vung or "Khác"][i] += v
-                by_u[(rec or {}).get("v") or "Chưa có trong mapping"][i] += v
-            by_c[code] = (bname, d)
         pack = lambda D: [dict(k=k, t=round(sum(v.values())), s={i: round(v.get(i, 0)) for i in insurers})
                           for k, v in sorted(D.items(), key=lambda kv: -sum(kv[1].values()))]
+        def month_detail(mk):
+            by_v, by_u, by_c = defaultdict(lambda: defaultdict(float)), defaultdict(lambda: defaultdict(float)), {}
+            for code, (bname, vung, d) in TP[mk]["br"].items():
+                rec = M.get(code)
+                d = {i: v for i, v in d.items() if i in insurers}
+                for i, v in d.items():
+                    by_v[(rec or {}).get("vg") or vung or "Khác"][i] += v
+                    by_u[(rec or {}).get("v") or "Chưa có trong mapping"][i] += v
+                by_c[code] = (bname, d)
+            return by_v, by_u, by_c
+        detail = {}
+        for mk in months:                                   # chi tiết từng tháng → bộ lọc tháng trên Monitor
+            bv, bu, bc = month_detail(mk)
+            detail[mk] = dict(by_vung=pack(bv), by_unit=pack(bu),
+                              by_point=[dict(c=k, n=(M.get(k) or {}).get("n", bn), v=(M.get(k) or {}).get("v", ""),
+                                             t=round(sum(d.values())), pvi=round(d.get("BH PVI", 0))) for k, (bn, d) in bc.items() if d])
+        by_v, by_u, by_c = month_detail(last)
         ly, lm = int(last[:4]), int(last[5:])
         asof = (dt.date(ly + (lm == 12), lm % 12 + 1, 1) - dt.timedelta(days=1))
         sme = load_sme(sfile) if sfile else None
@@ -449,6 +459,7 @@ def main():
                   by_vung=pack(by_v), by_unit=pack(by_u),
                   by_point=[dict(c=k, n=(M.get(k) or {}).get("n", bn), v=(M.get(k) or {}).get("v", ""),
                                  t=round(sum(d.values())), pvi=round(d.get("BH PVI", 0))) for k, (bn, d) in by_c.items()],
+                  detail=detail,
                   sme=dict(file=os.path.basename(sfile), data=sme) if sme else None)
         lt = TP[last]["tot"]; T_ = sum(v[1] for v in lt.values())
         print(f"• Thị phần nhà đồng: {os.path.basename(tfile)} ({', '.join(months)}) — tháng {lm}: BH PVI "
