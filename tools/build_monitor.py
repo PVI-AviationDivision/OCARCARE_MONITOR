@@ -240,6 +240,10 @@ def load_thiphan(path):
         rows = list(ws.iter_rows(values_only=True))
         yr = next((int(y) for r in rows[:2] for v in r if v for y in re.findall(r"(20\d{2})", str(v))), dt.date.today().year)
         mk = f"{yr}-{int(m.group(1)):02d}"
+        # ngày cuối số liệu trong tiêu đề, vd "Từ ngày 01/11/2026 - 08/11/2026" (tháng chưa hết)
+        dts = [to_date(x) for r in rows[:2] for v in r if v for x in re.findall(r"\d{1,2}/\d{1,2}/20\d{2}", str(v))]
+        dts = [d for d in dts if d and d.strftime("%Y-%m") == mk]
+        upto = max(dts) if dts else None
         hi = next((i for i, r in enumerate(rows[:8]) if r and norm(r[0]) == "mã chi nhánh"), None)
         if hi is None:
             continue
@@ -262,7 +266,7 @@ def load_thiphan(path):
             for code, (_, _, d) in br.items():
                 for i, v in d.items():
                     tot.setdefault(i, [0, 0.0])[1] += v
-        out[mk] = dict(tot=tot, br=br)
+        out[mk] = dict(tot=tot, br=br, upto=upto)
     return out
 
 def load_sme(path):
@@ -451,7 +455,10 @@ def main():
                                              t=round(sum(d.values())), pvi=round(d.get("BH PVI", 0))) for k, (bn, d) in bc.items() if d])
         by_v, by_u, by_c = month_detail(last)
         ly, lm = int(last[:4]), int(last[5:])
-        asof = (dt.date(ly + (lm == 12), lm % 12 + 1, 1) - dt.timedelta(days=1))
+        mend = (dt.date(ly + (lm == 12), lm % 12 + 1, 1) - dt.timedelta(days=1))
+        asof = min(TP[last].get("upto") or mend, mend)
+        partial = {mk: TP[mk]["upto"].isoformat() for mk in months
+                   if TP[mk].get("upto") and TP[mk]["upto"].day < (dt.date(int(mk[:4]) + (mk[5:] == "12"), int(mk[5:]) % 12 + 1, 1) - dt.timedelta(days=1)).day}
         sme = load_sme(sfile) if sfile else None
         nd = dict(kind="summary", since=CONFIG["start"][:7], file=os.path.basename(tfile), min=months[0] + "-01", asof=asof.isoformat(),
                   detail_month=last, insurers=insurers, months=months, dup=0, vat_adjusted=False,
@@ -459,10 +466,10 @@ def main():
                   by_vung=pack(by_v), by_unit=pack(by_u),
                   by_point=[dict(c=k, n=(M.get(k) or {}).get("n", bn), v=(M.get(k) or {}).get("v", ""),
                                  t=round(sum(d.values())), pvi=round(d.get("BH PVI", 0))) for k, (bn, d) in by_c.items()],
-                  detail=detail,
+                  detail=detail, partial=partial,
                   sme=dict(file=os.path.basename(sfile), data=sme) if sme else None)
         lt = TP[last]["tot"]; T_ = sum(v[1] for v in lt.values())
-        print(f"• Thị phần nhà đồng: {os.path.basename(tfile)} ({', '.join(months)}) — tháng {lm}: BH PVI "
+        print(f"• Thị phần nhà đồng: {os.path.basename(tfile)} ({', '.join(months)}) — tháng {lm}{' đến ' + asof.strftime('%d/%m') if last in partial else ''}: BH PVI "
               f"{lt.get('BH PVI', [0, 0])[1]:,.0f}đ / {T_:,.0f}đ = {lt.get('BH PVI', [0, 0])[1] / T_ * 100 if T_ else 0:.1f}%"
               + (f" · SME: {os.path.basename(sfile)}" if sme else ""))
         nfile = None

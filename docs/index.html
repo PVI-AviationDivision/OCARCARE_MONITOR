@@ -363,7 +363,7 @@ tbody tr{transition:background .15s}
 <div class="tip" id="tip"></div>
 <button id="toTop" title="Lên đầu trang" aria-label="Lên đầu trang">↑</button>
 
-<script src="data.enc.js?v=20261111092529"></script>
+<script src="data.enc.js?v=20261112104239"></script>
 <script>
 "use strict";
 const $=s=>document.querySelector(s);
@@ -621,13 +621,13 @@ function render(data){
   const N=D.nhadong;
   if(!N){ $('#ndBody').innerHTML='<div class="card"><div class="empty">Chưa có file "Báo cáo Nhà đồng" của OPES.</div></div>'; }
   else{
-    const ins=N.insurers, colr=i=>`var(--s${ins.indexOf(i)+1})`;
+    const ins=N.insurers, colr=i=>`var(--s${ins.indexOf(i)+1})`, PT=N.partial||{}, ndL=m=>mlabel(m)+(PT[m]?` (đến ${ddmm(PT[m])})`:'');
     const leg=`<div class="legend">${ins.map(i=>`<span><i style="background:${colr(i)}"></i>${esc(i)}</span>`).join('')}</div>`;
     const mm=N.months, tot=m=>N.monthly.filter(x=>x.m===m).reduce((s,x)=>s+x.p,0), get=(i,m)=>N.monthly.find(x=>x.i===i&&x.m===m)||{n:0,p:0};
     const mmK=mm.filter(m=>!N.since||m>=N.since), kyL=N.since&&mmK.length<mm.length?(mmK.length>1?mlabel(mmK[0]).split('/')[0]+'–'+mlabel(mmK[mmK.length-1]):mlabel(mmK[0])):'Cả kỳ';
     const allT=mmK.reduce((s,m)=>s+tot(m),0), allI=i=>mmK.reduce((s,m)=>s+get(i,m).p,0), allN=i=>mmK.reduce((s,m)=>s+get(i,m).n,0);
     const stackRow=(label,obj,t,extra='')=>`<div class="srow"><div class="n" title="${esc(label)}">${esc(label)}</div><div class="stack" data-tip="${esc(label)}">${ins.map(i=>{const v=obj[i]||0; return v>0?`<i style="width:${v/t*100}%;background:${colr(i)}" data-i="${esc(i)}" data-v="${v}" data-t="${t}"></i>`:''}).join('')}</div><div class="p num">${pctf((obj['BH PVI']||0)/t)}</div></div>`;
-    const monthRows=mm.map(m=>{const o={}; ins.forEach(i=>o[i]=get(i,m).p); return stackRow(mlabel(m),o,tot(m));}).join('')+(()=>{const o={}; ins.forEach(i=>o[i]=allI(i)); return stackRow(kyL,o,allT);})();
+    const monthRows=mm.map(m=>{const o={}; ins.forEach(i=>o[i]=get(i,m).p); return stackRow(ndL(m),o,tot(m));}).join('')+(()=>{const o={}; ins.forEach(i=>o[i]=allI(i)); return stackRow(kyL,o,allT);})();
     $('#ndBody').innerHTML=`
       <div class="callout w">${N.kind==='summary'
         ?`Nguồn: <b>${esc(N.file)}</b> – báo cáo tỷ trọng nhà đồng kênh VPBank RB do OPES tổng hợp hằng tháng · ${mm.length} tháng (${mm.map(mlabel).join(', ')}) đến ${ddmmyy(N.asof)} · phí chưa VAT. BH PVI tham gia từ 21/09/2026. Phần theo đơn vị, vùng, điểm bán chọn tháng ở mục <b>Kỳ xem</b>.`
@@ -635,7 +635,7 @@ function render(data){
       <div class="row2">
         <div class="card"><h2>Tỷ trọng phí theo nhà đồng</h2><div class="sub">Toàn kênh OCARCARE · cột phải = tỷ trọng BH PVI</div>${leg}${monthRows}</div>
         <div class="card"><h2>Chi tiết theo tháng</h2><div class="sub">Phí chưa VAT · HĐ</div><div class="tw"><table>
-          <thead><tr><th>Nhà đồng</th>${mm.map(m=>`<th class="r">${mlabel(m)}</th>`).join('')}<th class="r">${kyL}</th><th class="r">HĐ</th></tr></thead><tbody>
+          <thead><tr><th>Nhà đồng</th>${mm.map(m=>`<th class="r">${mlabel(m)}${PT[m]?`<div class="note" style="margin:0;font-weight:400">đến ${ddmm(PT[m])}</div>`:''}</th>`).join('')}<th class="r">${kyL}</th><th class="r">HĐ</th></tr></thead><tbody>
           ${ins.map(i=>`<tr><td><span class="legend" style="margin:0"><span><i style="background:${colr(i)}"></i>${esc(i)}</span></span></td>${mm.map(m=>`<td class="r num">${money(get(i,m).p)}<div class="note" style="margin:0">${pctf(get(i,m).p/tot(m))}</div></td>`).join('')}<td class="r num"><b>${pctf(allI(i)/allT)}</b></td><td class="r num">${vi(allN(i))}</td></tr>`).join('')}
           <tr class="tot"><td>Tổng</td>${mm.map(m=>`<td class="r num">${money(tot(m))}</td>`).join('')}<td class="r num">${money(allT)}</td><td class="r num">${vi(ins.reduce((s,i)=>s+allN(i),0))}</td></tr></tbody></table></div></div>
       </div>
@@ -656,11 +656,11 @@ function render(data){
     const aggP=arr=>{const g={}; arr.forEach(o=>{const x=(g[o.c]=g[o.c]||{c:o.c,n:o.n,v:o.v,t:0,pvi:0}); x.t+=o.t; x.pvi+=o.pvi;}); return Object.values(g);};
     let ndCur=null;
     function drawNdDet(mo){
-      const pick=mo==='ky'?kyMs:[mo], L=mo==='ky'?kyL:mlabel(mo);
+      const pick=mo==='ky'?kyMs:[mo], L=mo==='ky'?kyL:ndL(mo);
       const bu=pick.length>1?aggK(pick.flatMap(m=>DET[m].by_unit),'k'):DET[pick[0]].by_unit;
       const bv=pick.length>1?aggK(pick.flatMap(m=>DET[m].by_vung),'k'):DET[pick[0]].by_vung;
       const bp=pick.length>1?aggP(pick.flatMap(m=>DET[m].by_point)):DET[pick[0]].by_point;
-      const thr=5e7*pick.length, low=bp.filter(o=>o.t>=thr&&o.pvi/o.t<0.1).sort((a,b)=>b.t-a.t);
+      const frac=m=>PT[m]?(+PT[m].slice(8,10))/new Date(+m.slice(0,4),+m.slice(5),0).getDate():1, thr=Math.round(5e7*pick.reduce((s,m)=>s+frac(m),0)/1e6)*1e6, low=bp.filter(o=>o.t>=thr&&o.pvi/o.t<0.1).sort((a,b)=>b.t-a.t);
       ndCur={bu,bv,bp,L};
       $('#ndDet').innerHTML=`<div class="row2">
         <div class="card"><div class="hd"><div><h2>Theo đơn vị BH PVI</h2><div class="sub">Tỷ trọng các nhà đồng tại các điểm bán do đơn vị phụ trách · ${L}</div></div><button class="btn" data-csv="ndUnit">⬇ CSV</button></div>${leg}${bu.map(o=>stackRow(o.k,o.s,o.t)).join('')}</div>
@@ -674,7 +674,7 @@ function render(data){
       bindStack('#ndDet');
     }
     function bindStack(root){ document.querySelectorAll(root+' .stack i').forEach(el=>{el.addEventListener('mousemove',e=>showTip(e,`<b>${esc(el.closest('.stack').dataset.tip)}</b><br>${esc(el.dataset.i)}: ${money(+el.dataset.v)} · ${pctf(+el.dataset.v/+el.dataset.t)}`)); el.addEventListener('mouseleave',softHide); el.addEventListener('click',e=>{e.stopPropagation(); showTip(e,`<b>${esc(el.closest('.stack').dataset.tip)}</b><br>${esc(el.dataset.i)}: ${money(+el.dataset.v)} · ${pctf(+el.dataset.v/+el.dataset.t)}`);});}); }
-    $('#ndM').innerHTML=dMs.map(m=>`<option value="${m}">Tháng ${+m.slice(5)}/${m.slice(0,4)}</option>`).join('')+(kyMs.length>1?`<option value="ky">${kyL} (cộng các tháng)</option>`:'');
+    $('#ndM').innerHTML=dMs.map(m=>`<option value="${m}">Tháng ${+m.slice(5)}/${m.slice(0,4)}${PT[m]?` (đến ${ddmm(PT[m])})`:''}</option>`).join('')+(kyMs.length>1?`<option value="ky">${kyL} (cộng các tháng)</option>`:'');
     $('#ndM').value=N.detail_month&&DET[N.detail_month]?N.detail_month:dMs[0];
     $('#ndM').onchange=e=>drawNdDet(e.target.value); drawNdDet($('#ndM').value);
     document.querySelectorAll('#ndBody > .row2 .stack i').forEach(el=>{el.addEventListener('mousemove',e=>showTip(e,`<b>${esc(el.closest('.stack').dataset.tip)}</b><br>${esc(el.dataset.i)}: ${money(+el.dataset.v)} · ${pctf(+el.dataset.v/+el.dataset.t)}`)); el.addEventListener('mouseleave',softHide); el.addEventListener('click',e=>{e.stopPropagation(); showTip(e,`<b>${esc(el.closest('.stack').dataset.tip)}</b><br>${esc(el.dataset.i)}: ${money(+el.dataset.v)} · ${pctf(+el.dataset.v/+el.dataset.t)}`);});});
