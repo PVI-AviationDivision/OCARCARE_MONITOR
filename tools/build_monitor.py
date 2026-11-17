@@ -365,6 +365,9 @@ def main():
     points = []
     for code, rec in M.items():
         z = pts.get(code)
+        # House Hold: chỉ đưa vào danh sách khi đã phát sinh đơn (không tính vào điểm "chưa có đơn", độ phủ)
+        if rec["k"] == "HHB" and not (z and z["n"]):
+            continue
         points.append(dict(c=code, n=rec["n"], k=rec["k"], r=rec["r"], vg=rec["vg"], v=rec["v"], pr=rec["p"],
                            pn=z["n"] if z else 0, p=round(z["p"]) if z else 0,
                            m={k: [v[0], round(v[1])] for k, v in z["m"].items()} if z else {},

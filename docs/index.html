@@ -151,6 +151,20 @@ tbody tr:hover td{background:var(--surface2)}
 .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
 .filters select,.filters input{padding:8px 10px;border:1px solid var(--line2);border-radius:9px;background:var(--surface2);font-size:13px;min-width:0}
 .filters input{flex:1 1 180px}
+.ms{position:relative;min-width:0}
+.msb{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:170px;max-width:260px;padding:8px 10px;border:1px solid var(--line2);border-radius:9px;background:var(--surface2);font:inherit;font-size:13px;color:var(--ink);cursor:pointer;text-align:left}
+.msb span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.msb i{font-style:normal;color:var(--ink3);font-size:11px}
+.ms.on .msb{border-color:var(--brand);box-shadow:0 0 0 2px color-mix(in srgb,var(--brand) 20%,transparent)}
+.ms.f .msb{background:var(--surface);border-color:var(--brand);font-weight:600}
+.msp{position:absolute;z-index:40;top:calc(100% + 4px);left:0;width:max(100%,260px);max-width:min(340px,92vw);background:var(--surface);border:1px solid var(--line2);border-radius:12px;box-shadow:0 12px 32px #0b2a5b26;padding:8px}
+.msq{width:100%;box-sizing:border-box;padding:7px 9px;border:1px solid var(--line2);border-radius:8px;background:var(--surface2);font-size:13px;margin-bottom:6px}
+.msa{display:flex;gap:14px;padding:2px 4px 6px;border-bottom:1px solid var(--line);margin-bottom:4px}
+.msa a{font-size:12px;font-weight:600;color:var(--brand);text-decoration:none}
+.msl{max-height:300px;overflow:auto}
+.msl label{display:flex;align-items:center;gap:8px;padding:6px 6px;border-radius:7px;font-size:13px;cursor:pointer}
+.msl label:hover{background:var(--surface2)}
+.msl input{width:16px;height:16px;accent-color:var(--brand);flex:none;margin:0}
 .note{font-size:12px;color:var(--ink3);margin-top:10px}
 .mbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 14px;padding:8px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
 .mbar label{font-size:12.5px;font-weight:700;color:var(--ink2)}
@@ -304,7 +318,7 @@ tbody tr{transition:background .15s}
 </section>
 
 <section class="sec" id="pt">
-  <div class="shero"><div><h1>Điểm bán</h1><p>Toàn bộ CN, PGD, TTTC, House Hold và Hub xe trong mapping</p></div><img src="img/ic-3.webp" alt="" onerror="this.remove()"></div>
+  <div class="shero"><div><h1>Điểm bán</h1><p>CN, PGD, TTTC và Hub xe trong mapping · điểm House Hold chỉ hiện khi đã phát sinh đơn</p></div><img src="img/ic-3.webp" alt="" onerror="this.remove()"></div>
   <div class="mbar"><label for="ptM">Kỳ xem</label><select id="ptM"></select><span class="note">Số HĐBH, phí và trạng thái "Có đơn" tính theo kỳ đã chọn.</span></div>
   <div class="card">
     <div class="hd"><div><h2>Danh sách điểm bán</h2><div class="sub" id="ptSub"></div></div>
@@ -363,7 +377,7 @@ tbody tr{transition:background .15s}
 <div class="tip" id="tip"></div>
 <button id="toTop" title="Lên đầu trang" aria-label="Lên đầu trang">↑</button>
 
-<script src="data.enc.js?v=20261117141936"></script>
+<script src="data.enc.js?v=20261117153416"></script>
 <script>
 "use strict";
 const $=s=>document.querySelector(s);
@@ -435,6 +449,29 @@ function csv(name,head,rows){
   const txt='﻿'+[head,...rows].map(r=>r.map(q).join(',')).join('\r\n');
   const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([txt],{type:'text/csv;charset=utf-8'})); a.download=name+'.csv'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),2000);
 }
+
+/* bộ lọc chọn nhiều (tick nhóm) — không tick = tất cả */
+const MS={};
+function msInit(id,items,allLabel,unitName,onChange){
+  let el=document.getElementById(id);
+  if(el.tagName==='SELECT'){const d=document.createElement('div'); d.id=id; el.replaceWith(d); el=d;}
+  el.className='ms';
+  const st=MS[id]={sel:new Set(),items,allLabel,unitName};
+  el.innerHTML=`<button type="button" class="msb" aria-haspopup="true"><span></span><i>▾</i></button><div class="msp" hidden>${items.length>8?'<input class="msq" placeholder="Tìm nhanh…">':''}<div class="msa"><a href="#" data-a="all">Chọn tất cả</a><a href="#" data-a="none">Bỏ chọn</a></div><div class="msl">${items.map(([v,t])=>`<label><input type="checkbox" value="${esc(v)}"><span>${esc(t)}</span></label>`).join('')}</div></div>`;
+  const btn=el.querySelector('.msb'), pan=el.querySelector('.msp'), boxes=[...el.querySelectorAll('.msl input')];
+  const lab=()=>{const n=st.sel.size; btn.firstChild.textContent=!n||n===items.length?allLabel:n===1?(items.find(x=>String(x[0])===[...st.sel][0])||['',''])[1]:`${n} ${unitName} đã chọn`; el.classList.toggle('f',n>0&&n<items.length);};
+  const sync=()=>{st.sel=new Set(boxes.filter(b=>b.checked).map(b=>b.value)); if(st.sel.size===items.length) st.sel=new Set(); lab(); onChange&&onChange();};
+  st.set=vals=>{const V=new Set((vals||[]).map(String)); boxes.forEach(b=>b.checked=V.has(b.value)); st.sel=V; lab();};
+  btn.onclick=e=>{e.stopPropagation(); const op=pan.hidden; document.querySelectorAll('.msp').forEach(x=>{x.hidden=true; x.parentNode.classList.remove('on');}); pan.hidden=!op; el.classList.toggle('on',op); if(op){const q=el.querySelector('.msq'); if(q){q.value=''; q.dispatchEvent(new Event('input')); q.focus();}}};
+  pan.addEventListener('click',e=>{e.stopPropagation(); const a=e.target.closest('a[data-a]'); if(!a) return; e.preventDefault(); boxes.forEach(b=>{ if(!b.closest('label').hidden) b.checked=a.dataset.a==='all';}); sync();});
+  boxes.forEach(b=>b.addEventListener('change',sync));
+  const q=el.querySelector('.msq'); if(q) q.addEventListener('input',()=>{const t=fold(q.value.trim()); boxes.forEach(b=>b.closest('label').hidden=!!t&&!fold(b.nextElementSibling.textContent).includes(t));});
+  lab(); return st;
+}
+const msHas=(id,v)=>{const st=MS[id]; return !st||!st.sel.size||st.sel.has(String(v));};
+const msAny=(id,fn)=>{const st=MS[id]; return !st||!st.sel.size||[...st.sel].some(fn);};
+document.addEventListener('click',()=>document.querySelectorAll('.msp').forEach(x=>{if(!x.hidden){x.hidden=true; x.parentNode.classList.remove('on');}}));
+document.addEventListener('keydown',e=>{if(e.key==='Escape') document.querySelectorAll('.msp').forEach(x=>{x.hidden=true; x.parentNode.classList.remove('on');});});
 
 let D, CSV={};
 function render(data){
@@ -587,22 +624,23 @@ function render(data){
     requestAnimationFrame(()=>document.querySelectorAll('#tUnit .cov b').forEach(b=>b.style.width=b.dataset.w+'%'));
   }
   mOpt('#unM','Luỹ kế từ '+ddmmyy(M.start)); $('#unM').onchange=e=>{unMo=e.target.value; drawUnits();}; drawUnits();
-  $('#tUnit').addEventListener('click',e=>{const a=e.target.closest('a[data-unit]'); if(!a) return; e.preventDefault(); $('#fU').value=a.dataset.unit; $('#fS').value=''; go('pt'); drawPoints();});
+  $('#tUnit').addEventListener('click',e=>{const a=e.target.closest('a[data-unit]'); if(!a) return; e.preventDefault(); MS.fU.set([a.dataset.unit]); MS.fS.set([]); go('pt'); drawPoints();});
   CSV.units=()=>csv('ocarcare_don_vi_bh_pvi_'+(unMo||'luyke')+'_'+rd,['Kỳ','Đơn vị BH PVI','HĐBH','Phí 100% chưa VAT','Phần BH PVI',unMo?'Phí tháng '+prevOf(unMo):'Phí tháng '+curM,'Điểm có đơn','Tổng điểm','Điểm ngủ','Đơn gần nhất'],UL.map(o=>[unMo||'Luỹ kế',o.v,o.n,o.p,Math.round(o.p*share),unMo?o.cp:o.mp,o.a,o.t,o.stale,o.last||'']));
 
   /* ---------- points ---------- */
   const opt=(arr,all)=>`<option value="">${all}</option>`+arr.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join('');
-  $('#fU').innerHTML=opt(UL0x.map(o=>o.v),'Tất cả đơn vị BH PVI');
-  $('#fK').innerHTML=`<option value="">Tất cả loại</option>`+Object.keys(KIND).filter(k=>P.some(z=>z.k===k)).map(k=>`<option value="${k}">${KIND[k]}</option>`).join('');
-  $('#fV').innerHTML=opt([...new Set(P.map(z=>z.vg).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'vi',{numeric:true})),'Tất cả vùng');
-  $('#fS').options[3].textContent=`Quá ${M.stale_days} ngày chưa có đơn`;
+  const redraw=()=>drawPoints();
+  msInit('fU',UL0x.map(o=>[o.v,o.v]),'Tất cả đơn vị BH PVI','đơn vị',redraw);
+  msInit('fK',Object.keys(KIND).filter(k=>P.some(z=>z.k===k)).map(k=>[k,KIND[k]]),'Tất cả loại','loại',redraw);
+  msInit('fV',[...new Set(P.map(z=>z.vg).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'vi',{numeric:true})).map(v=>[v,v]),'Tất cả vùng','vùng',redraw);
+  msInit('fS',[['act','Có đơn'],['m','Có đơn tháng này'],['stale',`Quá ${M.stale_days} ngày chưa có đơn`],['zero','Chưa có đơn']],'Tất cả trạng thái','trạng thái',redraw);
   let sortK='p', sortD=-1, PF=[], ptMo='';
   function drawPoints(){
     const mo=ptMo, xN=z=>pv(z,mo)[0], xP=z=>pv(z,mo)[1], xM=z=>mo?z.p:(z.m[curM]?z.m[curM][1]:0);
     const cols=[['n','Điểm bán'],['k','Loại'],['vg','Vùng'],['v','Đơn vị BH PVI'],['pn',mo?'HĐBH '+kyName(mo):'HĐBH','r'],['p',mo?'Phí '+kyName(mo):'Phí 100%','r'],['mp',mo?'Phí luỹ kế':`Phí T${+curM.slice(5)}`,'r'],['last','Đơn gần nhất']];
-    const q=fold($('#fQ').value.trim()), u=$('#fU').value, kk=$('#fK').value, vv=$('#fV').value, s=$('#fS').value;
-    PF=P.filter(z=>(!q||fold(z.n+' '+z.c+' '+z.pr).includes(q))&&(!u||z.v===u)&&(!kk||z.k===kk)&&(!vv||z.vg===vv)&&
-      (!s||(s==='act'&&xN(z))||(s==='m'&&z.m[curM])||(s==='zero'&&!xN(z))||(s==='stale'&&z.pn&&ago(z.last)>M.stale_days)));
+    const q=fold($('#fQ').value.trim());
+    const stOk=z=>msAny('fS',s=>(s==='act'&&xN(z))||(s==='m'&&z.m[curM])||(s==='zero'&&!xN(z))||(s==='stale'&&z.pn&&ago(z.last)>M.stale_days));
+    PF=P.filter(z=>(!q||fold(z.n+' '+z.c+' '+z.pr).includes(q))&&msHas('fU',z.v)&&msHas('fK',z.k)&&msHas('fV',z.vg)&&stOk(z));
     const val=z=>sortK==='mp'?xM(z):sortK==='pn'?xN(z):sortK==='p'?xP(z):sortK==='last'?(z.last||''):z[sortK];
     PF.sort((a,b)=>{const x=val(a),y=val(b); return (typeof x==='string'?String(x).localeCompare(String(y),'vi'):(x-y))*sortD;});
     const a=PF.filter(z=>xN(z)).length, sp=PF.reduce((s,z)=>s+xP(z),0);
@@ -611,7 +649,7 @@ function render(data){
       (PF.length?PF.slice(0,600).map(z=>`<tr><td><b style="font-weight:600">${esc(nm(z))}</b><div class="note" style="margin:0">${esc(z.c)}${z.pr?' · '+esc(z.pr):''}</div></td><td><span class="tag">${esc(KIND[z.k]||z.k)}</span></td><td>${esc(z.vg)}</td><td>${esc(z.v)}</td><td class="r num">${xN(z)?vi(xN(z)):'—'}</td><td class="r num">${xP(z)?money(xP(z)):'—'}</td><td class="r num">${xM(z)?money(xM(z)):'—'}</td><td>${lastTag(z.last)}</td></tr>`).join(''):`<tr><td colspan="8" class="empty">Không có điểm bán phù hợp</td></tr>`)+'</tbody>';
   }
   $('#tPoint').addEventListener('click',e=>{const th=e.target.closest('th[data-k]'); if(!th) return; const k=th.dataset.k; if(sortK===k) sortD=-sortD; else {sortK=k; sortD=['n','k','vg','v'].includes(k)?1:-1;} drawPoints();});
-  ['#fQ','#fU','#fK','#fV','#fS'].forEach(s=>$(s).addEventListener('input',drawPoints));
+  $('#fQ').addEventListener('input',drawPoints);
   mOpt('#ptM','Luỹ kế từ '+ddmmyy(M.start)); $('#ptM').onchange=e=>{ptMo=e.target.value; drawPoints();};
   drawPoints();
   CSV.points=()=>{const mo=ptMo, mk_=mo||curM; csv('ocarcare_diem_ban_'+(mo||'luyke')+'_'+rd,['Mã','Điểm bán','Loại','Miền','Tỉnh','Vùng','Đơn vị BH PVI','HĐBH luỹ kế','Phí luỹ kế chưa VAT','Phần BH PVI luỹ kế','HĐBH tháng '+mk_,'Phí tháng '+mk_,'Phần BH PVI tháng '+mk_,'Đơn đầu tiên','Đơn gần nhất','Số ngày chưa có đơn mới'],
@@ -751,35 +789,38 @@ function renderContest(C){
 
   /* cá nhân */
   const units=[...new Set(ppl.map(z=>z.v).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'vi'));
-  $('#csIV').innerHTML='<option value="">Tất cả đơn vị BH PVI</option>'+units.map(u=>`<option>${esc(u)}</option>`).join('');
+
   const T=K.early.tiers;
   const norm=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').toLowerCase();
   let indRows=ppl;
   function drawI(){
-    const q=norm($('#csIQ').value), v=$('#csIV').value, st=$('#csIS').value;
-    indRows=ppl.filter(z=>(!q||norm(z.nm+' '+z.id+' '+z.u).includes(q))&&(!v||z.v===v)&&(!st||(st==='q'?z.qualified:z.bonus>0)));
+    const q=norm($('#csIQ').value);
+    indRows=ppl.filter(z=>(!q||norm(z.nm+' '+z.id+' '+z.u).includes(q))&&msHas('csIV',z.v)&&msAny('csIS',st=>st==='q'?z.qualified:z.bonus>0));
     $('#csISub').textContent=`${vi(ppl.length)} cán bộ có HĐBH · ${ppl.filter(z=>z.qualified).length} người đạt ngưỡng ${tr(K.individual.threshold)} · đang hiển thị ${vi(indRows.length)}`;
     $('#csInd').innerHTML='<thead><tr><th class="r">#</th><th>Họ tên</th><th>Mã DAO</th><th>Điểm bán</th><th>Đơn vị BH PVI</th><th class="r">HĐBH</th><th class="r">Doanh thu</th><th>Ngưỡng 125tr</th><th class="r">Suất 300K/200K/100K</th><th class="r">Thưởng sớm</th></tr></thead><tbody>'+
       indRows.map(z=>`<tr><td class="r">${z.rank}</td><td><b>${esc(z.nm||'—')}</b></td><td class="num">${esc(z.id)}</td><td>${esc(z.k==='HUB'?hubName(z.u):z.u)}</td><td>${esc(z.v)}</td><td class="r num">${z.policies}</td><td class="r num">${tr(z.premium)}</td>`+
         `<td>${z.qualified?'<span class="st g">Đạt</span>':`<span class="st n">Còn ${tr(K.individual.threshold-z.premium)}</span>`}</td><td class="r num">${(z.early||[]).join(' / ')}</td><td class="r num">${z.bonus?vi(z.bonus):'—'}</td></tr>`).join('')+'</tbody>';
   }
-  ['csIQ','csIV','csIS'].forEach(id=>$('#'+id).addEventListener('input',drawI)); drawI();
+  msInit('csIV',units.map(u=>[u,u]),'Tất cả đơn vị BH PVI','đơn vị',()=>drawI());
+  msInit('csIS',[['q','Đạt ngưỡng'],['b','Có thưởng 600 HĐ đầu']],'Tất cả','nhóm',()=>drawI());
+  $('#csIQ').addEventListener('input',drawI); drawI();
   CSV.csInd=()=>csv('chao_san_ca_nhan',['Hạng','Họ tên','Mã DAO','Điểm bán','Đơn vị BH PVI','HĐBH','Doanh thu chưa VAT','Đạt ngưỡng',...T.map(t=>'Số suất '+(t.reward/1000)+'K'),'Thưởng 600 HĐ đầu'],
     indRows.map(z=>[z.rank,z.nm,z.id,z.u,z.v,z.policies,z.premium,z.qualified?'Đạt':'',...(z.early||[]),z.bonus]));
 
   /* điểm bán */
   const bu=[...new Set(C.branches.map(b=>b.pvi).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'vi'));
-  $('#csBV').innerHTML='<option value="">Tất cả đơn vị BH PVI</option>'+bu.map(u=>`<option>${esc(u)}</option>`).join('');
+
   let brRows=C.branches;
   function drawB(){
-    const q=norm($('#csBQ').value), v=$('#csBV').value;
-    brRows=C.branches.filter(b=>(!q||norm(b.name+' '+b.id).includes(q))&&(!v||b.pvi===v));
+    const q=norm($('#csBQ').value);
+    brRows=C.branches.filter(b=>(!q||norm(b.name+' '+b.id).includes(q))&&msHas('csBV',b.pvi));
     $('#csBSub').textContent=`${C.branches.length} điểm có HĐBH · ${C.branches.filter(b=>b.qualified).length} điểm đạt ngưỡng ${tr(K.branch.threshold)} · đang hiển thị ${brRows.length}`;
     $('#csBr').innerHTML='<thead><tr><th class="r">#</th><th>Điểm bán</th><th>Loại</th><th>Miền</th><th>Đơn vị BH PVI</th><th class="r">HĐBH</th><th class="r">Doanh thu</th><th>Ngưỡng 250tr</th><th>Đơn gần nhất</th></tr></thead><tbody>'+
       brRows.map(b=>`<tr><td class="r">${b.rank}</td><td><b>${esc(b.name)}</b> <span class="tag">${esc(b.id)}</span></td><td>${esc(b.kind)}</td><td>${esc(b.region||'')}</td><td>${esc(b.pvi)}</td><td class="r num">${b.policies}</td><td class="r num">${tr(b.premium)}</td>`+
         `<td>${b.qualified?'<span class="st g">Đạt</span>':`<span class="st n">Còn ${tr(K.branch.threshold-b.premium)}</span>`}</td><td>${b.last?ddmm(b.last):''}</td></tr>`).join('')+'</tbody>';
   }
-  ['csBQ','csBV'].forEach(id=>$('#'+id).addEventListener('input',drawB)); drawB();
+  msInit('csBV',bu.map(u=>[u,u]),'Tất cả đơn vị BH PVI','đơn vị',()=>drawB());
+  $('#csBQ').addEventListener('input',drawB); drawB();
   CSV.csBr=()=>csv('chao_san_diem_ban',['Hạng','Mã CN Bank','Điểm bán','Loại','Miền','Đơn vị BH PVI','HĐBH','Doanh thu chưa VAT','Đạt ngưỡng','Đơn gần nhất'],brRows.map(b=>[b.rank,b.id,b.name,b.kind,b.region,b.pvi,b.policies,b.premium,b.qualified?'Đạt':'',b.last]));
 
   /* hub */
