@@ -9,11 +9,11 @@ echo ==============================================
 set PY=python
 where python >nul 2>nul || set PY=py
 
-rem ---- Den het 16/11/2026 (khoa so 15/11): cap nhat ca trang Sales Contest (dung chung du lieu DuLieu\)
+rem ---- Den het 30/11/2026: cap nhat ca trang Sales Contest (dung chung du lieu DuLieu\; ket qua chot o DuLieu\input_chot)
 set CONTEST=
 for /d %%F in ("D:\2. Sales Contest*") do if exist "%%F\OCarCare_Dashboard\update.bat" set "CONTEST=%%F\OCarCare_Dashboard"
 for /f %%d in ('powershell -NoProfile -Command "(Get-Date).ToString('yyyyMMdd')"') do set TODAY=%%d
-if %TODAY% LEQ 20261116 if defined CONTEST (
+if %TODAY% LEQ 20261130 if defined CONTEST (
   echo.
   echo ---- [1/2] Trang Sales Contest ----
   call "%CONTEST%\update.bat" auto

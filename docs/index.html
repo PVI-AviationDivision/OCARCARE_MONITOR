@@ -338,11 +338,11 @@ tbody tr{transition:background .15s}
 </section>
 
 <section class="sec" id="cs">
-  <div class="shero"><div><h1>Chào sân OCarCare</h1><p>Kết quả chương trình thi đua 21/09 – 31/10/2026 · số liệu tạm tính đến khi đối soát chính thức</p></div><img src="img/ic-5.webp" alt="" onerror="this.remove()"></div>
+  <div class="shero"><div><h1>Chào sân OCarCare</h1><p id="csHeroP">Kết quả chương trình thi đua 21/09 – 31/10/2026 · số liệu tạm tính đến khi đối soát chính thức</p></div><img src="img/ic-5.webp" alt="" onerror="this.remove()"></div>
   <div class="callout" id="csInfo"></div>
   <div class="grid k4 mt" id="csKpi"></div>
   <div class="card mt">
-    <div class="hd"><div><h2>Giải thưởng – tạm tính</h2><div class="sub">Xếp theo doanh thu phí chưa VAT; bằng doanh thu → ai đạt sớm hơn xếp trên. Chỉ xét người/đơn vị đạt ngưỡng.</div></div>
+    <div class="hd"><div><h2 id="csPrizeH">Giải thưởng – tạm tính</h2><div class="sub">Xếp theo doanh thu phí chưa VAT; bằng doanh thu → ai đạt sớm hơn xếp trên. Chỉ xét người/đơn vị đạt ngưỡng.</div></div>
       <button class="btn" data-csv="csPrize">⬇ Tải Excel (CSV)</button></div>
     <div class="tw"><table id="csPrize"></table></div>
   </div>
@@ -377,7 +377,7 @@ tbody tr{transition:background .15s}
 <div class="tip" id="tip"></div>
 <button id="toTop" title="Lên đầu trang" aria-label="Lên đầu trang">↑</button>
 
-<script src="data.enc.js?v=20261117153416"></script>
+<script src="data.enc.js?v=20261118085559"></script>
 <script>
 "use strict";
 const $=s=>document.querySelector(s);
@@ -758,10 +758,11 @@ function renderContest(C){
   const K=C.config, M=C.meta, I=C.indiv, F=K.final||{};
   $('#tabCs').hidden=false;
   const tr=v=>money(v);
-  $('#csInfo').innerHTML=(M.closed?`🏁 Chương trình đã kết thúc. Số liệu <b>chốt ngày ${ddmmyy(M.report_date)}</b> (HĐBH cấp 21/09 – 31/10/2026) theo báo cáo BH PVI ${esc(M.source||'')}.`
+  if(M.official){ $('#csHeroP').textContent='Kết quả chương trình thi đua 21/09 – 31/10/2026 · KẾT QUẢ CHÍNH THỨC (đã đối soát OPES – BH PVI)'; $('#csPrizeH').textContent='Giải thưởng – chính thức'; }
+  $('#csInfo').innerHTML=M.official?`🏆 <b>Kết quả chính thức</b> — file đối soát OPES – BH PVI <b>${esc(M.source||'')}</b> (HĐBH cấp 21/09 – 31/10/2026, đã trừ huỷ/giảm phí đến ${ddmmyy(F.lock_date||'2026-11-15')}). Trang thi đua mở màn tổng kết "Về đích" từ ngày <b>${ddmmyy(F.return_date||'2026-11-18')}</b>.`:(M.closed?`🏁 Chương trình đã kết thúc. Số liệu <b>chốt ngày ${ddmmyy(M.report_date)}</b> (HĐBH cấp 21/09 – 31/10/2026) theo báo cáo BH PVI ${esc(M.source||'')}.`
       :`Số liệu đến ${M.report_time?M.report_time+' ':''}${ddmmyy(M.report_date)} theo báo cáo BH PVI ${esc(M.source||'')}.`)+
     (F.lock_date?` Khoá số huỷ/giảm phí: <b>${ddmmyy(F.lock_date)}</b>.`:'')+(F.return_date?` Công bố chính thức: <b>${ddmmyy(F.return_date)}</b>.`:'')+
-    (I?`<br>Cá nhân theo Mã DAO file OPES đến ${ddmmyy(I.asof)}${I.no_dao&&I.no_dao.policies?` · <b>${I.no_dao.policies}</b> HĐBH (${tr(I.no_dao.premium)}) chưa gán được Mã DAO`:''}.`:'');
+    (M.official?'':I?`<br>Cá nhân theo Mã DAO file OPES đến ${ddmmyy(I.asof)}${I.no_dao&&I.no_dao.policies?` · <b>${I.no_dao.policies}</b> HĐBH (${tr(I.no_dao.premium)}) chưa gán được Mã DAO`:''}.`:'');
   const kp=[['Tổng HĐBH',vi(M.total_policies),'Toàn chương trình'],['Doanh thu (chưa VAT)',tr(M.total_premium),'100% phí OPES + BH PVI'],
     ['Điểm bán có đơn',vi(C.branches.filter(b=>b.policies>0).length+C.hubs.filter(h=>h.policies>0).length),'CN/PGD/TTTC/HHB + Hub xe'],
     ['Cán bộ có đơn',I?vi(I.people_count):'—',I?`Thưởng 600 HĐ đầu: ${tr(I.bonus_total)}`:'']];
@@ -784,7 +785,7 @@ function renderContest(C){
   $('#csPrize').innerHTML='<thead><tr><th>Hạng mục</th><th>Hạng</th><th>Người / đơn vị</th><th>Đơn vị</th><th class="r">Doanh thu</th><th class="r">Ngưỡng</th><th>Trạng thái</th><th class="r">Thưởng</th></tr></thead><tbody>'+
     P.map(x=>`<tr><td>${esc(x.cat)}</td><td>${esc(x.rank)}</td><td><b>${esc(x.who)}</b></td><td>${esc(x.unit)}</td><td class="r num">${x.v==null?'—':tr(x.v)}</td><td class="r num">${x.thr?tr(x.thr):''}</td><td>${x.ok?'<span class="st g">Đạt</span>':`<span class="st n">${esc(x.note)}</span>`}</td><td class="r num">${x.amt?vi(x.amt):'—'}</td></tr>`).join('')+
     `<tr><td colspan="7">Thưởng 600 HĐBH đầu tiên (300K × 300 · 200K × 200 · 100K × 100)</td><td class="r num">${vi(early)}</td></tr>`+
-    `<tr class="tot"><td colspan="7">Tổng quỹ thưởng tạm tính${TM?'':' (chưa gồm Trưởng phòng Hub)'}</td><td class="r num">${vi(sumP+early)}</td></tr></tbody>`;
+    `<tr class="tot"><td colspan="7">Tổng quỹ thưởng ${M.official?'chính thức':'tạm tính'}${TM?'':' (chưa gồm Trưởng phòng Hub)'}</td><td class="r num">${vi(sumP+early)}</td></tr></tbody>`;
   CSV.csPrize=()=>csv('chao_san_giai_thuong_tam_tinh',['Hạng mục','Hạng','Người / đơn vị','Đơn vị','Doanh thu','Ngưỡng','Đạt','Thưởng'],P.map(x=>[x.cat,x.rank,x.who,x.unit,x.v,x.thr,x.ok?'Đạt':x.note,x.amt]).concat([['Thưởng 600 HĐBH đầu','','','','','','',early]]));
 
   /* cá nhân */

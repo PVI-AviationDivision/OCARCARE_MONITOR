@@ -536,7 +536,7 @@ def main():
             cfg = CD["config"]
             keepb = ("id", "kind", "name", "region", "pvi", "premium", "policies", "last", "rank", "qualified", "first_date")
             data["contest"] = dict(
-                meta={k: CD["meta"].get(k) for k in ("report_date", "report_time", "source", "source_date", "closed",
+                meta={k: CD["meta"].get(k) for k in ("report_date", "report_time", "source", "source_date", "closed", "official",
                                                       "total_policies", "total_premium", "active_units", "generated_at")},
                 config={k: cfg.get(k) for k in ("program", "early", "individual", "branch", "hub", "final")},
                 branches=[{k: b.get(k) for k in keepb} for b in CD["branches"]],
