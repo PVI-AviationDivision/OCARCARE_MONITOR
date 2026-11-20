@@ -171,6 +171,23 @@ tbody tr:hover td{background:var(--surface2)}
 .mbar select{padding:7px 10px;border:1px solid var(--line2);border-radius:9px;background:var(--surface2);font-size:13px;font-weight:600;color:var(--ink);min-width:0}
 .mbar .note{margin:0}
 tr.sel td{background:var(--good-soft)}
+.mx td{vertical-align:top}
+.mc{min-width:92px}
+.mc b{display:block;font-weight:600;font-size:13px}
+.mc .bar{display:flex;height:6px;border-radius:3px;overflow:hidden;background:var(--grid);margin:4px 0 3px}
+.mc .bar i{display:block;height:100%}
+.mc small{font-size:11px;color:var(--ink3)}
+.mc small.hi{color:var(--good);font-weight:700}
+.mx tr.grp{cursor:pointer}
+.mx tr.grp td:first-child{font-weight:600}
+.mx tr.grp td:first-child::before{content:'▸ ';color:var(--ink3)}
+.mx tr.grp.open td:first-child::before{content:'▾ '}
+.mx tr.sub td{font-size:12px;background:var(--surface2);padding-top:5px;padding-bottom:5px}
+.mx tr.sub td:first-child{padding-left:26px}
+.dl{font-size:11.5px;font-weight:700}
+.dl.up{color:var(--good)}.dl.dn{color:var(--bad)}
+.minibar{display:flex;height:8px;width:120px;border-radius:4px;overflow:hidden;background:var(--grid)}
+.minibar i{display:block;height:100%}
 .callout{border-radius:10px;padding:10px 12px;font-size:13px;background:var(--surface2);border:1px solid var(--line);color:var(--ink2)}
 .callout.w{background:var(--warn-soft);border-color:transparent;color:var(--ink)}
 .legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--ink2);margin:6px 0 10px}
@@ -377,7 +394,7 @@ tbody tr{transition:background .15s}
 <div class="tip" id="tip"></div>
 <button id="toTop" title="Lên đầu trang" aria-label="Lên đầu trang">↑</button>
 
-<script src="data.enc.js?v=20261119090810"></script>
+<script src="data.enc.js?v=20261120081255"></script>
 <script>
 "use strict";
 const $=s=>document.querySelector(s);
@@ -677,7 +694,10 @@ function render(data){
           ${ins.map(i=>`<tr><td><span class="legend" style="margin:0"><span><i style="background:${colr(i)}"></i>${esc(i)}</span></span></td>${mm.map(m=>`<td class="r num">${money(get(i,m).p)}<div class="note" style="margin:0">${pctf(get(i,m).p/tot(m))}</div></td>`).join('')}<td class="r num"><b>${pctf(allI(i)/allT)}</b></td><td class="r num">${vi(allN(i))}</td></tr>`).join('')}
           <tr class="tot"><td>Tổng</td>${mm.map(m=>`<td class="r num">${money(tot(m))}</td>`).join('')}<td class="r num">${money(allT)}</td><td class="r num">${vi(ins.reduce((s,i)=>s+allN(i),0))}</td></tr></tbody></table></div></div>
       </div>
-      <div class="mbar mt"><label for="ndM">Kỳ xem</label><select id="ndM"></select><span class="note">Áp dụng cho phần theo đơn vị BH PVI, vùng VPBank và điểm bán bên dưới.</span></div>
+      <div class="card mt"><div class="hd"><div><h2>Tổng phí & tỷ trọng theo tháng</h2><div class="sub">Mỗi ô: tổng phí toàn kênh (chưa VAT) · thanh màu = tỷ trọng các nhà đồng · dòng dưới = tỷ trọng BH PVI. Bấm vào một dòng để xem chi tiết từng nhà đồng.</div></div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><div class="seg" id="mxMode"><button data-m="vung" class="on">Vùng VPBank</button><button data-m="unit">Đơn vị BH PVI</button></div><button class="btn" data-csv="ndMx">⬇ CSV</button></div></div>
+        ${leg}<div class="tw"><table class="mx" id="ndMx"></table></div></div>
+      <div class="mbar mt"><label for="ndM">Kỳ xem</label><select id="ndM"></select><label>Vùng</label><select id="ndFV"></select><label>Đơn vị</label><select id="ndFU"></select><span class="note">Kỳ xem áp dụng cho các phần bên dưới; bộ lọc Vùng / Đơn vị áp dụng cho danh sách điểm bán.</span></div>
       <div id="ndDet"></div>`;
     if(N.sme&&N.sme.data&&N.sme.data.length){
       const S=N.sme.data, sm=[...new Set(S.map(x=>x.m))].sort(), si=[...new Set(S.map(x=>x.i))].sort((a,b)=>S.filter(x=>x.i===b).reduce((s,x)=>s+x.p,0)-S.filter(x=>x.i===a).reduce((s,x)=>s+x.p,0));
@@ -691,15 +711,48 @@ function render(data){
     const DET=N.detail||{[N.detail_month||'_']:{by_unit:N.by_unit,by_vung:N.by_vung,by_point:N.by_point}};
     const dMs=Object.keys(DET).sort().reverse(), kyMs=dMs.filter(m=>!N.since||m>=N.since);
     const aggK=(arr,key)=>{const g={}; arr.forEach(o=>{const x=(g[o[key]]=g[o[key]]||{k:o.k,t:0,s:{}}); x.t+=o.t; for(const i in o.s) x.s[i]=(x.s[i]||0)+o.s[i];}); return Object.values(g).sort((a,b)=>b.t-a.t);};
-    const aggP=arr=>{const g={}; arr.forEach(o=>{const x=(g[o.c]=g[o.c]||{c:o.c,n:o.n,v:o.v,t:0,pvi:0}); x.t+=o.t; x.pvi+=o.pvi;}); return Object.values(g);};
+    const aggP=arr=>{const g={}; arr.forEach(o=>{const x=(g[o.c]=g[o.c]||{c:o.c,n:o.n,v:o.v,vg:o.vg,t:0,pvi:0,s:{}}); x.t+=o.t; x.pvi+=o.pvi; for(const i in (o.s||{})) x.s[i]=(x.s[i]||0)+o.s[i];}); return Object.values(g);};
+    const mini=(obj,t,w)=>`<div class="minibar"${w?` style="width:${w}px"`:''}>${ins.map(i=>{const v=(obj||{})[i]||0; return v>0?`<i style="width:${v/t*100}%;background:${colr(i)}" title="${esc(i)}: ${money(v)} · ${pctf(v/t)}"></i>`:''}).join('')}</div>`;
+    /* ---- ma trận theo tháng ---- */
+    const mxMs=dMs.slice().reverse();               // tăng dần
+    let mxMode='vung', mxRows=[];
+    function drawMx(){
+      const key=mxMode==='vung'?'by_vung':'by_unit', G={};
+      mxMs.forEach(m=>(DET[m][key]||[]).forEach(o=>{const g=(G[o.k]=G[o.k]||{k:o.k,m:{},kt:0,ks:{}}); g.m[m]={t:o.t,s:o.s}; if(!N.since||m>=N.since){g.kt+=o.t; for(const i in o.s) g.ks[i]=(g.ks[i]||0)+o.s[i];}}));
+      mxRows=Object.values(G).sort((a,b)=>b.kt-a.kt);
+      const full=mxMs.filter(m=>!PT[m]), lm=full[full.length-1], pm=full[full.length-2];
+      const cell=(o)=>{ if(!o||!o.t) return '<td class="r num" style="color:var(--ink3)">—</td>'; const sh=(o.s['BH PVI']||0)/o.t;
+        return `<td><div class="mc"><b class="num">${money(o.t)}</b>${mini(o.s,o.t,0).replace('class="minibar"','class="bar"')}<small class="${sh>=0.2?'hi':''}">BH PVI ${pctf(sh)}</small></div></td>`;};
+      const tot={m:{},kt:0,ks:{}}; mxRows.forEach(g=>{mxMs.forEach(m=>{const o=g.m[m]; if(!o) return; const x=(tot.m[m]=tot.m[m]||{t:0,s:{}}); x.t+=o.t; for(const i in o.s) x.s[i]=(x.s[i]||0)+o.s[i];}); tot.kt+=g.kt; for(const i in g.ks) tot.ks[i]=(tot.ks[i]||0)+g.ks[i];});
+      const dcell=g=>{ if(!lm||!pm) return '<td></td>'; const a=g.m[lm], b=g.m[pm]; if(!a||!a.t||!b||!b.t) return '<td class="r">—</td>'; const d=((a.s['BH PVI']||0)/a.t-(b.s['BH PVI']||0)/b.t)*100; return `<td class="r"><span class="dl ${d>=0?'up':'dn'}">${d>=0?'▲':'▼'} ${Math.abs(d).toLocaleString('vi-VN',{maximumFractionDigits:1})} điểm</span></td>`;};
+      const row=(g,cls,lab)=>`<tr class="${cls}" data-k="${esc(g.k||'')}"><td>${lab}</td>${mxMs.map(m=>cell(g.m[m])).join('')}${cell({t:g.kt,s:g.ks})}${dcell(g)}</tr>`;
+      $('#ndMx').innerHTML=`<thead><tr><th>${mxMode==='vung'?'Vùng VPBank':'Đơn vị BH PVI'}</th>${mxMs.map(m=>`<th>${mlabel(m)}${PT[m]?`<div class="note" style="margin:0;font-weight:400">đến ${ddmm(PT[m])}</div>`:''}</th>`).join('')}<th>${kyL}</th><th class="r">BH PVI ${lm&&pm?mlabel(lm).split('/')[0]+' so '+mlabel(pm).split('/')[0]:''}</th></tr></thead><tbody>`+
+        mxRows.map(g=>row(g,'grp',esc(g.k))).join('')+row(tot,'tot','Tổng')+'</tbody>';
+    }
+    $('#ndMx').addEventListener('click',e=>{const tr=e.target.closest('tr.grp'); if(!tr) return; const k=tr.dataset.k, open=tr.classList.toggle('open');
+      let n=tr.nextElementSibling; while(n&&n.classList.contains('sub')){const x=n; n=n.nextElementSibling; x.remove();}
+      if(!open) return; const g=mxRows.find(x=>x.k===k); if(!g) return;
+      const html=ins.map(i=>`<tr class="sub"><td><span class="legend" style="margin:0"><span><i style="background:${colr(i)}"></i>${esc(i)}</span></span></td>${mxMs.map(m=>{const o=g.m[m]; const v=o?(o.s[i]||0):0; return `<td class="num">${v?money(v)+`<div class="note" style="margin:0">${pctf(v/o.t)}</div>`:'—'}</td>`;}).join('')}<td class="num">${g.ks[i]?money(g.ks[i])+`<div class="note" style="margin:0">${pctf(g.ks[i]/g.kt)}</div>`:'—'}</td><td></td></tr>`).join('');
+      tr.insertAdjacentHTML('afterend',html);});
+    $('#mxMode').addEventListener('click',e=>{const b=e.target.closest('button'); if(!b) return; mxMode=b.dataset.m; $('#mxMode').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); drawMx();});
+    drawMx();
+    CSV.ndMx=()=>csv('tong_phi_ty_trong_theo_thang_'+mxMode,[mxMode==='vung'?'Vùng':'Đơn vị BH PVI','Tháng','Tổng phí chưa VAT',...ins.map(i=>i+' (phí)'),...ins.map(i=>i+' (%)')],
+      mxRows.flatMap(g=>mxMs.filter(m=>g.m[m]).map(m=>{const o=g.m[m]; return [g.k,m,o.t,...ins.map(i=>o.s[i]||0),...ins.map(i=>((o.s[i]||0)/o.t*100).toFixed(1))];})));
+    /* ---- bộ lọc điểm bán ---- */
+    const allPts=dMs.flatMap(m=>DET[m].by_point||[]);
+    msInit('ndFV',[...new Set(allPts.map(o=>o.vg||'Khác'))].sort((a,b)=>a.localeCompare(b,'vi',{numeric:true})).map(v=>[v,v]),'Tất cả vùng','vùng',()=>drawNdDet($('#ndM').value));
+    msInit('ndFU',[...new Set(allPts.map(o=>o.v||'Chưa có trong mapping'))].sort((a,b)=>a.localeCompare(b,'vi')).map(v=>[v,v]),'Tất cả đơn vị','đơn vị',()=>drawNdDet($('#ndM').value));
+    let ptSort='t', ptDir=-1, ptLimit=50;
     let ndCur=null;
     function drawNdDet(mo){
       const pick=mo==='ky'?kyMs:[mo], L=mo==='ky'?kyL:ndL(mo);
       const bu=pick.length>1?aggK(pick.flatMap(m=>DET[m].by_unit),'k'):DET[pick[0]].by_unit;
       const bv=pick.length>1?aggK(pick.flatMap(m=>DET[m].by_vung),'k'):DET[pick[0]].by_vung;
       const bp=pick.length>1?aggP(pick.flatMap(m=>DET[m].by_point)):DET[pick[0]].by_point;
-      const frac=m=>PT[m]?(+PT[m].slice(8,10))/new Date(+m.slice(0,4),+m.slice(5),0).getDate():1, thr=Math.round(5e7*pick.reduce((s,m)=>s+frac(m),0)/1e6)*1e6, low=bp.filter(o=>o.t>=thr&&o.pvi/o.t<0.1).sort((a,b)=>b.t-a.t);
-      ndCur={bu,bv,bp,L};
+      const bpF=bp.filter(o=>msHas('ndFV',o.vg||'Khác')&&msHas('ndFU',o.v||'Chưa có trong mapping'));
+      const fil=(MS.ndFV&&MS.ndFV.sel.size)||(MS.ndFU&&MS.ndFU.sel.size);
+      const frac=m=>PT[m]?(+PT[m].slice(8,10))/new Date(+m.slice(0,4),+m.slice(5),0).getDate():1, thr=Math.round(5e7*pick.reduce((s,m)=>s+frac(m),0)/1e6)*1e6, low=bpF.filter(o=>o.t>=thr&&o.pvi/o.t<0.1).sort((a,b)=>b.t-a.t);
+      ndCur={bu,bv,bp:bpF,L};
       $('#ndDet').innerHTML=`<div class="row2">
         <div class="card"><div class="hd"><div><h2>Theo đơn vị BH PVI</h2><div class="sub">Tỷ trọng các nhà đồng tại các điểm bán do đơn vị phụ trách · ${L}</div></div><button class="btn" data-csv="ndUnit">⬇ CSV</button></div>${leg}${bu.map(o=>stackRow(o.k,o.s,o.t)).join('')}</div>
         <div class="card"><div class="hd"><div><h2>Theo vùng VPBank</h2><div class="sub">Vùng KHCN theo mapping · ${L}</div></div><button class="btn" data-csv="ndVung">⬇ CSV</button></div>${leg}${bv.map(o=>stackRow(o.k,o.s,o.t)).join('')}</div>
@@ -707,9 +760,31 @@ function render(data){
       <div class="card mt"><div class="hd"><div><h2>Điểm bán có doanh thu nhà đồng khác nhưng BH PVI chiếm tỷ trọng thấp <span class="cnt">${low.length}</span></h2><div class="sub">Phí toàn kênh ≥ ${money(thr)} và tỷ trọng BH PVI &lt; 10% · cơ hội tăng tỷ trọng · ${L}</div></div><button class="btn" data-csv="ndPoint">⬇ CSV</button></div>
         <div class="tw"><table><thead><tr><th>Điểm bán</th><th>Đơn vị BH PVI</th><th class="r">Phí toàn kênh</th><th class="r">Phí BH PVI</th><th class="r">Tỷ trọng BH PVI</th></tr></thead><tbody>
         ${low.map((o,i)=>(i===20?'<tr class="morer"><td colspan="5"><button class="btn" id="ndMore">Xem thêm</button></td></tr>':'')+`<tr${i>=20?' class="xtra" hidden':''}><td>${esc(o.n)}<div class="note" style="margin:0">${esc(o.c)}</div></td><td>${esc(o.v)}</td><td class="r num">${money(o.t)}</td><td class="r num">${o.pvi?money(o.pvi):'—'}</td><td class="r num">${o.pvi?pctf(o.pvi/o.t):'<span class="st b">0%</span>'}</td></tr>`).join('')||'<tr><td colspan="5" class="empty">Không có</td></tr>'}
-        </tbody></table></div></div>`;
+        </tbody></table></div></div>
+      <div class="card mt"><div class="hd"><div><h2>Tất cả điểm bán <span class="cnt" id="ndAllC"></span></h2><div class="sub" id="ndAllS"></div></div><button class="btn" data-csv="ndAll">⬇ CSV</button></div>
+        <div class="filters"><input id="ndQ" placeholder="Tìm điểm bán / mã CN"></div>
+        <div class="tw"><table id="ndAll"></table></div></div>`;
+      drawAll(bpF,L,fil);
       const nm=$('#ndMore'); if(nm) nm.onclick=()=>{document.querySelectorAll('#ndDet tr.xtra').forEach(r=>r.hidden=false); nm.closest('tr').remove();};
       bindStack('#ndDet');
+    }
+    function drawAll(rows,L,fil){
+      const q=fold(($('#ndQ')||{value:''}).value.trim());
+      const lead=o=>{let b=null; for(const i in o.s){ if(i!=='BH PVI'&&(!b||o.s[i]>o.s[b])) b=i;} return b;};
+      const R=rows.filter(o=>!q||fold(o.n+' '+o.c).includes(q)).map(o=>({...o,sh:o.t?o.pvi/o.t:0,room:o.t-o.pvi,ld:lead(o)}));
+      const key={n:o=>o.n,vg:o=>o.vg||'',v:o=>o.v||'',t:o=>o.t,pvi:o=>o.pvi,sh:o=>o.sh,room:o=>o.room}[ptSort];
+      R.sort((a,b)=>{const x=key(a),y=key(b); return (typeof x==='string'?x.localeCompare(y,'vi',{numeric:true}):x-y)*ptDir;});
+      const T=R.reduce((s,o)=>s+o.t,0), Pv=R.reduce((s,o)=>s+o.pvi,0);
+      $('#ndAllC').textContent=R.length;
+      $('#ndAllS').textContent=`${L}${fil?' · đang lọc theo vùng/đơn vị':''} · toàn kênh ${money(T)} · BH PVI ${money(Pv)} (${pctf(T?Pv/T:0)}) · dư địa = phí toàn kênh − phí BH PVI`;
+      const cols=[['n','Điểm bán'],['vg','Vùng'],['v','Đơn vị BH PVI'],['t','Phí toàn kênh','r'],[null,'Tỷ trọng nhà đồng'],['pvi','Phí BH PVI','r'],['sh','Tỷ trọng BH PVI','r'],['room','Dư địa','r']];
+      $('#ndAll').innerHTML=`<thead><tr>${cols.map(c=>c[0]?`<th class="s ${c[2]||''}" data-k="${c[0]}">${c[1]}${ptSort===c[0]?(ptDir<0?' ↓':' ↑'):''}</th>`:`<th>${c[1]}</th>`).join('')}</tr></thead><tbody>`+
+        (R.length?R.slice(0,ptLimit).map(o=>`<tr><td><b style="font-weight:600">${esc(o.n)}</b><div class="note" style="margin:0">${esc(o.c)}</div></td><td>${esc(o.vg||'')}</td><td>${esc(o.v||'')}</td><td class="r num">${money(o.t)}</td><td>${mini(o.s,o.t)}<div class="note" style="margin:2px 0 0">${o.ld?esc(o.ld)+' '+pctf((o.s[o.ld]||0)/o.t,0):''}</div></td><td class="r num">${o.pvi?money(o.pvi):'—'}</td><td class="r num">${o.pvi?pctf(o.sh):'<span class="st b">0%</span>'}</td><td class="r num">${money(o.room)}</td></tr>`).join('')
+         +(R.length>ptLimit?`<tr class="morer"><td colspan="8"><button class="btn" id="ndAllMore">Xem thêm (${R.length-ptLimit} điểm)</button></td></tr>`:''):'<tr><td colspan="8" class="empty">Không có điểm bán phù hợp</td></tr>')+'</tbody>';
+      const mb=$('#ndAllMore'); if(mb) mb.onclick=()=>{ptLimit+=100; drawAll(rows,L,fil);};
+      $('#ndAll thead').onclick=e=>{const th=e.target.closest('th[data-k]'); if(!th) return; const k=th.dataset.k; if(ptSort===k) ptDir=-ptDir; else {ptSort=k; ptDir=['n','vg','v'].includes(k)?1:-1;} drawAll(rows,L,fil);};
+      const qi=$('#ndQ'); if(qi&&!qi._b){qi._b=1; qi.addEventListener('input',()=>{ptLimit=50; drawAll(rows,L,fil);});}
+      CSV.ndAll=()=>csv('nha_dong_tat_ca_diem_ban_'+String(L).replace(/[^\w–-]+/g,'_'),['Kỳ','Mã','Điểm bán','Vùng','Đơn vị BH PVI','Phí toàn kênh',...ins.map(i=>i+' (phí)'),'Tỷ trọng BH PVI (%)','Dư địa'],R.map(o=>[L,o.c,o.n,o.vg,o.v,o.t,...ins.map(i=>o.s[i]||0),(o.sh*100).toFixed(1),o.room]));
     }
     function bindStack(root){ document.querySelectorAll(root+' .stack i').forEach(el=>{el.addEventListener('mousemove',e=>showTip(e,`<b>${esc(el.closest('.stack').dataset.tip)}</b><br>${esc(el.dataset.i)}: ${money(+el.dataset.v)} · ${pctf(+el.dataset.v/+el.dataset.t)}`)); el.addEventListener('mouseleave',softHide); el.addEventListener('click',e=>{e.stopPropagation(); showTip(e,`<b>${esc(el.closest('.stack').dataset.tip)}</b><br>${esc(el.dataset.i)}: ${money(+el.dataset.v)} · ${pctf(+el.dataset.v/+el.dataset.t)}`);});}); }
     $('#ndM').innerHTML=dMs.map(m=>`<option value="${m}">Tháng ${+m.slice(5)}/${m.slice(0,4)}${PT[m]?` (đến ${ddmm(PT[m])})`:''}</option>`).join('')+(kyMs.length>1?`<option value="ky">${kyL} (cộng các tháng)</option>`:'');

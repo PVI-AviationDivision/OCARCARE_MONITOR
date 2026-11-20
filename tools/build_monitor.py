@@ -455,7 +455,9 @@ def main():
             bv, bu, bc = month_detail(mk)
             detail[mk] = dict(by_vung=pack(bv), by_unit=pack(bu),
                               by_point=[dict(c=k, n=(M.get(k) or {}).get("n", bn), v=(M.get(k) or {}).get("v", ""),
-                                             t=round(sum(d.values())), pvi=round(d.get("BH PVI", 0))) for k, (bn, d) in bc.items() if d])
+                                             vg=(M.get(k) or {}).get("vg") or TP[mk]["br"][k][1] or "Khác",
+                                             t=round(sum(d.values())), pvi=round(d.get("BH PVI", 0)),
+                                             s={i: round(x) for i, x in d.items() if x}) for k, (bn, d) in bc.items() if d])
         by_v, by_u, by_c = month_detail(last)
         ly, lm = int(last[:4]), int(last[5:])
         mend = (dt.date(ly + (lm == 12), lm % 12 + 1, 1) - dt.timedelta(days=1))
