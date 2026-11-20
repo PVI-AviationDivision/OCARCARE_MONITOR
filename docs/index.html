@@ -132,6 +132,7 @@ main{padding:18px 0 40px}
 .seg button{border:0;background:var(--surface);padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;color:var(--ink2)}
 .seg button.on{background:var(--brand);color:#fff}
 :root[data-theme="dark"] .seg button.on{background:#2a78d6}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .seg button.on{background:#2a78d6;color:#fff}}
 .hd{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap}
 /* tables */
 .tw{overflow-x:auto;margin:0 -16px;padding:0 16px}
@@ -172,16 +173,34 @@ tbody tr:hover td{background:var(--surface2)}
 .mbar .note{margin:0}
 tr.sel td{background:var(--good-soft)}
 .mx td{vertical-align:top}
-.mc{min-width:92px}
-.mc b{display:block;font-weight:600;font-size:13px}
-.mc .bar{display:flex;height:6px;border-radius:3px;overflow:hidden;background:var(--grid);margin:4px 0 3px}
+.mx td{padding:6px 8px}
+.mx td.hm{background:color-mix(in srgb,var(--s1) var(--a,0%),transparent)}
+.mc{min-width:96px}
+.mc b{display:block;font-weight:600;font-size:13px;line-height:1.2}
+.mc .ln{display:flex;align-items:center;gap:6px;margin-top:3px}
+.mc .bar{flex:1;display:flex;height:5px;border-radius:3px;overflow:hidden;background:var(--grid);min-width:40px}
 .mc .bar i{display:block;height:100%}
-.mc small{font-size:11px;color:var(--ink3)}
-.mc small.hi{color:var(--good);font-weight:700}
+.mc small{font-size:11px;color:var(--ink2);font-weight:700;white-space:nowrap;min-width:34px;text-align:right}
+.mxleg{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--ink3);margin:-4px 0 10px}
+.mxleg span{display:inline-block;width:110px;height:8px;border-radius:4px;background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--s1) 45%,transparent));border:1px solid var(--line)}
+.ndnav{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
+.ndnav a{font-size:12.5px;font-weight:700;padding:6px 12px;border-radius:999px;border:1px solid var(--line2);background:var(--surface);color:var(--ink2);text-decoration:none}
+.ndnav a:hover{border-color:var(--s1);color:var(--ink)}
+.nw td{white-space:nowrap}
+.ndh{display:flex;align-items:center;gap:10px;margin:26px 0 10px;scroll-margin-top:70px}
+.ndh .n{font-weight:800;font-size:12px;color:#fff;background:var(--s1);border-radius:7px;padding:3px 8px}
+.ndh h3{margin:0;font-size:17px}
+.ndh p{margin:0;font-size:12.5px;color:var(--ink3)}
+.pg{display:flex;align-items:center;gap:8px;justify-content:flex-end}
+.pg i{display:block;width:70px;height:7px;border-radius:4px;background:var(--grid);overflow:hidden;position:relative}
+.pg i b{position:absolute;inset:0 auto 0 0;background:var(--s1);border-radius:4px}
+.pg span{min-width:42px;text-align:right}
 .mx tr.grp{cursor:pointer}
 .mx tr.grp td:first-child{font-weight:600}
 .mx tr.grp td:first-child::before{content:'▸ ';color:var(--ink3)}
 .mx tr.grp.open td:first-child::before{content:'▾ '}
+.mx tr.small td{opacity:.55}
+.mx tr.um td:first-child{font-style:italic;color:var(--ink3)}
 .mx tr.sub td{font-size:12px;background:var(--surface2);padding-top:5px;padding-bottom:5px}
 .mx tr.sub td:first-child{padding-left:26px}
 .dl{font-size:11.5px;font-weight:700}
@@ -205,6 +224,14 @@ tr.sel td{background:var(--good-soft)}
 .srow{display:grid;grid-template-columns:minmax(110px,190px) 1fr 64px;gap:10px;align-items:center;padding:5px 0;font-size:12.5px}
 .srow .n{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .srow .p{text-align:right;font-weight:700}
+.srow.sz{grid-template-columns:minmax(64px,120px) 78px 1fr 52px;gap:8px}
+.srow .tz{font-size:12px;font-weight:600;white-space:nowrap}
+.srow .tz i{display:block;height:3px;border-radius:2px;background:var(--ink3);opacity:.45;margin-top:3px}
+.srow.small{opacity:.5}
+.srow.small .n::after{content:' ·';color:var(--ink3)}
+.srow.um{border-top:1px dashed var(--line2);margin-top:4px;padding-top:8px}
+.srow.um .n{color:var(--ink3);font-style:italic}
+.sznote{font-size:11.5px;color:var(--ink3);margin-top:8px}
 .empty{color:var(--ink3);padding:20px 0;text-align:center}
 .cnt{display:inline-block;min-width:22px;padding:0 6px;border-radius:999px;background:var(--surface2);border:1px solid var(--line);font-size:11px;text-align:center;margin-left:4px}
 footer{color:var(--ink3);font-size:12px;padding:10px 0 30px}
@@ -261,7 +288,7 @@ tbody tr{transition:background .15s}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.kpi .sp{clip-path:none}}
 #tPoint{min-width:820px}#tUnit{min-width:860px}
 #tWeek td:first-child,#tMonth td:first-child{white-space:nowrap}
-@media (max-width:600px){.srow{grid-template-columns:minmax(0,1fr) 56px;gap:4px 10px}.srow .stack{grid-column:1/-1;grid-row:2}}
+@media (max-width:600px){.srow,.srow.sz{grid-template-columns:minmax(0,1fr) auto 56px;gap:4px 10px}.srow .stack{grid-column:1/-1;grid-row:2}}
 @media (max-width:900px){.k4{grid-template-columns:repeat(2,minmax(0,1fr))}.row2{grid-template-columns:minmax(0,1fr)}}
 @media (max-width:480px){.kpi .v{font-size:20px}.card{padding:14px}.tw{margin:0 -14px;padding:0 14px}}
 </style>
@@ -394,7 +421,7 @@ tbody tr{transition:background .15s}
 <div class="tip" id="tip"></div>
 <button id="toTop" title="Lên đầu trang" aria-label="Lên đầu trang">↑</button>
 
-<script src="data.enc.js?v=20261120081424"></script>
+<script src="data.enc.js?v=20261120081851"></script>
 <script>
 "use strict";
 const $=s=>document.querySelector(s);
@@ -682,21 +709,30 @@ function render(data){
     const mmK=mm.filter(m=>!N.since||m>=N.since), kyL=N.since&&mmK.length<mm.length?(mmK.length>1?mlabel(mmK[0]).split('/')[0]+'–'+mlabel(mmK[mmK.length-1]):mlabel(mmK[0])):'Cả kỳ';
     const allT=mmK.reduce((s,m)=>s+tot(m),0), allI=i=>mmK.reduce((s,m)=>s+get(i,m).p,0), allN=i=>mmK.reduce((s,m)=>s+get(i,m).n,0);
     const stackRow=(label,obj,t,extra='')=>`<div class="srow"><div class="n" title="${esc(label)}">${esc(label)}</div><div class="stack" data-tip="${esc(label)}">${ins.map(i=>{const v=obj[i]||0; return v>0?`<i style="width:${v/t*100}%;background:${colr(i)}" data-i="${esc(i)}" data-v="${v}" data-t="${t}"></i>`:''}).join('')}</div><div class="p num">${pctf((obj['BH PVI']||0)/t)}</div></div>`;
+    const UMK='Chưa có trong mapping', umLast=a=>a.slice().sort((x,y)=>(x.k===UMK)-(y.k===UMK)||y.t-x.t);
+    const sizeRows=arr=>{const A=umLast(arr), T=A.reduce((s,o)=>s+o.t,0), mx=Math.max(1,...A.map(o=>o.t));
+      return A.map(o=>{const sm=T&&o.t/T<0.02&&o.k!==UMK, um=o.k===UMK;
+        return `<div class="srow sz${sm?' small':''}${um?' um':''}"${sm?' title="Quy mô nhỏ (dưới 2% tổng phí kỳ) – tỷ trọng dễ biến động"':''}><div class="n" title="${esc(o.k)}">${esc(o.k)}</div><div class="tz num">${money(o.t)}<i style="width:${o.t/mx*100}%"></i></div><div class="stack" data-tip="${esc(o.k)}">${ins.map(i=>{const v=o.s[i]||0; return v>0?`<i style="width:${v/o.t*100}%;background:${colr(i)}" data-i="${esc(i)}" data-v="${v}" data-t="${o.t}"></i>`:''}).join('')}</div><div class="p num">${pctf((o.s['BH PVI']||0)/o.t)}</div></div>`;}).join('')+
+        (A.some(o=>T&&o.t/T<0.02&&o.k!==UMK)?'<div class="sznote">Dòng mờ: quy mô nhỏ (dưới 2% tổng phí kỳ) – tỷ trọng dễ biến động, chỉ cần vài HĐ đã thay đổi lớn.</div>':'');};
     const monthRows=mm.map(m=>{const o={}; ins.forEach(i=>o[i]=get(i,m).p); return stackRow(ndL(m),o,tot(m));}).join('')+(()=>{const o={}; ins.forEach(i=>o[i]=allI(i)); return stackRow(kyL,o,allT);})();
     $('#ndBody').innerHTML=`
       <div class="callout w">${N.kind==='summary'
         ?`Nguồn: <b>${esc(N.file)}</b> – báo cáo tỷ trọng nhà đồng kênh VPBank RB do OPES tổng hợp hằng tháng · ${mm.length} tháng (${mm.map(mlabel).join(', ')}) đến ${ddmmyy(N.asof)} · phí chưa VAT. BH PVI tham gia từ 21/09/2026. Phần theo đơn vị, vùng, điểm bán chọn tháng ở mục <b>Kỳ xem</b>.`
         :`Nguồn: <b>${esc(N.file)}</b> (OPES gửi hằng tháng) · số liệu từ ${ddmm(N.min)} đến ${ddmmyy(N.asof)} · đã loại ${N.dup} dòng trùng${N.vat_adjusted?' · phí đã quy về <b>chưa VAT</b> (cột phí trong file OPES đang gồm VAT)':''}.`} Số liệu nhà đồng chỉ cập nhật khi có file mới.</div>
-      <div class="row2">
+      <div class="ndnav"><a href="#ndS1">① Toàn kênh</a><a href="#ndS2">② Theo vùng & đơn vị</a><a href="#ndS3">③ Điểm bán</a></div>
+      <div class="ndh" id="ndS1" style="margin-top:6px"><span class="n">1</span><div><h3>Toàn kênh</h3><p>Tỷ trọng các nhà đồng trên toàn kênh VPBank RB theo tháng</p></div></div>
+      <div class="grid k4" id="ndKpi"></div>
+      <div class="row2 mt">
         <div class="card"><h2>Tỷ trọng phí theo nhà đồng</h2><div class="sub">Toàn kênh OCARCARE · cột phải = tỷ trọng BH PVI</div>${leg}${monthRows}</div>
-        <div class="card"><h2>Chi tiết theo tháng</h2><div class="sub">Phí chưa VAT · HĐ</div><div class="tw"><table>
+        <div class="card"><h2>Chi tiết theo tháng</h2><div class="sub">Phí chưa VAT · HĐ</div><div class="tw"><table class="nw">
           <thead><tr><th>Nhà đồng</th>${mm.map(m=>`<th class="r">${mlabel(m)}${PT[m]?`<div class="note" style="margin:0;font-weight:400">đến ${ddmm(PT[m])}</div>`:''}</th>`).join('')}<th class="r">${kyL}</th><th class="r">HĐ</th></tr></thead><tbody>
           ${ins.map(i=>`<tr><td><span class="legend" style="margin:0"><span><i style="background:${colr(i)}"></i>${esc(i)}</span></span></td>${mm.map(m=>`<td class="r num">${money(get(i,m).p)}<div class="note" style="margin:0">${pctf(get(i,m).p/tot(m))}</div></td>`).join('')}<td class="r num"><b>${pctf(allI(i)/allT)}</b></td><td class="r num">${vi(allN(i))}</td></tr>`).join('')}
           <tr class="tot"><td>Tổng</td>${mm.map(m=>`<td class="r num">${money(tot(m))}</td>`).join('')}<td class="r num">${money(allT)}</td><td class="r num">${vi(ins.reduce((s,i)=>s+allN(i),0))}</td></tr></tbody></table></div></div>
       </div>
-      <div class="card mt"><div class="hd"><div><h2>Tổng phí & tỷ trọng theo tháng</h2><div class="sub">Mỗi ô: tổng phí toàn kênh (chưa VAT) · thanh màu = tỷ trọng các nhà đồng · dòng dưới = tỷ trọng BH PVI. Bấm vào một dòng để xem chi tiết từng nhà đồng.</div></div>
+      <div class="ndh" id="ndS2"><span class="n">2</span><div><h3>Theo vùng & đơn vị</h3><p>Tổng phí, tỷ trọng theo tháng và cơ cấu nhà đồng theo kỳ xem</p></div></div>
+      <div class="card"><div class="hd"><div><h2>Tổng phí & tỷ trọng theo tháng</h2><div class="sub">Mỗi ô: tổng phí toàn kênh (chưa VAT) · thanh màu = cơ cấu nhà đồng · số % = tỷ trọng BH PVI. Bấm vào một dòng để xem chi tiết từng nhà đồng.</div></div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><div class="seg" id="mxMode"><button data-m="vung" class="on">Vùng VPBank</button><button data-m="unit">Đơn vị BH PVI</button></div><button class="btn" data-csv="ndMx">⬇ CSV</button></div></div>
-        ${leg}<div class="tw"><table class="mx" id="ndMx"></table></div></div>
+        ${leg}<div class="mxleg">Màu nền ô = tỷ trọng BH PVI: 0% <span></span> ≥ 40%</div><div class="tw"><table class="mx" id="ndMx"></table></div></div>
       <div class="mbar mt"><label for="ndM">Kỳ xem</label><select id="ndM"></select><label>Vùng</label><select id="ndFV"></select><label>Đơn vị</label><select id="ndFU"></select><span class="note">Kỳ xem áp dụng cho các phần bên dưới; bộ lọc Vùng / Đơn vị áp dụng cho danh sách điểm bán.</span></div>
       <div id="ndDet"></div>`;
     if(N.sme&&N.sme.data&&N.sme.data.length){
@@ -719,13 +755,14 @@ function render(data){
     function drawMx(){
       const key=mxMode==='vung'?'by_vung':'by_unit', G={};
       mxMs.forEach(m=>(DET[m][key]||[]).forEach(o=>{const g=(G[o.k]=G[o.k]||{k:o.k,m:{},kt:0,ks:{}}); g.m[m]={t:o.t,s:o.s}; if(!N.since||m>=N.since){g.kt+=o.t; for(const i in o.s) g.ks[i]=(g.ks[i]||0)+o.s[i];}}));
-      mxRows=Object.values(G).sort((a,b)=>b.kt-a.kt);
+      mxRows=Object.values(G).sort((a,b)=>(a.k===UMK)-(b.k===UMK)||b.kt-a.kt);
+      const KT=mxRows.reduce((s,g)=>s+g.kt,0);
       const full=mxMs.filter(m=>!PT[m]), lm=full[full.length-1], pm=full[full.length-2];
       const cell=(o)=>{ if(!o||!o.t) return '<td class="r num" style="color:var(--ink3)">—</td>'; const sh=(o.s['BH PVI']||0)/o.t;
-        return `<td><div class="mc"><b class="num">${money(o.t)}</b>${mini(o.s,o.t,0).replace('class="minibar"','class="bar"')}<small class="${sh>=0.2?'hi':''}">BH PVI ${pctf(sh)}</small></div></td>`;};
+        return `<td class="hm" style="--a:${Math.round(Math.min(sh/0.4,1)*45)}%" title="BH PVI ${pctf(sh)} · ${money(o.s['BH PVI']||0)}"><div class="mc"><b class="num">${money(o.t)}</b><div class="ln">${mini(o.s,o.t,0).replace('class="minibar"','class="bar"')}<small>${pctf(sh,0)}</small></div></div></td>`;};
       const tot={m:{},kt:0,ks:{}}; mxRows.forEach(g=>{mxMs.forEach(m=>{const o=g.m[m]; if(!o) return; const x=(tot.m[m]=tot.m[m]||{t:0,s:{}}); x.t+=o.t; for(const i in o.s) x.s[i]=(x.s[i]||0)+o.s[i];}); tot.kt+=g.kt; for(const i in g.ks) tot.ks[i]=(tot.ks[i]||0)+g.ks[i];});
       const dcell=g=>{ if(!lm||!pm) return '<td></td>'; const a=g.m[lm], b=g.m[pm]; if(!a||!a.t||!b||!b.t) return '<td class="r">—</td>'; const d=((a.s['BH PVI']||0)/a.t-(b.s['BH PVI']||0)/b.t)*100; return `<td class="r"><span class="dl ${d>=0?'up':'dn'}">${d>=0?'▲':'▼'} ${Math.abs(d).toLocaleString('vi-VN',{maximumFractionDigits:1})} điểm</span></td>`;};
-      const row=(g,cls,lab)=>`<tr class="${cls}" data-k="${esc(g.k||'')}"><td>${lab}</td>${mxMs.map(m=>cell(g.m[m])).join('')}${cell({t:g.kt,s:g.ks})}${dcell(g)}</tr>`;
+      const row=(g,cls,lab)=>`<tr class="${cls}${cls==='grp'&&g.k!==UMK&&KT&&g.kt/KT<0.02?' small':''}${g.k===UMK?' um':''}" data-k="${esc(g.k||'')}"${cls==='grp'&&KT&&g.kt/KT<0.02?' title="Quy mô nhỏ (dưới 2% tổng phí kỳ) – tỷ trọng dễ biến động"':''}><td>${lab}</td>${mxMs.map(m=>cell(g.m[m])).join('')}${cell({t:g.kt,s:g.ks})}${dcell(g)}</tr>`;
       $('#ndMx').innerHTML=`<thead><tr><th>${mxMode==='vung'?'Vùng VPBank':'Đơn vị BH PVI'}</th>${mxMs.map(m=>`<th>${mlabel(m)}${PT[m]?`<div class="note" style="margin:0;font-weight:400">đến ${ddmm(PT[m])}</div>`:''}</th>`).join('')}<th>${kyL}</th><th class="r">BH PVI ${lm&&pm?mlabel(lm).split('/')[0]+' so '+mlabel(pm).split('/')[0]:''}</th></tr></thead><tbody>`+
         mxRows.map(g=>row(g,'grp',esc(g.k))).join('')+row(tot,'tot','Tổng')+'</tbody>';
     }
@@ -736,6 +773,19 @@ function render(data){
       tr.insertAdjacentHTML('afterend',html);});
     $('#mxMode').addEventListener('click',e=>{const b=e.target.closest('button'); if(!b) return; mxMode=b.dataset.m; $('#mxMode').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); drawMx();});
     drawMx();
+    document.querySelectorAll('#ndBody .ndnav a').forEach(x=>x.onclick=e=>{e.preventDefault(); const t=document.getElementById(x.getAttribute('href').slice(1)); if(t) t.scrollIntoView({behavior:'smooth',block:'start'});});
+    /* ---- thẻ số liệu đầu tab ---- */
+    (function(){
+      const lm=mm[mm.length-1], pm=mm[mm.length-2], tl=tot(lm), tp=pm?tot(pm):0, sl=tl?get('BH PVI',lm).p/tl:0, sp=tp?get('BH PVI',pm).p/tp:0;
+      const pts=(DET[lm]&&DET[lm].by_point)||[], lead=pts.filter(o=>{const v=o.s||{}; const b=v['BH PVI']||0; return b>0&&Object.entries(v).every(([i,x])=>i==='BH PVI'||x<=b);}).length;
+      const room=tl-get('BH PVI',lm).p, d=(sl-sp)*100;
+      const K=(l,v,dd,dl)=>`<div class="card kpi"><div class="kt"><div class="l">${l}</div>${dl||''}</div><div class="v num">${v}</div><div class="d">${dd}</div></div>`;
+      $('#ndKpi').innerHTML=
+        K(`Tỷ trọng BH PVI · ${ndL(lm)}`,pctf(sl),pm?`${mlabel(pm)}: ${pctf(sp)}`:'',pm?`<span class="dl ${d>=0?'up':'dn'}">${d>=0?'▲':'▼'} ${Math.abs(d).toLocaleString('vi-VN',{maximumFractionDigits:1})} điểm</span>`:'')+
+        K(`Tổng phí toàn kênh · ${mlabel(lm)}`,money(tl),`BH PVI: ${money(get('BH PVI',lm).p)}`+(PT[lm]?` · số liệu đến ${ddmm(PT[lm])}`:''))+
+        K(`Dư địa · ${mlabel(lm)}`,money(room),'Phí toàn kênh chưa về BH PVI')+
+        K(`Điểm BH PVI dẫn đầu · ${mlabel(lm)}`,`${vi(lead)}/${vi(pts.length)}`,'Điểm bán BH PVI có phí cao nhất trong các nhà đồng');
+    })();
     CSV.ndMx=()=>csv('tong_phi_ty_trong_theo_thang_'+mxMode,[mxMode==='vung'?'Vùng':'Đơn vị BH PVI','Tháng','Tổng phí chưa VAT',...ins.map(i=>i+' (phí)'),...ins.map(i=>i+' (%)')],
       mxRows.flatMap(g=>mxMs.filter(m=>g.m[m]).map(m=>{const o=g.m[m]; return [g.k,m,o.t,...ins.map(i=>o.s[i]||0),...ins.map(i=>((o.s[i]||0)/o.t*100).toFixed(1))];})));
     /* ---- bộ lọc điểm bán ---- */
@@ -754,10 +804,11 @@ function render(data){
       const frac=m=>PT[m]?(+PT[m].slice(8,10))/new Date(+m.slice(0,4),+m.slice(5),0).getDate():1, thr=Math.round(5e7*pick.reduce((s,m)=>s+frac(m),0)/1e6)*1e6, low=bpF.filter(o=>o.t>=thr&&o.pvi/o.t<0.1).sort((a,b)=>b.t-a.t);
       ndCur={bu,bv,bp:bpF,L};
       $('#ndDet').innerHTML=`<div class="row2">
-        <div class="card"><div class="hd"><div><h2>Theo đơn vị BH PVI</h2><div class="sub">Tỷ trọng các nhà đồng tại các điểm bán do đơn vị phụ trách · ${L}</div></div><button class="btn" data-csv="ndUnit">⬇ CSV</button></div>${leg}${bu.map(o=>stackRow(o.k,o.s,o.t)).join('')}</div>
-        <div class="card"><div class="hd"><div><h2>Theo vùng VPBank</h2><div class="sub">Vùng KHCN theo mapping · ${L}</div></div><button class="btn" data-csv="ndVung">⬇ CSV</button></div>${leg}${bv.map(o=>stackRow(o.k,o.s,o.t)).join('')}</div>
+        <div class="card"><div class="hd"><div><h2>Theo đơn vị BH PVI</h2><div class="sub">Tổng phí (thanh xám = quy mô) · cơ cấu nhà đồng · tỷ trọng BH PVI · ${L}</div></div><button class="btn" data-csv="ndUnit">⬇ CSV</button></div>${leg}${sizeRows(bu)}</div>
+        <div class="card"><div class="hd"><div><h2>Theo vùng VPBank</h2><div class="sub">Vùng KHCN theo mapping · tổng phí (thanh xám = quy mô) · cơ cấu nhà đồng · ${L}</div></div><button class="btn" data-csv="ndVung">⬇ CSV</button></div>${leg}${sizeRows(bv)}</div>
       </div>
-      <div class="card mt"><div class="hd"><div><h2>Điểm bán có doanh thu nhà đồng khác nhưng BH PVI chiếm tỷ trọng thấp <span class="cnt">${low.length}</span></h2><div class="sub">Phí toàn kênh ≥ ${money(thr)} và tỷ trọng BH PVI &lt; 10% · cơ hội tăng tỷ trọng · ${L}</div></div><button class="btn" data-csv="ndPoint">⬇ CSV</button></div>
+      <div class="ndh" id="ndS3"><span class="n">3</span><div><h3>Điểm bán</h3><p>Điểm nhiều dư địa và danh sách đầy đủ · ${L}</p></div></div>
+      <div class="card"><div class="hd"><div><h2>Điểm bán có doanh thu nhà đồng khác nhưng BH PVI chiếm tỷ trọng thấp <span class="cnt">${low.length}</span></h2><div class="sub">Phí toàn kênh ≥ ${money(thr)} và tỷ trọng BH PVI &lt; 10% · cơ hội tăng tỷ trọng · ${L}</div></div><button class="btn" data-csv="ndPoint">⬇ CSV</button></div>
         <div class="tw"><table><thead><tr><th>Điểm bán</th><th>Đơn vị BH PVI</th><th class="r">Phí toàn kênh</th><th class="r">Phí BH PVI</th><th class="r">Tỷ trọng BH PVI</th></tr></thead><tbody>
         ${low.map((o,i)=>(i===20?'<tr class="morer"><td colspan="5"><button class="btn" id="ndMore">Xem thêm</button></td></tr>':'')+`<tr${i>=20?' class="xtra" hidden':''}><td>${esc(o.n)}<div class="note" style="margin:0">${esc(o.c)}</div></td><td>${esc(o.v)}</td><td class="r num">${money(o.t)}</td><td class="r num">${o.pvi?money(o.pvi):'—'}</td><td class="r num">${o.pvi?pctf(o.pvi/o.t):'<span class="st b">0%</span>'}</td></tr>`).join('')||'<tr><td colspan="5" class="empty">Không có</td></tr>'}
         </tbody></table></div></div>
@@ -779,7 +830,7 @@ function render(data){
       $('#ndAllS').textContent=`${L}${fil?' · đang lọc theo vùng/đơn vị':''} · toàn kênh ${money(T)} · BH PVI ${money(Pv)} (${pctf(T?Pv/T:0)}) · dư địa = phí toàn kênh − phí BH PVI`;
       const cols=[['n','Điểm bán'],['vg','Vùng'],['v','Đơn vị BH PVI'],['t','Phí toàn kênh','r'],[null,'Tỷ trọng nhà đồng'],['pvi','Phí BH PVI','r'],['sh','Tỷ trọng BH PVI','r'],['room','Dư địa','r']];
       $('#ndAll').innerHTML=`<thead><tr>${cols.map(c=>c[0]?`<th class="s ${c[2]||''}" data-k="${c[0]}">${c[1]}${ptSort===c[0]?(ptDir<0?' ↓':' ↑'):''}</th>`:`<th>${c[1]}</th>`).join('')}</tr></thead><tbody>`+
-        (R.length?R.slice(0,ptLimit).map(o=>`<tr><td><b style="font-weight:600">${esc(o.n)}</b><div class="note" style="margin:0">${esc(o.c)}</div></td><td>${esc(o.vg||'')}</td><td>${esc(o.v||'')}</td><td class="r num">${money(o.t)}</td><td>${mini(o.s,o.t)}<div class="note" style="margin:2px 0 0">${o.ld?esc(o.ld)+' '+pctf((o.s[o.ld]||0)/o.t,0):''}</div></td><td class="r num">${o.pvi?money(o.pvi):'—'}</td><td class="r num">${o.pvi?pctf(o.sh):'<span class="st b">0%</span>'}</td><td class="r num">${money(o.room)}</td></tr>`).join('')
+        (R.length?R.slice(0,ptLimit).map(o=>`<tr><td><b style="font-weight:600">${esc(o.n)}</b><div class="note" style="margin:0">${esc(o.c)}</div></td><td>${esc(o.vg||'')}</td><td>${esc(o.v||'')}</td><td class="r num">${money(o.t)}</td><td>${mini(o.s,o.t)}<div class="note" style="margin:2px 0 0">${o.ld?esc(o.ld)+' '+pctf((o.s[o.ld]||0)/o.t,0):''}</div></td><td class="r num">${o.pvi?money(o.pvi):'—'}</td><td class="r num">${o.pvi?`<div class="pg"><i><b style="width:${Math.min(o.sh,1)*100}%"></b></i><span>${pctf(o.sh)}</span></div>`:'<span class="st b">0%</span>'}</td><td class="r num">${money(o.room)}</td></tr>`).join('')
          +(R.length>ptLimit?`<tr class="morer"><td colspan="8"><button class="btn" id="ndAllMore">Xem thêm (${R.length-ptLimit} điểm)</button></td></tr>`:''):'<tr><td colspan="8" class="empty">Không có điểm bán phù hợp</td></tr>')+'</tbody>';
       const mb=$('#ndAllMore'); if(mb) mb.onclick=()=>{ptLimit+=100; drawAll(rows,L,fil);};
       $('#ndAll thead').onclick=e=>{const th=e.target.closest('th[data-k]'); if(!th) return; const k=th.dataset.k; if(ptSort===k) ptDir=-ptDir; else {ptSort=k; ptDir=['n','vg','v'].includes(k)?1:-1;} drawAll(rows,L,fil);};

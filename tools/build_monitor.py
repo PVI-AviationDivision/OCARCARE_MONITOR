@@ -446,7 +446,7 @@ def main():
                 rec = M.get(code)
                 d = {i: v for i, v in d.items() if i in insurers}
                 for i, v in d.items():
-                    by_v[(rec or {}).get("vg") or vung or "Khác"][i] += v
+                    by_v[((rec or {}).get("vg") or "Khác") if rec else "Chưa có trong mapping"][i] += v
                     by_u[(rec or {}).get("v") or "Chưa có trong mapping"][i] += v
                 by_c[code] = (bname, d)
             return by_v, by_u, by_c
@@ -455,7 +455,7 @@ def main():
             bv, bu, bc = month_detail(mk)
             detail[mk] = dict(by_vung=pack(bv), by_unit=pack(bu),
                               by_point=[dict(c=k, n=(M.get(k) or {}).get("n", bn), v=(M.get(k) or {}).get("v", ""),
-                                             vg=(M.get(k) or {}).get("vg") or TP[mk]["br"][k][1] or "Khác",
+                                             vg=((M.get(k) or {}).get("vg") or "Khác") if M.get(k) else "Chưa có trong mapping",
                                              t=round(sum(d.values())), pvi=round(d.get("BH PVI", 0)),
                                              s={i: round(x) for i, x in d.items() if x}) for k, (bn, d) in bc.items() if d])
         by_v, by_u, by_c = month_detail(last)
